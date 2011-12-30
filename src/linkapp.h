@@ -49,6 +49,7 @@ private:
 	bool wrapper;
 	bool dontleave;
 
+	void start();
 	void launch(
 			const std::string &selectedFile = "",
 			const std::string &selectedDir = "");
@@ -57,7 +58,6 @@ public:
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
 			const char* linkfile);
 	virtual const std::string &searchIcon();
-	virtual void run();
 
 	const std::string &getExec();
 	void setExec(const std::string &exec);

@@ -31,9 +31,10 @@
 using namespace std;
 using namespace fastdelegate;
 
-Link::Link(GMenu2X *gmenu2x_, Touchscreen &ts)
+Link::Link(GMenu2X *gmenu2x_, Touchscreen &ts, LinkRunAction action_)
 	: Button(ts, true)
 	, gmenu2x(gmenu2x_)
+	, action(action_)
 {
 	action = MakeDelegate(this, &Link::run);
 	edited = false;
@@ -139,4 +140,8 @@ void Link::setPosition(int x, int y) {
 void Link::recalcCoordinates() {
 	iconX = rect.x+(rect.w-32)/2;
 	padding = (gmenu2x->skinConfInt["linkHeight"] - 32 - gmenu2x->font->getLineHeight()) / 3;
+}
+
+void Link::run() {
+	this->action();
 }

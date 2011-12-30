@@ -22,12 +22,15 @@
 #define LINK_H
 
 #include "button.h"
+#include "FastDelegate.h"
 
 #include <string>
 
+class GMenu2X;
 class Surface;
 
-class GMenu2X;
+typedef fastdelegate::FastDelegate0<> LinkRunAction;
+
 
 /**
 Base class that represents a link on screen.
@@ -36,6 +39,7 @@ Base class that represents a link on screen.
 */
 class Link : public Button {
 private:
+	LinkRunAction action;
 	uint iconX, padding;
 
 protected:
@@ -50,7 +54,7 @@ protected:
 	void updateSurfaces();
 
 public:
-	Link(GMenu2X *gmenu2x, Touchscreen &ts);
+	Link(GMenu2X *gmenu2x, Touchscreen &ts, LinkRunAction action);
 	virtual ~Link() {};
 
 	virtual void paint();
@@ -69,7 +73,7 @@ public:
 	const std::string &getIconPath();
 	void setIconPath(const std::string &icon);
 
-	virtual void run() = 0;
+	void run();
 };
 
 #endif

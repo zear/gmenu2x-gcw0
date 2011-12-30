@@ -21,7 +21,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "linkaction.h"
+#include "link.h"
 
 #include <string>
 #include <vector>

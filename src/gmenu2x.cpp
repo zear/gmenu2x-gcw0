@@ -28,7 +28,6 @@
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "inputdialog.h"
-#include "linkaction.h"
 #include "linkapp.h"
 #include "menu.h"
 #include "menusettingbool.h"

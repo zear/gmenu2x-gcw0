@@ -36,11 +36,12 @@
 #include <fstream>
 #include <sstream>
 
+using fastdelegate::MakeDelegate;
 using namespace std;
 
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				 const char* linkfile)
-	: Link(gmenu2x_, ts)
+	: Link(gmenu2x_, ts, MakeDelegate(this, &LinkApp::start))
 	, inputMgr(inputMgr_)
 {
 	manual = "";
@@ -202,7 +203,7 @@ void LinkApp::drawRun() {
 	gmenu2x->s->flip();
 }
 
-void LinkApp::run() {
+void LinkApp::start() {
 	if (selectordir!="")
 		selector();
 	else

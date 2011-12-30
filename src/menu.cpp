@@ -173,14 +173,14 @@ void Menu::setSectionIndex(int i) {
 bool Menu::addActionLink(uint section, const string &title, LinkRunAction action, const string &description, const string &icon) {
 	if (section>=sections.size()) return false;
 
-	LinkAction *linkact = new LinkAction(gmenu2x, ts, action);
-	linkact->setSize(gmenu2x->skinConfInt["linkWidth"],gmenu2x->skinConfInt["linkHeight"]);
-	linkact->setTitle(title);
-	linkact->setDescription(description);
+	Link *link = new Link(gmenu2x, ts, action);
+	link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
+	link->setTitle(title);
+	link->setDescription(description);
 	if (gmenu2x->sc.exists(icon) || (icon.substr(0,5)=="skin:" && !gmenu2x->sc.getSkinFilePath(icon.substr(5,icon.length())).empty()) || fileExists(icon))
-	linkact->setIcon(icon);
+	link->setIcon(icon);
 
-	sectionLinks(section)->push_back(linkact);
+	sectionLinks(section)->push_back(link);
 	return true;
 }
 

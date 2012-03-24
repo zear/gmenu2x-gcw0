@@ -23,6 +23,8 @@
 
 #include <SDL_gfxPrimitives.h>
 
+#include <unistd.h>
+
 using namespace std;
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon) {

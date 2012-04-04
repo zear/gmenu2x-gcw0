@@ -1,4 +1,0 @@
-title=freedroid
-exec=/usr/bin/freedroid
-icon=skin:icons/freedroid.png
-params=-q

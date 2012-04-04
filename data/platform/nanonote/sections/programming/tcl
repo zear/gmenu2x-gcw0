@@ -1,3 +1,0 @@
-title=tcl
-icon=skin:icons/tclsh.png
-exec=/usr/bin/tclsh8.5

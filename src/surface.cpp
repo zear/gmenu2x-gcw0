@@ -146,15 +146,15 @@ bool Surface::blitRight(Surface *destination, int x, int y, int w, int h, int a)
 	return blitRight(destination->raw,x,y,w,h,a);
 }
 
-int Surface::box(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-	return boxRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
+int Surface::box(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+	return boxRGBA(raw, x, y, x + w - 1, y + h - 1, r, g, b, a);
 }
-int Surface::box(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b) {
-	SDL_Rect re = {x,y,w,h};
-	return SDL_FillRect(raw, &re, SDL_MapRGBA(raw->format,r,g,b,255));
+int Surface::box(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b) {
+	SDL_Rect re = { x, y, w, h };
+	return SDL_FillRect(raw, &re, SDL_MapRGBA(raw->format, r, g, b, 255));
 }
-int Surface::box(Sint16 x, Sint16 y, Sint16 w, Sint16 h, RGBAColor c) {
-	return box(x,y,w,h,c.r,c.g,c.b,c.a);
+int Surface::box(Sint16 x, Sint16 y, Uint16 w, Uint16 h, RGBAColor c) {
+	return box(x, y, w, h, c.r, c.g, c.b, c.a);
 }
 int Surface::box(SDL_Rect re, RGBAColor c) {
 	return boxRGBA(
@@ -162,18 +162,18 @@ int Surface::box(SDL_Rect re, RGBAColor c) {
 		);
 }
 
-int Surface::rectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-	return rectangleRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
+int Surface::rectangle(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+	return rectangleRGBA(raw, x, y, x + w - 1, y + h - 1, r, g, b, a);
 }
-int Surface::rectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, RGBAColor c) {
-	return rectangle(x,y,w,h,c.r,c.g,c.b,c.a);
+int Surface::rectangle(Sint16 x, Sint16 y, Uint16 w, Uint16 h, RGBAColor c) {
+	return rectangle(x, y, w, h, c.r, c.g, c.b, c.a);
 }
 int Surface::rectangle(SDL_Rect re, RGBAColor c) {
-	return rectangle(re.x,re.y,re.w,re.h,c.r,c.g,c.b,c.a);
+	return rectangle(re.x, re.y, re.w, re.h, c.r, c.g, c.b, c.a);
 }
 
-int Surface::hline(Sint16 x, Sint16 y, Sint16 w, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-	return hlineRGBA(raw,x,x+w-1,y,r,g,b,a);
+int Surface::hline(Sint16 x, Sint16 y, Uint16 w, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+	return hlineRGBA(raw, x, x + w - 1, y, r, g, b, a);
 }
 
 void Surface::clearClipRect() {

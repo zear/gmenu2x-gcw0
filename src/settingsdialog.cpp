@@ -36,15 +36,18 @@ SettingsDialog::SettingsDialog(
 	, ts(ts_)
 	, text(text_)
 {
-	if (icon!="" && gmenu2x->sc[icon] != NULL)
+	if (icon != "" && gmenu2x->sc[icon] != NULL) {
 		this->icon = icon;
-	else
+	} else {
 		this->icon = "icons/generic.png";
+	}
 }
 
 SettingsDialog::~SettingsDialog() {
-	for (vector<MenuSetting *>::iterator it = voices.begin(); it != voices.end(); ++it)
+	for (vector<MenuSetting *>::iterator it = voices.begin();
+			it != voices.end(); ++it) {
 		delete *it;
+	}
 }
 
 bool SettingsDialog::exec() {
@@ -52,13 +55,14 @@ bool SettingsDialog::exec() {
 	bg.convertToDisplayFormat();
 
 	bool close = false, ts_pressed = false;
-	uint i, sel = 0, iY, firstElement = 0;
+	uint i, sel = 0, firstElement = 0;
 	voices[sel]->adjustInput();
 
-	SDL_Rect clipRect = {0, gmenu2x->skinConfInt["topBarHeight"]+1, gmenu2x->resX-9, gmenu2x->resY-gmenu2x->skinConfInt["topBarHeight"]-25};
-	SDL_Rect touchRect = {2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, clipRect.h};
-	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
-	uint numRows = (gmenu2x->resY-gmenu2x->skinConfInt["topBarHeight"]-20)/rowHeight;
+	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
+	SDL_Rect clipRect = { 0, topBarHeight + 1, gmenu2x->resX - 9, gmenu2x->resY - topBarHeight - 25 };
+	SDL_Rect touchRect = { 2, topBarHeight + 4, gmenu2x->resX - 12, clipRect.h };
+	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	uint numRows = (gmenu2x->resY - topBarHeight - 20) / rowHeight;
 
 	while (!close) {
 		if (ts.available()) ts.poll();
@@ -76,30 +80,42 @@ bool SettingsDialog::exec() {
 		if (sel<firstElement) firstElement=sel;
 
 		//selection
-		iY = sel-firstElement;
-		iY = gmenu2x->skinConfInt["topBarHeight"]+2+(iY*rowHeight);
+		uint iY = topBarHeight + 2 + (sel - firstElement) * rowHeight;
 		gmenu2x->s->setClipRect(clipRect);
-		if (sel<voices.size())
-			gmenu2x->s->box(1, iY, 148, rowHeight-2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		if (sel<voices.size()) {
+			gmenu2x->s->box(
+				1, iY, 148, rowHeight - 2,
+				gmenu2x->skinConfColors[COLOR_SELECTION_BG]
+			);
+		}
 		gmenu2x->s->clearClipRect();
 
 		//selected option
 		voices[sel]->drawSelected(iY);
 
 		gmenu2x->s->setClipRect(clipRect);
-		if (ts_pressed && !ts.pressed()) ts_pressed = false;
-		if (ts.available() && ts.pressed() && !ts.inRect(touchRect)) ts_pressed = false;
+		if (ts_pressed && !ts.pressed()) {
+			ts_pressed = false;
+		}
+		if (ts.available() && ts.pressed() && !ts.inRect(touchRect)) {
+			ts_pressed = false;
+		}
 		for (i=firstElement; i<voices.size() && i<firstElement+numRows; i++) {
 			iY = i-firstElement;
-			voices[i]->draw(iY*rowHeight+gmenu2x->skinConfInt["topBarHeight"]+2);
-			if (ts.available() && ts.pressed() && ts.inRect(touchRect.x, touchRect.y+(iY*rowHeight), touchRect.w, rowHeight)) {
+			voices[i]->draw(iY * rowHeight + topBarHeight + 2);
+			if (ts.available() && ts.pressed() && ts.inRect(
+					touchRect.x, touchRect.y + (iY * rowHeight),
+					touchRect.w, rowHeight
+					)) {
 				ts_pressed = true;
 				sel = i;
 			}
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(numRows,voices.size(),firstElement,clipRect.y+1,clipRect.h);
+		gmenu2x->drawScrollBar(
+			numRows, voices.size(), firstElement, clipRect.y + 1, clipRect.h
+		);
 
 		//description
 		writeSubTitle(voices[sel]->getDescription());
@@ -114,10 +130,11 @@ bool SettingsDialog::exec() {
 					close = true;
 					break;
 				case InputManager::UP:
-					if (sel==0)
-						sel = voices.size()-1;
-					else
+					if (sel == 0) {
+						sel = voices.size() - 1;
+					} else {
 						sel -= 1;
+					}
 					gmenu2x->setInputSpeed();
 					voices[sel]->adjustInput();
 					break;
@@ -136,12 +153,13 @@ bool SettingsDialog::exec() {
 	return true;
 }
 
-void SettingsDialog::addSetting(MenuSetting* set) {
+void SettingsDialog::addSetting(MenuSetting *set) {
 	voices.push_back(set);
 }
 
 bool SettingsDialog::edited() {
-	for (uint i=0; i<voices.size(); i++)
+	for (uint i=0; i < voices.size(); i++) {
 		if (voices[i]->edited()) return true;
+	}
 	return false;
 }

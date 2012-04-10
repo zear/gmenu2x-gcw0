@@ -58,10 +58,11 @@ bool BrowseDialog::exec()
 
 	fl->browse();
 
-	rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
-	numRows = (gmenu2x->resY-gmenu2x->skinConfInt["topBarHeight"]-20)/rowHeight;
-	clipRect = (SDL_Rect){0, gmenu2x->skinConfInt["topBarHeight"]+1, gmenu2x->resX-9, gmenu2x->resY-gmenu2x->skinConfInt["topBarHeight"]-25};
-	touchRect = (SDL_Rect){2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, clipRect.h};
+	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
+	rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	numRows = (gmenu2x->resY - topBarHeight - 20) / rowHeight;
+	clipRect = (SDL_Rect) { 0, topBarHeight + 1, gmenu2x->resX - 9, gmenu2x->resY - topBarHeight - 25 };
+	touchRect = (SDL_Rect) { 2, topBarHeight + 4, gmenu2x->resX - 12, clipRect.h };
 
 	selected = 0;
 	close = false;
@@ -113,10 +114,13 @@ void BrowseDialog::handleInput()
 		action = getAction(button);
 	}
 
-	if (ts.available() && ts.pressed() && !ts.inRect(touchRect)) ts_pressed = false;
+	if (ts.available() && ts.pressed() && !ts.inRect(touchRect)) {
+		ts_pressed = false;
+	}
 
-	if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
+	if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..") {
 		action = BrowseDialog::ACT_GOUP;
+	}
 	switch (action) {
 	case BrowseDialog::ACT_CLOSE:
 		quit();
@@ -171,8 +175,9 @@ void BrowseDialog::directoryUp()
 	string path = fl->getPath();
 	string::size_type p = path.rfind("/");
 
-	if (p == path.size() - 1)
+	if (p == path.size() - 1) {
 		p = path.rfind("/", p - 1);
+	}
 
 	if (p == string::npos || path.compare(0, 1, "/") != 0 || path.length() < 2) {
 		quit();
@@ -185,8 +190,9 @@ void BrowseDialog::directoryUp()
 void BrowseDialog::directoryEnter()
 {
 	string path = fl->getPath();
-	if (path[path.size()-1] != '/')
+	if (path[path.size()-1] != '/') {
 		path += "/";
+	}
 
 	setPath(path + fl->at(selected));
 
@@ -210,7 +216,6 @@ void BrowseDialog::paint()
 	unsigned int i, iY;
 	unsigned int firstElement, lastElement;
 	unsigned int offsetY;
-	Surface *icon;
 
 	gmenu2x->bg->blit(gmenu2x->s, 0, 0);
 	drawTitleIcon("icons/explorer.png", true);
@@ -222,37 +227,43 @@ void BrowseDialog::paint()
 	// TODO(MtH): I have no idea what the right value of firstElement would be,
 	//            but originally it was undefined and that is never a good idea.
 	firstElement = 0;
-	if (selected>firstElement+numRows-1)
-		firstElement = selected-numRows+1;
-	else if (selected < firstElement)
+	if (selected>firstElement+numRows - 1) {
+		firstElement = selected-numRows + 1;
+	} else if (selected < firstElement) {
 		firstElement = selected;
+	}
 
 	//Selection
-	iY = selected-firstElement;
-	iY = gmenu2x->skinConfInt["topBarHeight"]+1+(iY*rowHeight);
-	gmenu2x->s->box(2, iY, gmenu2x->resX-12, rowHeight-1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
+	iY = topBarHeight + 1 + (selected - firstElement) * rowHeight;
+	gmenu2x->s->box(2, iY, gmenu2x->resX - 12, rowHeight - 1,
+			gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 	lastElement = firstElement + numRows;
 	if (lastElement > fl->size())
 		lastElement = fl->size();
 
-	offsetY = gmenu2x->skinConfInt["topBarHeight"]+1;
+	offsetY = topBarHeight + 1;
 
 	//Files & Directories
 	gmenu2x->s->setClipRect(clipRect);
 	for (i = firstElement; i < lastElement; i++) {
+		Surface *icon;
 		if (fl->isDirectory(i)) {
-			if ((*fl)[i]=="..")
+			if ((*fl)[i] == "..") {
 				icon = iconGoUp;
-			else
+			} else {
 				icon = iconFolder;
+			}
 		} else {
 			icon = iconFile;
 		}
 		icon->blit(gmenu2x->s, 5, offsetY);
-		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + 8, ASFont::HAlignLeft, ASFont::VAlignMiddle);
+		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + 8,
+				ASFont::HAlignLeft, ASFont::VAlignMiddle);
 
-		if (ts.available() && ts.pressed() && ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {
+		if (ts.available() && ts.pressed()
+				&& ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {
 			ts_pressed = true;
 			selected = i;
 		}
@@ -261,6 +272,7 @@ void BrowseDialog::paint()
 	}
 	gmenu2x->s->clearClipRect();
 
-	gmenu2x->drawScrollBar(numRows,fl->size(),firstElement,clipRect.y,clipRect.h);
+	gmenu2x->drawScrollBar(
+			numRows,fl->size(), firstElement, clipRect.y, clipRect.h);
 	gmenu2x->s->flip();
 }

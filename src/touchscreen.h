@@ -52,10 +52,10 @@ public:
 	bool handled();
 	void setHandled();
 
-	bool inRect(SDL_Rect r);
 	bool inRect(int x, int y, int w, int h);
-	bool startedInRect(SDL_Rect r);
+	bool inRect(SDL_Rect r);
 	bool startedInRect(int x, int y, int w, int h);
+	bool startedInRect(SDL_Rect r);
 
 	int getX() { return x; }
 	int getY() { return y; }

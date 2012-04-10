@@ -41,7 +41,7 @@ private:
 	void writeLine(Surface *surface, const std::vector<std::string> &text, int x, int y, HAlign halign, VAlign valign);
 
 	SDL_Surface *surface;
-	std::vector<unsigned> charpos;
+	std::vector<Uint16> charpos;
 	std::string characters;
 	int lineHeight;
 };

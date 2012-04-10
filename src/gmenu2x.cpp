@@ -1556,7 +1556,12 @@ void GMenu2X::contextMenu() {
 	box.x = halfX - box.w/2;
 	box.y = halfY - box.h/2;
 
-	SDL_Rect selbox = {box.x+4, 0, box.w-8, h+2};
+	SDL_Rect selbox = {
+		static_cast<Sint16>(box.x + 4),
+		0,
+		static_cast<Uint16>(box.w - 8),
+		static_cast<Uint16>(h + 2)
+	};
 	long tickNow, tickStart = SDL_GetTicks();
 
 	Surface bg(s);
@@ -2146,7 +2151,7 @@ int GMenu2X::drawButton(Button *btn, int x, int y) {
 
 int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y<0) y = resY+y;
-	SDL_Rect re = {x, y-7, 0, 16};
+	SDL_Rect re = { static_cast<Sint16>(x), static_cast<Sint16>(y - 7), 0, 16 };
 	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		re.w = sc["imgs/buttons/"+btn+".png"]->width() + 3;

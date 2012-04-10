@@ -45,7 +45,7 @@ bool IconButton::paintHover() {
 }
 
 void IconButton::recalcSize() {
-	uint h = 0, w = 0;
+	Uint16 h = 0, w = 0;
 	if (iconSurface) {
 		w += iconSurface->width();
 		h += iconSurface->height();
@@ -57,10 +57,10 @@ void IconButton::recalcSize() {
 	if (label != "") {
 		uint margin = iconSurface ? 2 : 0;
 		labelRect = (SDL_Rect) {
-			iconRect.x + iconRect.w + margin,
-			rect.y + h / 2,
-			gmenu2x->font->getTextWidth(label),
-			gmenu2x->font->getHeight()
+			static_cast<Sint16>(iconRect.x + iconRect.w + margin),
+			static_cast<Sint16>(rect.y + h / 2),
+			static_cast<Uint16>(gmenu2x->font->getTextWidth(label)),
+			static_cast<Uint16>(gmenu2x->font->getHeight())
 		};
 		w += margin + labelRect.w;
 	}

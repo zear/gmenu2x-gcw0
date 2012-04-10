@@ -115,7 +115,7 @@ void Surface::flip() {
 bool Surface::blit(SDL_Surface *destination, int x, int y, int w, int h, int a) {
 	if (destination == NULL || a==0) return false;
 
-	SDL_Rect src = {0,0,w,h};
+	SDL_Rect src = { 0, 0, static_cast<Uint16>(w), static_cast<Uint16>(h) };
 	SDL_Rect dest;
 	dest.x = x;
 	dest.y = y;
@@ -181,7 +181,10 @@ void Surface::clearClipRect() {
 }
 
 void Surface::setClipRect(int x, int y, int w, int h) {
-	SDL_Rect rect = {x,y,w,h};
+	SDL_Rect rect = {
+		static_cast<Sint16>(x), static_cast<Sint16>(y),
+		static_cast<Uint16>(w), static_cast<Uint16>(h)
+	};
 	setClipRect(rect);
 }
 

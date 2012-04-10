@@ -59,8 +59,18 @@ bool SettingsDialog::exec() {
 	voices[sel]->adjustInput();
 
 	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
-	SDL_Rect clipRect = { 0, topBarHeight + 1, gmenu2x->resX - 9, gmenu2x->resY - topBarHeight - 25 };
-	SDL_Rect touchRect = { 2, topBarHeight + 4, gmenu2x->resX - 12, clipRect.h };
+	SDL_Rect clipRect = {
+		0,
+		static_cast<Sint16>(topBarHeight + 1),
+		static_cast<Uint16>(gmenu2x->resX - 9),
+		static_cast<Uint16>(gmenu2x->resY - topBarHeight - 25)
+	};
+	SDL_Rect touchRect = {
+		2,
+		static_cast<Sint16>(topBarHeight + 4),
+		static_cast<Uint16>(gmenu2x->resX - 12),
+		static_cast<Uint16>(clipRect.h)
+	};
 	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
 	uint numRows = (gmenu2x->resY - topBarHeight - 20) / rowHeight;
 

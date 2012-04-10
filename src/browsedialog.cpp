@@ -61,8 +61,18 @@ bool BrowseDialog::exec()
 	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
 	rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
 	numRows = (gmenu2x->resY - topBarHeight - 20) / rowHeight;
-	clipRect = (SDL_Rect) { 0, topBarHeight + 1, gmenu2x->resX - 9, gmenu2x->resY - topBarHeight - 25 };
-	touchRect = (SDL_Rect) { 2, topBarHeight + 4, gmenu2x->resX - 12, clipRect.h };
+	clipRect = (SDL_Rect) {
+		0,
+		static_cast<Sint16>(topBarHeight + 1),
+		static_cast<Uint16>(gmenu2x->resX - 9),
+		static_cast<Uint16>(gmenu2x->resY - topBarHeight - 25)
+	};
+	touchRect = (SDL_Rect) {
+		2,
+		static_cast<Sint16>(topBarHeight + 4),
+		static_cast<Uint16>(gmenu2x->resX - 12),
+		clipRect.h
+	};
 
 	selected = 0;
 	close = false;

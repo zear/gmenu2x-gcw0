@@ -46,7 +46,10 @@ ASFont::ASFont(const std::string &fontImagePath)
 	// Scan height of "0" glyph.
 	std::string::size_type pos = characters.find("0") * 2;
 	SDL_Rect srcrect = {
-		charpos[pos], 1, charpos[pos + 2] - charpos[pos], surface->h - 1
+		static_cast<Sint16>(charpos[pos]),
+		1,
+		static_cast<Uint16>(charpos[pos + 2] - charpos[pos]),
+		static_cast<Uint16>(surface->h - 1)
 	};
 	const unsigned alphaMask = surface->format->Amask;
 	unsigned y = srcrect.h;

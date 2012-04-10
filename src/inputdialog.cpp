@@ -138,7 +138,9 @@ void InputDialog::setKeyboard(int kb) {
 }
 
 bool InputDialog::exec() {
-	SDL_Rect box = { 0, 60, 0, gmenu2x->font->getHeight() + 4 };
+	SDL_Rect box = {
+		0, 60, 0, static_cast<Uint16>(gmenu2x->font->getHeight() + 4)
+	};
 
 	Uint32 caretTick = 0, curTick;
 	bool caretOn = true;
@@ -286,8 +288,10 @@ void InputDialog::drawVirtualKeyboard() {
 				charX = line[x];
 
 			SDL_Rect re = {
-				kbLeft + xc * KEY_WIDTH - 1, KB_TOP + l * KEY_HEIGHT,
-				KEY_WIDTH - 1, KEY_HEIGHT - 2
+				static_cast<Sint16>(kbLeft + xc * KEY_WIDTH - 1),
+				static_cast<Sint16>(KB_TOP + l * KEY_HEIGHT),
+				KEY_WIDTH - 1,
+				KEY_HEIGHT - 2
 			};
 
 			//if ts on rect, change selection
@@ -307,7 +311,12 @@ void InputDialog::drawVirtualKeyboard() {
 	}
 
 	//Ok/Cancel
-	SDL_Rect re = {kbLeft-1, KB_TOP+kb->size()*KEY_HEIGHT, kbLength*KEY_WIDTH/2-1, KEY_HEIGHT-1};
+	SDL_Rect re = {
+		static_cast<Sint16>(kbLeft - 1),
+		static_cast<Sint16>(KB_TOP + kb->size() * KEY_HEIGHT),
+		static_cast<Uint16>(kbLength * KEY_WIDTH / 2 - 1),
+		KEY_HEIGHT - 1
+	};
 	gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 	if (ts.available() && ts.pressed() && ts.inRect(re)) {
 		selCol = 0;

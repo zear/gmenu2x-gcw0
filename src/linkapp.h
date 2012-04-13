@@ -46,7 +46,6 @@ private:
 	std::string aliasfile;
 	std::string file;
 
-	bool wrapper;
 	bool dontleave;
 
 	void start();
@@ -89,7 +88,6 @@ public:
 
 	const std::string &getFile() { return file; }
 	void renameFile(const std::string &name);
-	bool &needsWrapperRef() { return wrapper; }
 	bool &runsInBackgroundRef() { return dontleave; }
 };
 

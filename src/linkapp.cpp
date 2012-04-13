@@ -46,7 +46,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 {
 	manual = "";
 	file = linkfile;
-	wrapper = false;
 	dontleave = false;
 	setClock(336);
 	selectordir = "";
@@ -77,8 +76,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			params = value;
 		} else if (name == "manual") {
 			manual = value;
-		} else if (name == "wrapper") {
-			if (value=="true") wrapper = true;
 		} else if (name == "dontleave") {
 			if (value=="true") dontleave = true;
 		} else if (name == "clock") {
@@ -169,7 +166,6 @@ bool LinkApp::save() {
 		if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
 		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
 		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
-		if (wrapper            ) f << "wrapper=true"                        << endl;
 		if (dontleave          ) f << "dontleave=true"                      << endl;
 		f.close();
 		sync();
@@ -393,7 +389,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 
 	if (params!="") command += " " + params;
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
-	if (wrapper) command += "; sync & cd "+cmdclean(gmenu2x->getExePath())+"; exec ./gmenu2x";
 	if (dontleave) {
 		system(command.c_str());
 	} else {

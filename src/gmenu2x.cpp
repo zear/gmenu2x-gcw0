@@ -1705,6 +1705,9 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens));
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Selector Aliases"], tr["File containing a list of aliases for the selector"], &linkSelAliases));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Don't Leave"], tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef()));
+#ifdef PLATFORM_DINGUX
+	sd.addSetting(new MenuSettingBool(this, ts, tr["Display Console"], tr["Must be enabled for console-based applications"], &menu->selLinkApp()->consoleApp));
+#endif
 
 	if (sd.exec() && sd.edited()) {
 		ledOn();

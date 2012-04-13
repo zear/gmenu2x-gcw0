@@ -58,6 +58,10 @@ public:
 			const char* linkfile);
 	virtual const std::string &searchIcon();
 
+#ifdef PLATFORM_DINGUX
+	bool consoleApp;
+#endif
+
 	const std::string &getExec();
 	void setExec(const std::string &exec);
 	const std::string &getParams();

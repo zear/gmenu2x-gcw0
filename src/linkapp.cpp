@@ -32,6 +32,7 @@
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <fstream>
 #include <sstream>
@@ -53,6 +54,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	icon = iconPath = "";
 	selectorbrowser = false;
 	useRamTimings = false;
+#ifdef PLATFORM_DINGUX
+	consoleApp = false;
+#endif
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -78,6 +82,10 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			manual = value;
 		} else if (name == "dontleave") {
 			if (value=="true") dontleave = true;
+#ifdef PLATFORM_DINGUX
+		} else if (name == "consoleapp") {
+			if (value == "true") consoleApp = true;
+#endif
 		} else if (name == "clock") {
 			setClock( atoi(value.c_str()) );
 		} else if (name == "selectordir") {
@@ -167,6 +175,9 @@ bool LinkApp::save() {
 		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
 		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
 		if (dontleave          ) f << "dontleave=true"                      << endl;
+#ifdef PLATFORM_DINGUX
+		if (consoleApp         ) f << "consoleapp=true"                     << endl;
+#endif
 		f.close();
 		sync();
 		return true;
@@ -428,6 +439,20 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		int pgid = tcgetpgrp(STDOUT_FILENO);
 		signal(SIGTTOU, SIG_IGN);
 		tcsetpgrp(STDOUT_FILENO, pgid);
+
+#ifdef PLATFORM_DINGUX
+		if (consoleApp) {
+			/* Enable the framebuffer console */
+			char c = '1';
+			int fd = open("/sys/devices/virtual/vtconsole/vtcon1/bind", O_WRONLY);
+			if (fd < 0) {
+				WARNING("Unable to open fbcon handle\n");
+			} else {
+				write(fd, &c, 1);
+				close(fd);
+			}
+		}
+#endif
 
 		execlp("/bin/sh","/bin/sh", "-c", command.c_str(), NULL);
 		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue

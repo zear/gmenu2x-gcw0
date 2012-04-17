@@ -37,6 +37,10 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef PLATFORM_DINGUX
+#include <linux/vt.h>
+#endif
+
 using fastdelegate::MakeDelegate;
 using namespace std;
 
@@ -449,6 +453,15 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 				WARNING("Unable to open fbcon handle\n");
 			} else {
 				write(fd, &c, 1);
+				close(fd);
+			}
+
+			fd = open("/dev/tty1", O_RDWR);
+			if (fd < 0) {
+				WARNING("Unable to open tty1 handle\n");
+			} else {
+				if (ioctl(fd, VT_ACTIVATE, 1) < 0)
+					WARNING("Unable to activate tty1\n");
 				close(fd);
 			}
 		}

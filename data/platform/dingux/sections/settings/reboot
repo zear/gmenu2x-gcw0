@@ -1,4 +1,4 @@
 title=reboot
 description=Reboot the dingoo
-icon=/usr/share/gmenu2x/skins/Default/icons/reboot.png
+icon=skin:icons/reboot.png
 exec=/sbin/reboot

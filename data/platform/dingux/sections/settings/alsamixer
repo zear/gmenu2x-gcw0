@@ -1,0 +1,5 @@
+title=ALSA mixer
+description=Configure sound settings
+icon=skin:icons/alsamixer.png
+exec=/usr/bin/alsamixer
+consoleapp=true

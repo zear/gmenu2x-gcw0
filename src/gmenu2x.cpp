@@ -595,51 +595,19 @@ void GMenu2X::initMenu() {
 
 void GMenu2X::about() {
 	vector<string> text;
-	split(text,"GMenu2X is developed by Massimiliano \"Ryo\" Torromeo, and is released under the GPL-v2 license.\n\
-Website: http://gmenu2x.sourceforge.net\n\
-E-Mail & PayPal account: massimiliano.torromeo@gmail.com\n\
-\n\
-Thanks goes to...\n\
-\n\
- Contributors\n\
-----\n\
-NoidZ for his gp2x' buttons graphics\n\
-\n\
- Beta testers\n\
-----\n\
-Goemon4, PokeParadox, PSyMastR and Tripmonkey_uk\n\
-\n\
- Translators\n\
-----\n\
-English & Italian by me\n\
-French by Yodaz\n\
-Danish by claus\n\
-Dutch by superfly\n\
-Spanish by pedator\n\
-Portuguese (Portugal) by NightShadow\n\
-Slovak by Jozef\n\
-Swedish by Esslan and Micket\n\
-German by fusion_power, johnnysnet and Waldteufel\n\
-Finnish by Jontte and Atte\n\
-Norwegian by cowai\n\
-Russian by XaMMaX90\n\
-\n\
- Donors\n\
-----\n\
-EvilDragon (www.gp2x.de)\n\
-Tecnologie Creative (www.tecnologiecreative.it)\n\
-TelcoLou\n\
-gaterooze\n\
-deepmenace\n\
-superfly\n\
-halo9\n\
-sbock\n\
-b._.o._.b\n\
-Jacopastorius\n\
-lorystorm90\n\
-and all the anonymous donors...\n\
-(If I missed to list you or if you want to be removed, contact me.)","\n");
-	TextDialog td(this, "GMenu2X", tr.translate("Version $1 (Build date: $2)","0.10-test4",__DATE__,NULL), "icons/about.png", &text);
+	string line;
+	string fn(GMENU2X_SYSTEM_DIR);
+	string build_date("Build date: ");
+	fn.append("/about.txt");
+	build_date.append(__DATE__);
+
+	ifstream inf(fn.c_str(), ios_base::in);
+
+	while(getline(inf, line, '\n'))
+		text.push_back(line);
+	inf.close();
+
+	TextDialog td(this, "GMenu2X", build_date, "icons/about.png", &text);
 	td.exec();
 }
 

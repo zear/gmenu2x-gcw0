@@ -125,15 +125,11 @@ private:
 	unsigned long gp2x_mem;
 	unsigned short *gp2x_memregs;
 	volatile unsigned short *MEM_REG;
-	int cx25874; //tv-out
 #endif
 
-	void tvout_on(bool pal);
-	void tvout_off();
 	void initCPULimits();
 	void init();
 	void deinit();
-	void toggleTvOut();
 
 	void showManual();
 

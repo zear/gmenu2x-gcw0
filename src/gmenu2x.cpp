@@ -292,34 +292,6 @@ void GMenu2X::deinit() {
 #endif
 }
 
-void GMenu2X::tvout_on(bool /*pal*/) {
-#ifdef PLATFORM_GP2X
-/*	if (gp2x_mem!=0) {
-//		Ioctl_Dummy_t *msg;
-//		int TVHandle = ioctl(SDL_videofd, FBMMSP2CTRL, msg);
-		if (cx25874!=0) gp2x_tvout_off();
-		//if tv-out is enabled without cx25874 open, stop
-		//if (gp2x_memregs[0x2800>>1]&0x100) return;
-		cx25874 = open("/dev/cx25874",O_RDWR);
-		ioctl(cx25874, _IOW('v', 0x02, unsigned char), pal ? 4 : 3);
-		gp2x_memregs[0x2906>>1]=512;
-		gp2x_memregs[0x28E4>>1]=gp2x_memregs[0x290C>>1];
-		gp2x_memregs[0x28E8>>1]=239;
-	}*/
-#endif
-}
-
-void GMenu2X::tvout_off() {
-#ifdef PLATFORM_GP2X
-/*	if (gp2x_mem!=0) {
-		close(cx25874);
-		cx25874 = 0;
-		gp2x_memregs[0x2906>>1]=1024;
-	}*/
-#endif
-}
-
-
 GMenu2X::GMenu2X()
 {
 #ifdef PLATFORM_GP2X
@@ -377,20 +349,6 @@ GMenu2X::GMenu2X()
 	getExePath();
 
 	init();
-
-#ifdef PLATFORM_GP2X
-	cx25874 = 0;
-
-	//Fix tv-out
-/*	if (gp2x_mem!=0) {
-		if (gp2x_memregs[0x2800>>1]&0x100) {
-			gp2x_memregs[0x2906>>1]=512;
-			//gp2x_memregs[0x290C>>1]=640;
-			gp2x_memregs[0x28E4>>1]=gp2x_memregs[0x290C>>1];
-		}
-		gp2x_memregs[0x28E8>>1]=239;
-	}*/
-#endif
 
 #ifdef UNLOCK_VT
 	unlockVT();
@@ -572,8 +530,7 @@ void GMenu2X::initMenu() {
 #ifdef PLATFORM_GP2X
 			if (fwType=="open2x")
 				menu->addActionLink(i,"Open2x",MakeDelegate(this,&GMenu2X::settingsOpen2x),tr["Configure Open2x system settings"],"skin:icons/o2xconfigure.png");
-/*			menu->addActionLink(i,"TV",MakeDelegate(this,&GMenu2X::toggleTvOut),tr["Activate/deactivate tv-out"],"skin:icons/tv.png");
-			menu->addActionLink(i,"USB Sd",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
+/*			menu->addActionLink(i,"USB Sd",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
 			if (fwType=="gph" && !f200)
 				menu->addActionLink(i,"USB Nand",MakeDelegate(this,&GMenu2X::activateNandUsb),tr["Activate Usb on Nand"],"skin:icons/usb.png");
 			//menu->addActionLink(i,"USB Root",MakeDelegate(this,&GMenu2X::activateRootUsb),tr["Activate Usb on the root of the Gp2x Filesystem"],"skin:icons/usb.png");*/
@@ -1340,15 +1297,6 @@ void GMenu2X::skinMenu() {
 		writeSkinConfig();
 		initBG();
 	}
-}
-
-void GMenu2X::toggleTvOut() {
-#ifdef PLATFORM_GP2X
-/*	if (cx25874!=0)
-		gp2x_tvout_off();
-	else
-		gp2x_tvout_on(confStr["tvoutEncoding"] == "PAL");*/
-#endif
 }
 
 void GMenu2X::setSkin(const string &skin, bool setWallpaper) {

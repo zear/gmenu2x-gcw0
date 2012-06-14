@@ -35,11 +35,7 @@ Touchscreen::Touchscreen() {
 	event.x = 0;
 	event.y = 0;
 	event.pressure = 0;
-#ifdef PLATFORM_GP2X
-	ts_fd = open("/dev/touchscreen/wm97xx", O_RDONLY|O_NOCTTY);
-#else
 	ts_fd = 0;
-#endif
 }
 
 Touchscreen::~Touchscreen() {
@@ -58,15 +54,6 @@ void Touchscreen::calibrate() {
 
 bool Touchscreen::poll() {
 	wasPressed = pressed();
-#ifdef PLATFORM_GP2X
-	read(ts_fd, &event, sizeof(TS_EVENT));
-	if (!calibrated) calibrate();
-
-	if (event.pressure > 0) {
-		x = ((event.x - 200) * 320 / 3750) - calibX;
-		y = (240 - ((event.y - 200) * 240 / 3750)) - calibY;
-	}
-#else
 	SDL_PumpEvents();
 	int mx, my;
 	if (SDL_GetMouseState(&mx,&my) && SDL_BUTTON(1)) {
@@ -76,7 +63,6 @@ bool Touchscreen::poll() {
 	} else {
 		event.pressure = 0;
 	}
-#endif
 	_handled = false;
 
 	if (!wasPressed && pressed()) {

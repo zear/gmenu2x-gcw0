@@ -100,19 +100,6 @@ int MessageBox::exec() {
 
 	int result = -1;
 	while (result < 0) {
-
-#ifdef PLATFORM_GP2X
-		//touchscreen
-		if (gmenu2x->f200 && gmenu2x->ts.poll()) {
-			for (uint i = 0; i < BUTTON_TYPE_SIZE; i++) {
-				if (buttons[i] != "" && gmenu2x->ts.inRect(buttonPositions[i])) {
-					result = i;
-					break;
-				}
-			}
-		}
-#endif
-
 		InputManager::ButtonEvent event;
 		if (gmenu2x->input.pollEvent(&event)
 				&& (event.state == InputManager::PRESSED)

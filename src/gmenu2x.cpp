@@ -257,88 +257,31 @@ void GMenu2X::init() {
 	usbHandle = 0;
 	acHandle = 0;
 
-#ifdef PLATFORM_GP2X
-/*	gp2x_mem = open("/dev/mem", O_RDWR);
-	gp2x_memregs=(unsigned short *)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, gp2x_mem, 0xc0000000);
-	MEM_REG=&gp2x_memregs[0];
-	*/
-#else
 	batteryHandle = fopen("/sys/class/power_supply/battery/capacity", "r");
 	usbHandle = fopen("/sys/class/power_supply/usb/online", "r");
 	acHandle = fopen("/sys/class/power_supply/ac/online", "r");
-	backlightHandle = fopen(
-#ifdef PLATFORM_NANONOTE
-		"/sys/class/lcd/ili8960-lcd/contrast",
-#else
-		"/sys/class/backlight/pwm-backlight/brightness",
-#endif
-		"w+");
+#if defined(PLATFORM_NANONOTE)
+	backlightHandle = fopen("/sys/class/lcd/ili8960-lcd/contrast", "w+");
+#elif defined(PLATFORM_DINGUX)
+	backlightHandle = fopen("/sys/class/backlight/pwm-backlight/brightness", "w+");
 #endif
 }
 
 void GMenu2X::deinit() {
-#ifdef PLATFORM_GP2X
-/*	if (gp2x_mem!=0) {
-		gp2x_memregs[0x28DA>>1]=0x4AB;
-		gp2x_memregs[0x290C>>1]=640;
-		close(gp2x_mem);
-	}
-*/
-#else
 	if (batteryHandle) fclose(batteryHandle);
 	if (backlightHandle) fclose(backlightHandle);
 	if (usbHandle) fclose(usbHandle);
 	if (acHandle) fclose(acHandle);
-#endif
 }
 
 GMenu2X::GMenu2X()
 {
-#ifdef PLATFORM_GP2X
-	//Detect firmware version and type
-	if (fileExists("/etc/open2x")) {
-		fwType = "open2x";
-		fwVersion = "";
-	} else {
-		fwType = "gph";
-		fwVersion = "";
-	}
-
-	//open2x
-	savedVolumeMode = 0;
-	volumeMode = VOLUME_MODE_NORMAL;
-	volumeScalerNormal = VOLUME_SCALER_NORMAL;
-	volumeScalerPhones = VOLUME_SCALER_PHONES;
-
-	o2x_usb_net_on_boot = false;
-	o2x_usb_net_ip = "";
-	o2x_ftp_on_boot = false;
-	o2x_telnet_on_boot = false;
-	o2x_gp2xjoy_on_boot = false;
-	o2x_usb_host_on_boot = false;
-	o2x_usb_hid_on_boot = false;
-	o2x_usb_storage_on_boot = false;
-#endif
-
 	usbnet = samba = inet = web = false;
 	useSelectionPng = false;
 
 	initCPULimits();
 	//load config data
 	readConfig();
-
-#ifdef PLATFORM_GP2X
-	if (fwType=="open2x") {
-		readConfigOpen2x();
-		//	VOLUME MODIFIER
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones);	break;
-			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-		}
-	} else
-		readCommonIni();
-#endif
 
 	halfX = resX/2;
 	halfY = resY/2;
@@ -398,8 +341,6 @@ GMenu2X::GMenu2X()
         PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );
 
 	setInputSpeed();
-	initServices();
-	applyDefaultTimings();
 	setClock(confInt["menuClock"]);
 	//recover last session
 	readTmp();
@@ -425,15 +366,6 @@ void GMenu2X::quit() {
 	SDL_Quit();
 	unsetenv("SDL_FBCON_DONT_CLEAR");
 
-#ifdef PLATFORM_GP2X
-/*	if (gp2x_mem!=0) {
-		//Fix tv-out
-		if (gp2x_memregs[0x2800>>1]&0x100) {
-			gp2x_memregs[0x2906>>1]=512;
-			gp2x_memregs[0x28E4>>1]=gp2x_memregs[0x290C>>1];
-		}
-	}*/
-#endif
 	deinit();
 }
 
@@ -527,14 +459,6 @@ void GMenu2X::initMenu() {
 			menu->addActionLink(i,"GMenu2X",MakeDelegate(this,&GMenu2X::options),tr["Configure GMenu2X's options"],"skin:icons/configure.png");
 			menu->addActionLink(i,tr["Skin"],MakeDelegate(this,&GMenu2X::skinMenu),tr["Configure skin"],"skin:icons/skin.png");
 			menu->addActionLink(i,tr["Wallpaper"],MakeDelegate(this,&GMenu2X::changeWallpaper),tr["Change GMenu2X wallpaper"],"skin:icons/wallpaper.png");
-#ifdef PLATFORM_GP2X
-			if (fwType=="open2x")
-				menu->addActionLink(i,"Open2x",MakeDelegate(this,&GMenu2X::settingsOpen2x),tr["Configure Open2x system settings"],"skin:icons/o2xconfigure.png");
-/*			menu->addActionLink(i,"USB Sd",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
-			if (fwType=="gph" && !f200)
-				menu->addActionLink(i,"USB Nand",MakeDelegate(this,&GMenu2X::activateNandUsb),tr["Activate Usb on Nand"],"skin:icons/usb.png");
-			//menu->addActionLink(i,"USB Root",MakeDelegate(this,&GMenu2X::activateRootUsb),tr["Activate Usb on the root of the Gp2x Filesystem"],"skin:icons/usb.png");*/
-#endif
 			if (fileExists(getHome()+"/log.txt"))
 				menu->addActionLink(i,tr["Log Viewer"],MakeDelegate(this,&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
 			menu->addActionLink(i,tr["About"],MakeDelegate(this,&GMenu2X::about),tr["Info about GMenu2X"],"skin:icons/about.png");
@@ -587,11 +511,9 @@ void GMenu2X::viewLog() {
 			mb.setButton(InputManager::ACCEPT, tr["Yes"]);
 			mb.setButton(InputManager::CANCEL, tr["No"]);
 			if (mb.exec() == InputManager::ACCEPT) {
-				ledOn();
 				unlink(logfile.c_str());
 				sync();
 				menu->deleteSelectedLink();
-				ledOff();
 			}
 		}
 	}
@@ -646,7 +568,6 @@ void GMenu2X::readConfig(string conffile) {
 }
 
 void GMenu2X::writeConfig() {
-	ledOn();
 	string conffile = getHome() + "/gmenu2x.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
@@ -661,63 +582,9 @@ void GMenu2X::writeConfig() {
 		inf.close();
 		sync();
 	}
-	ledOff();
 }
-
-#ifdef PLATFORM_GP2X
-void GMenu2X::readConfigOpen2x() {
-	string conffile = "/etc/config/open2x.conf";
-	if (fileExists(conffile)) {
-		ifstream inf(conffile.c_str(), ios_base::in);
-		if (inf.is_open()) {
-			string line;
-			while (getline(inf, line, '\n')) {
-				string::size_type pos = line.find("=");
-				string name = trim(line.substr(0,pos));
-				string value = trim(line.substr(pos+1,line.length()));
-
-				if (name=="USB_NET_ON_BOOT") o2x_usb_net_on_boot = value == "y" ? true : false;
-				else if (name=="USB_NET_IP") o2x_usb_net_ip = value;
-				else if (name=="TELNET_ON_BOOT") o2x_telnet_on_boot = value == "y" ? true : false;
-				else if (name=="FTP_ON_BOOT") o2x_ftp_on_boot = value == "y" ? true : false;
-				else if (name=="GP2XJOY_ON_BOOT") o2x_gp2xjoy_on_boot = value == "y" ? true : false;
-				else if (name=="USB_HOST_ON_BOOT") o2x_usb_host_on_boot = value == "y" ? true : false;
-				else if (name=="USB_HID_ON_BOOT") o2x_usb_hid_on_boot = value == "y" ? true : false;
-				else if (name=="USB_STORAGE_ON_BOOT") o2x_usb_storage_on_boot = value == "y" ? true : false;
-				else if (name=="VOLUME_MODE") volumeMode = savedVolumeMode = constrain( atoi(value.c_str()), 0, 2);
-				else if (name=="PHONES_VALUE") volumeScalerPhones = constrain( atoi(value.c_str()), 0, 100);
-				else if (name=="NORMAL_VALUE") volumeScalerNormal = constrain( atoi(value.c_str()), 0, 150);
-			}
-			inf.close();
-		}
-	}
-}
-void GMenu2X::writeConfigOpen2x() {
-	ledOn();
-	string conffile = "/etc/config/open2x.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		inf << "USB_NET_ON_BOOT=" << ( o2x_usb_net_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_NET_IP=" << o2x_usb_net_ip << endl;
-		inf << "TELNET_ON_BOOT=" << ( o2x_telnet_on_boot ? "y" : "n" ) << endl;
-		inf << "FTP_ON_BOOT=" << ( o2x_ftp_on_boot ? "y" : "n" ) << endl;
-		inf << "GP2XJOY_ON_BOOT=" << ( o2x_gp2xjoy_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_HOST_ON_BOOT=" << ( (o2x_usb_host_on_boot || o2x_usb_hid_on_boot || o2x_usb_storage_on_boot) ? "y" : "n" ) << endl;
-		inf << "USB_HID_ON_BOOT=" << ( o2x_usb_hid_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_STORAGE_ON_BOOT=" << ( o2x_usb_storage_on_boot ? "y" : "n" ) << endl;
-		inf << "VOLUME_MODE=" << volumeMode << endl;
-		if (volumeScalerPhones != VOLUME_SCALER_PHONES) inf << "PHONES_VALUE=" << volumeScalerPhones << endl;
-		if (volumeScalerNormal != VOLUME_SCALER_NORMAL) inf << "NORMAL_VALUE=" << volumeScalerNormal << endl;
-		inf.close();
-		sync();
-	}
-	ledOff();
-}
-#endif
 
 void GMenu2X::writeSkinConfig() {
-	ledOn();
-
 	string conffile = getHome() + "/skins/";
 	if (!fileExists(conffile))
 	  mkdir(conffile.c_str(), 0770);
@@ -752,48 +619,7 @@ void GMenu2X::writeSkinConfig() {
 		inf.close();
 		sync();
 	}
-	ledOff();
 }
-
-#ifdef PLATFORM_GP2X
-void GMenu2X::readCommonIni() {
-	if (fileExists("/usr/gp2x/common.ini")) {
-		ifstream inf("/usr/gp2x/common.ini", ios_base::in);
-		if (inf.is_open()) {
-			string line;
-			string section = "";
-			while (getline(inf, line, '\n')) {
-				line = trim(line);
-				if (line[0]=='[' && line[line.length()-1]==']') {
-					section = line.substr(1,line.length()-2);
-				} else {
-					string::size_type pos = line.find("=");
-					string name = trim(line.substr(0,pos));
-					string value = trim(line.substr(pos+1,line.length()));
-
-					if (section=="usbnet") {
-						if (name=="enable")
-							usbnet = value=="true" ? true : false;
-						else if (name=="ip")
-							ip = value;
-
-					} else if (section=="server") {
-						if (name=="inet")
-							inet = value=="true" ? true : false;
-						else if (name=="samba")
-							samba = value=="true" ? true : false;
-						else if (name=="web")
-							web = value=="true" ? true : false;
-					}
-				}
-			}
-			inf.close();
-		}
-	}
-}
-
-void GMenu2X::writeCommonIni() {}
-#endif
 
 void GMenu2X::readTmp() {
 	lastSelectorElement = -1;
@@ -836,29 +662,6 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	}
 }
 
-void GMenu2X::initServices() {
-#ifdef PLATFORM_GP2X
-/*	if (usbnet) {
-		string services = "scripts/services.sh "+ip+" "+(inet?"on":"off")+" "+(samba?"on":"off")+" "+(web?"on":"off")+" &";
-		system(services.c_str());
-	}*/
-#endif
-}
-
-void GMenu2X::ledOn() {
-#ifdef PLATFORM_GP2X
-//	if (gp2x_mem!=0 && !f200) gp2x_memregs[0x106E >> 1] ^= 16;
-	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_ON);
-#endif
-}
-
-void GMenu2X::ledOff() {
-#ifdef PLATFORM_GP2X
-//	if (gp2x_mem!=0 && !f200) gp2x_memregs[0x106E >> 1] ^= 16;
-	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_OFF);
-#endif
-}
-
 void GMenu2X::setBacklight(int val)
 {
 	if (backlightHandle) {
@@ -888,11 +691,7 @@ void GMenu2X::main() {
 
 	bool quit = false;
 	int x,y, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
-#ifdef PLATFORM_GP2X
-	int helpBoxHeight = fwType=="open2x" ? 154 : 139;
-#else
 	int helpBoxHeight = 154;
-#endif
 	uint i;
 	long tickBattery = -60000, tickNow;
 	string batteryIcon = "imgs/battery/0.png";
@@ -1011,15 +810,6 @@ void GMenu2X::main() {
 			s->write( font, tr["L, R: Change section"], 20, 110 );
 			s->write( font, tr["SELECT: Show contextual menu"], 20, 155 );
 			s->write( font, tr["START: Show options menu"], 20, 170 );
-#endif
-#ifdef PLATFORM_GP2X
-			s->write( font, tr["B, Stick press: Launch link / Confirm action"], 20, 80 );
-			s->write( font, tr["L, R: Change section"], 20, 95 );
-			s->write( font, tr["VOLUP, VOLDOWN: Change cpu clock"], 20, 125 );
-			s->write( font, tr["A+VOLUP, A+VOLDOWN: Change volume"], 20, 140 );
-			s->write( font, tr["SELECT: Show contextual menu"], 20, 155 );
-			s->write( font, tr["START: Show options menu"], 20, 170 );
-			if (fwType=="open2x") s->write( font, tr["X: Toggle speaker mode"], 20, 185 );
 #endif
 			s->flip();
 			while (input.waitForPressedButton() != InputManager::CANCEL) {}
@@ -1171,10 +961,6 @@ void GMenu2X::explorer() {
 	if (fd.exec()) {
 		if (confInt["saveSelection"] && (confInt["section"]!=menu->selSectionIndex() || confInt["link"]!=menu->selLinkIndex()))
 			writeConfig();
-#ifdef PLATFORM_GP2X
-		if (fwType == "open2x" && savedVolumeMode != volumeMode)
-			writeConfigOpen2x();
-#endif
 
 		//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
 		string command = cmdclean(fd.getPath()+"/"+fd.getFile());
@@ -1244,32 +1030,6 @@ void GMenu2X::options() {
 		writeConfig();
 	}
 }
-
-#ifdef PLATFORM_GP2X
-void GMenu2X::settingsOpen2x() {
-	SettingsDialog sd(this, input, ts, tr["Open2x Settings"]);
-	sd.addSetting(new MenuSettingBool(this, ts, tr["USB net on boot"], tr["Allow USB networking to be started at boot time"], &o2x_usb_net_on_boot));
-	sd.addSetting(new MenuSettingString(this, ts, tr["USB net IP"], tr["IP address to be used for USB networking"], &o2x_usb_net_ip));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Telnet on boot"], tr["Allow telnet to be started at boot time"], &o2x_telnet_on_boot));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["FTP on boot"], tr["Allow FTP to be started at boot time"], &o2x_ftp_on_boot));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["GP2XJOY on boot"], tr["Create a js0 device for GP2X controls"], &o2x_gp2xjoy_on_boot));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["USB host on boot"], tr["Allow USB host to be started at boot time"], &o2x_usb_host_on_boot));
-	sd.addSetting(new MenuSettingBool(this,ts, tr["USB HID on boot"], tr["Allow USB HID to be started at boot time"], &o2x_usb_hid_on_boot));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["USB storage on boot"], tr["Allow USB storage to be started at boot time"], &o2x_usb_storage_on_boot));
-	//sd.addSetting(new MenuSettingInt(this, ts, tr["Speaker Mode on boot"], tr["Set Speaker mode. 0 = Mute, 1 = Phones, 2 = Speaker"], &volumeMode, 0, 2));
-	sd.addSetting(new MenuSettingInt(this, ts, tr["Speaker Scaler"], tr["Set the Speaker Mode scaling 0-150\% (default is 100\%)"], &volumeScalerNormal, 0, 150));
-	sd.addSetting(new MenuSettingInt(this, ts, tr["Headphones Scaler"], tr["Set the Headphones Mode scaling 0-100\% (default is 65\%)"], &volumeScalerPhones, 0, 100));
-
-	if (sd.exec() && sd.edited()) {
-		writeConfigOpen2x();
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones);   break;
-			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-		}
-	}
-}
-#endif
 
 void GMenu2X::skinMenu() {
 	FileLister fl_sk(getHome() + "/skins", true, false);
@@ -1573,10 +1333,8 @@ void GMenu2X::changeWallpaper() {
 void GMenu2X::addLink() {
 	FileDialog fd(this, ts, tr["Select an application"]);
 	if (fd.exec()) {
-		ledOn();
 		menu->addLink(fd.getPath(), fd.getFile());
 		sync();
-		ledOff();
 	}
 }
 
@@ -1598,7 +1356,6 @@ void GMenu2X::editLink() {
 	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
 	string linkSelDir = menu->selLinkApp()->getSelectorDir();
 	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
-	bool linkUseRamTimings = menu->selLinkApp()->getUseRamTimings();
 	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
 	int linkClock = menu->selLinkApp()->clock();
@@ -1613,7 +1370,6 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(this, ts, tr["Icon"], tr.translate("Select an icon for the link: $1", linkTitle.c_str(), NULL), &linkIcon, ".png,.bmp,.jpg,.jpeg"));
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Manual"], tr["Select a graphic/textual manual or a readme"], &linkManual, ".man.png,.txt"));
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock (default: 336)"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
-//	sd.addSetting(new MenuSettingBool(this, ts, tr["Tweak RAM Timings"], tr["This usually speeds up the application at the cost of stability"], &linkUseRamTimings));
 	sd.addSetting(new MenuSettingString(this, ts, tr["Parameters"], tr["Parameters to pass to the application"], &linkParams, diagTitle, diagIcon));
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
@@ -1626,8 +1382,6 @@ void GMenu2X::editLink() {
 #endif
 
 	if (sd.exec() && sd.edited()) {
-		ledOn();
-
 		menu->selLinkApp()->setTitle(linkTitle);
 		menu->selLinkApp()->setDescription(linkDescription);
 		menu->selLinkApp()->setIcon(linkIcon);
@@ -1636,7 +1390,6 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
-		menu->selLinkApp()->setUseRamTimings(linkUseRamTimings);
 		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
 		menu->selLinkApp()->setAliasFile(linkSelAliases);
 		menu->selLinkApp()->setClock(linkClock);
@@ -1664,8 +1417,6 @@ void GMenu2X::editLink() {
 		}
 		menu->selLinkApp()->save();
 		sync();
-
-		ledOff();
 	}
 }
 
@@ -1675,10 +1426,8 @@ void GMenu2X::deleteLink() {
 		mb.setButton(InputManager::ACCEPT, tr["Yes"]);
 		mb.setButton(InputManager::CANCEL, tr["No"]);
 		if (mb.exec() == InputManager::ACCEPT) {
-			ledOn();
 			menu->deleteSelectedLink();
 			sync();
-			ledOff();
 		}
 	}
 }
@@ -1690,12 +1439,10 @@ void GMenu2X::addSection() {
 		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput())
 				== menu->getSections().end()) {
 			//section directory doesn't exists
-			ledOn();
 			if (menu->addSection(id.getInput())) {
 				menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
 				sync();
 			}
-			ledOff();
 		}
 	}
 }
@@ -1710,7 +1457,6 @@ void GMenu2X::renameSection() {
 			//section directory doesn't exists
 			string newsectiondir = getHome() + "/sections/" + id.getInput();
 			string sectiondir = getHome() + "/sections/" + menu->selSection();
-			ledOn();
 
 			if (!rename(sectiondir.c_str(), newsectiondir.c_str())) {
 				string oldpng = menu->selSection() + ".png";
@@ -1730,7 +1476,6 @@ void GMenu2X::renameSection() {
 				menu->renameSection(menu->selSectionIndex(), id.getInput());
 				sync();
 			}
-			ledOff();
 		}
 	}
 }
@@ -1740,12 +1485,11 @@ void GMenu2X::deleteSection() {
 	mb.setButton(InputManager::ACCEPT, tr["Yes"]);
 	mb.setButton(InputManager::CANCEL, tr["No"]);
 	if (mb.exec() == InputManager::ACCEPT) {
-		ledOn();
+
 		if (rmtree(getHome() + "/sections/" + menu->selSection())) {
 			menu->deleteSelectedSection();
 			sync();
 		}
-		ledOff();
 	}
 }
 
@@ -1779,11 +1523,7 @@ void GMenu2X::scanner() {
 
 	const char *nandpath = NULL;
 
-#if defined(PLATFORM_GP2X)
-	//Onyl gph firmware has nand
-	if (fwType=="gph" && !isF200())
-		nandpath = "/boot/local/nand";
-#elif defined(PLATFORM_DINGUX)
+#ifdef PLATFORM_DINGUX
 	nandpath = "/media/ccnandb1";
 #endif
 
@@ -1810,7 +1550,6 @@ void GMenu2X::scanner() {
 	string::size_type pos;
 	uint linkCount = 0;
 
-	ledOn();
 	for (uint i = 0; i<files.size(); i++) {
 		pos = files[i].rfind("/");
 		if (pos!=string::npos && pos>0) {
@@ -1838,7 +1577,6 @@ void GMenu2X::scanner() {
 	}
 
 	sync();
-	ledOff();
 #endif
 
     InputManager::Button button;
@@ -1867,9 +1605,7 @@ void GMenu2X::scanPath(string path, vector<string> *files) {
 			scanPath(filepath, files);
 		if (statRet != -1) {
 			ext = filepath.substr(filepath.length()-4,4);
-#ifdef PLATFORM_GP2X
-			if (ext==".gpu")
-#elif defined(PLATFORM_DINGUX) || defined(PLATFORM_NANONOTE)
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_NANONOTE)
 			if (ext==".dge")
 #else
 			if (ext==".pxml")
@@ -1887,41 +1623,6 @@ typedef struct {
 } MMSP2ADC;
 
 unsigned short GMenu2X::getBatteryLevel() {
-#ifdef PLATFORM_GP2X
-/*	if (batteryHandle<=0) return 0;
-
-	if (f200) {
-		MMSP2ADC val;
-		read(batteryHandle, &val, sizeof(MMSP2ADC));
-
-		if (val.batt==0) return 5;
-		if (val.batt==1) return 3;
-		if (val.batt==2) return 1;
-		if (val.batt==3) return 0;
-	} else {
-		int battval = 0;
-		unsigned short cbv, min=900, max=0;
-
-		for (int i = 0; i < BATTERY_READS; i ++) {
-			if ( read(batteryHandle, &cbv, 2) == 2) {
-				battval += cbv;
-				if (cbv>max) max = cbv;
-				if (cbv<min) min = cbv;
-			}
-		}
-
-		battval -= min+max;
-		battval /= BATTERY_READS-2;
-
-		if (battval>=850) return 6;
-		if (battval>780) return 5;
-		if (battval>740) return 4;
-		if (battval>700) return 3;
-		if (battval>690) return 2;
-		if (battval>680) return 1;
-	}*/
-
-#else
 	if (!batteryHandle) return 0;
 	int battval = 0;
 	fscanf(batteryHandle, "%d", &battval);
@@ -1939,9 +1640,6 @@ unsigned short GMenu2X::getBatteryLevel() {
 	if (usbval==1) return 6;
 
 	return 0;
-//#else
-//	return 6; //AC Power
-#endif
 }
 
 void GMenu2X::setInputSpeed() {
@@ -1961,30 +1659,6 @@ void GMenu2X::setInputSpeed() {
     */
 	SDL_EnableKeyRepeat(1,150);
 }
-
-void GMenu2X::applyRamTimings() {
-#ifdef PLATFORM_GP2X
-	// 6 4 1 1 1 2 2
-/*	if (gp2x_mem!=0) {
-		int tRC = 5, tRAS = 3, tWR = 0, tMRD = 0, tRFC = 0, tRP = 1, tRCD = 1;
-		gp2x_memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
-		gp2x_memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
-	}*/
-#endif
-}
-
-void GMenu2X::applyDefaultTimings() {
-#ifdef PLATFORM_GP2X
-	// 8 16 3 8 8 8 8
-/*	if (gp2x_mem!=0) {
-		int tRC = 7, tRAS = 15, tWR = 2, tMRD = 7, tRFC = 7, tRP = 7, tRCD = 7;
-		gp2x_memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
-		gp2x_memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
-	}*/
-#endif
-}
-
-
 
 void GMenu2X::setClock(unsigned mhz) {
 	mhz = constrain(mhz, cpuFreqMin, confInt["maxClock"]);

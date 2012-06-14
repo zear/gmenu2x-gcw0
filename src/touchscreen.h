@@ -39,9 +39,6 @@ public:
 	~Touchscreen();
 
 	bool available() {
-#ifdef PLATFORM_GP2X
-		return ts_fd > 0;
-#endif
 		return false;
 	}
 

@@ -56,7 +56,6 @@ bool SettingsDialog::exec() {
 
 	bool close = false, ts_pressed = false;
 	uint i, sel = 0, firstElement = 0;
-	voices[sel]->adjustInput();
 
 	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
 	SDL_Rect clipRect = {
@@ -146,13 +145,11 @@ bool SettingsDialog::exec() {
 						sel -= 1;
 					}
 					gmenu2x->setInputSpeed();
-					voices[sel]->adjustInput();
 					break;
 				case InputManager::DOWN:
 					sel += 1;
 					if (sel>=voices.size()) sel = 0;
 					gmenu2x->setInputSpeed();
-					voices[sel]->adjustInput();
 				default:
 					break;
 			}

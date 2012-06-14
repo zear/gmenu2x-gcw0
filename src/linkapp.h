@@ -72,8 +72,6 @@ public:
 	void setSelectorDir(const std::string &selectordir);
 	bool getSelectorBrowser();
 	void setSelectorBrowser(bool value);
-	bool getUseRamTimings();
-	void setUseRamTimings(bool value);
 	const std::string &getSelectorScreens();
 	void setSelectorScreens(const std::string &selectorscreens);
 	const std::string &getSelectorFilter();

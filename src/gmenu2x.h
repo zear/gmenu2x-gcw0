@@ -117,16 +117,6 @@ private:
 	void initFont();
 	void initMenu();
 
-#ifdef PLATFORM_GP2X
-	void readConfigOpen2x();
-	void readCommonIni();
-	void writeCommonIni();
-
-	unsigned long gp2x_mem;
-	unsigned short *gp2x_memregs;
-	volatile unsigned short *MEM_REG;
-#endif
-
 	void initCPULimits();
 	void init();
 	void deinit();
@@ -167,23 +157,6 @@ public:
 	bool useSelectionPng;
 	void setSkin(const std::string &skin, bool setWallpaper = true);
 
-#ifdef PLATFORM_GP2X
-	//firmware type and version
-	std::string fwType, fwVersion;
-
-	bool isF200() { return ts.available(); }
-
-	// Open2x settings ---------------------------------------------------------
-	bool o2x_usb_net_on_boot, o2x_ftp_on_boot, o2x_telnet_on_boot, o2x_gp2xjoy_on_boot, o2x_usb_host_on_boot, o2x_usb_hid_on_boot, o2x_usb_storage_on_boot;
-	std::string o2x_usb_net_ip;
-	int volumeMode, savedVolumeMode;		//	just use the const int scale values at top of source
-
-	//  Volume scaling values to store from config files
-	int volumeScalerPhones;
-	int volumeScalerNormal;
-	//--------------------------------------------------------------------------
-#endif
-
 	SurfaceCollection sc;
 	Translator tr;
 	Surface *s, *bg;
@@ -192,9 +165,6 @@ public:
 	//Status functions
 	void main();
 	void options();
-#ifdef PLATFORM_GP2X
-	void settingsOpen2x();
-#endif
 	void skinMenu();
 	/*
 	void activateSdUsb();
@@ -205,9 +175,6 @@ public:
 	void viewLog();
 	void contextMenu();
 	void changeWallpaper();
-
-	void applyRamTimings();
-	void applyDefaultTimings();
 
 	void setClock(unsigned mhz);
 
@@ -222,14 +189,8 @@ public:
 	void setInputSpeed();
 
 	void writeConfig();
-#ifdef PLATFORM_GP2X
-	void writeConfigOpen2x();
-#endif
 	void writeSkinConfig();
 	void writeTmp(int selelem=-1, const std::string &selectordir="");
-
-	void ledOn();
-	void ledOff();
 
 	void addLink();
 	void editLink();

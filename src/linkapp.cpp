@@ -57,7 +57,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	selectorfilter = "";
 	icon = iconPath = "";
 	selectorbrowser = false;
-	useRamTimings = false;
 #ifdef PLATFORM_DINGUX
 	consoleApp = false;
 #endif
@@ -96,8 +95,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			setSelectorDir( value );
 		} else if (name == "selectorbrowser") {
 			if (value=="true") selectorbrowser = true;
-		} else if (name == "useramtimings") {
-			if (value=="true") useRamTimings = true;
 		} else if (name == "selectorfilter") {
 			setSelectorFilter( value );
 		} else if (name == "selectorscreens") {
@@ -172,7 +169,6 @@ bool LinkApp::save() {
 		if (params!=""         ) f << "params="          << params          << endl;
 		if (manual!=""         ) f << "manual="          << manual          << endl;
 		if (iclock!=0          ) f << "clock="           << iclock          << endl;
-		if (useRamTimings      ) f << "useramtimings=true"                  << endl;
 		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
 		if (selectorbrowser    ) f << "selectorbrowser=true"                << endl;
 		if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
@@ -382,9 +378,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		}
 	}
 
-	if (useRamTimings)
-		gmenu2x->applyRamTimings();
-
 	INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
 
 	//check if we have to quit
@@ -419,13 +412,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		)) {
 			gmenu2x->writeConfig();
 		}
-
-#ifdef PLATFORM_GP2X
-		if (gmenu2x->fwType == "open2x"
-				&& gmenu2x->savedVolumeMode != gmenu2x->volumeMode) {
-			gmenu2x->writeConfigOpen2x();
-		}
-#endif
 
 		if (selectedFile == "") {
 			gmenu2x->writeTmp();
@@ -526,15 +512,6 @@ bool LinkApp::getSelectorBrowser() {
 
 void LinkApp::setSelectorBrowser(bool value) {
 	selectorbrowser = value;
-	edited = true;
-}
-
-bool LinkApp::getUseRamTimings() {
-	return useRamTimings;
-}
-
-void LinkApp::setUseRamTimings(bool value) {
-	useRamTimings = value;
 	edited = true;
 }
 

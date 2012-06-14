@@ -117,14 +117,6 @@ int MenuSettingInt::value()
 	return *_value;
 }
 
-void MenuSettingInt::adjustInput()
-{
-#ifdef PLATFORM_GP2X
-//	gmenu2x->input.setInterval(30, ACTION_LEFT );
-//	gmenu2x->input.setInterval(30, ACTION_RIGHT);
-#endif
-}
-
 bool MenuSettingInt::edited()
 {
 	return originalValue != value();

@@ -199,17 +199,6 @@ unsigned short MenuSettingRGBA::getSelPart()
 	}
 }
 
-void MenuSettingRGBA::adjustInput()
-{
-#ifdef PLATFORM_GP2X
-    /*
-	gmenu2x->input.setInterval(30, ACTION_Y );
-	gmenu2x->input.setInterval(30, ACTION_X );
-	gmenu2x->input.setInterval(30, ACTION_L );
-    */
-#endif
-}
-
 void MenuSettingRGBA::drawSelected(int y)
 {
 	int x = 166+selPart*36;

@@ -2045,22 +2045,6 @@ void GMenu2X::setClock(unsigned mhz) {
 #endif
 }
 
-void GMenu2X::setGamma(int /*gamma*/) {
-#ifdef PLATFORM_GP2X
-/*	float fgamma = (float)constrain(gamma,1,100)/10;
-	fgamma = 1 / fgamma;
-	MEM_REG[0x2880>>1]&=~(1<<12);
-	MEM_REG[0x295C>>1]=0;
-
-	for (int i=0; i<256; i++) {
-		unsigned char g = (unsigned char)(255.0*pow(i/255.0,fgamma));
-		unsigned short s = (g<<8) | g;
-		MEM_REG[0x295E>>1]= s;
-		MEM_REG[0x295E>>1]= g;
-	}*/
-#endif
-}
-
 void GMenu2X::setVolumeScaler(int scale) {
 	scale = constrain(scale,0,MAX_VOLUME_SCALE_FACTOR);
 	unsigned long soundDev = open("/dev/mixer", O_WRONLY);

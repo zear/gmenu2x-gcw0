@@ -214,7 +214,6 @@ public:
 	void applyDefaultTimings();
 
 	void setClock(unsigned mhz);
-	void setGamma(int gamma);
 
 	void setVolume(int vol);
 	int getVolume();

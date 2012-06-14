@@ -173,11 +173,6 @@ public:
 
 	void setClock(unsigned mhz);
 
-	void setVolume(int vol);
-	int getVolume();
-	void setVolumeScaler(int scaler);
-	int getVolumeScaler();
-
 	void setBacklight(int val);
 	int getBackLight();
 

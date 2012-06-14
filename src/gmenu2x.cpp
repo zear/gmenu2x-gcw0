@@ -99,16 +99,6 @@ using namespace fastdelegate;
   GMENU2X_SYSTEM_DIR "/skins/Default/wallpapers/default.png"
 #endif
 
-const int MAX_VOLUME_SCALE_FACTOR = 200;
-// Default values - going to add settings adjustment, saving, loading and such
-const int VOLUME_SCALER_MUTE = 0;
-const int VOLUME_SCALER_PHONES = 65;
-const int VOLUME_SCALER_NORMAL = 100;
-const int VOLUME_MODE_MUTE = 0;
-const int VOLUME_MODE_PHONES = 1;
-const int VOLUME_MODE_NORMAL = 2;
-const int BATTERY_READS = 10;
-
 #ifdef _CARD_ROOT
 const char *CARD_ROOT = _CARD_ROOT;
 #elif defined(PLATFORM_DINGUX)
@@ -759,14 +749,6 @@ void GMenu2X::main() {
 		s->clearClipRect();
 
 		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(),43,resY-81);
-
-        /*
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   sc.skinRes("imgs/mute.png")->blit(s,279,bottomBarIconY); break;
-			case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s,279,bottomBarIconY); break;
-			default: sc.skinRes("imgs/volume.png")->blit(s,279,bottomBarIconY); break;
-		}
-        */
 
 		if (menu->selLink()!=NULL) {
 			s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, ASFont::HAlignCenter, ASFont::VAlignBottom );
@@ -1553,25 +1535,6 @@ void GMenu2X::setClock(unsigned mhz) {
 #if defined(PLATFORM_DINGUX) || defined(PLATFORM_NANONOTE)
 	jz_cpuspeed(mhz);
 #endif
-}
-
-void GMenu2X::setVolumeScaler(int scale) {
-	scale = constrain(scale,0,MAX_VOLUME_SCALE_FACTOR);
-	unsigned long soundDev = open("/dev/mixer", O_WRONLY);
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_PRIVATE2, &scale);
-		close(soundDev);
-	}
-}
-
-int GMenu2X::getVolumeScaler() {
-	int currentscalefactor = -1;
-	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_PRIVATE1, &currentscalefactor);
-		close(soundDev);
-	}
-	return currentscalefactor;
 }
 
 const string &GMenu2X::getExePath() {

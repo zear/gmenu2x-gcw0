@@ -896,63 +896,6 @@ void GMenu2X::main() {
             default:
                 break;
         }
-
-        /*
-		while (!input.update())
-			usleep(LOOP_DELAY);
-		if ( input[ACCEPT] && menu->selLink()!=NULL ) menu->selLink()->run();
-		else if ( input[SETTINGS]  ) options();
-		else if ( input[MENU] ) contextMenu();
-		// VOLUME SCALE MODIFIER
-		else if ( fwType=="open2x" && input[CLEAR] ) {
-			volumeMode = constrain(volumeMode-1, -VOLUME_MODE_MUTE-1, VOLUME_MODE_NORMAL);
-			if(volumeMode < VOLUME_MODE_MUTE)
-				volumeMode = VOLUME_MODE_NORMAL;
-			switch(volumeMode) {
-				case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-				case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
-				case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-			}
-			setVolume(confInt["globalVolume"]);
-		}
-		// LINK NAVIGATION
-		else if ( input[ALTLEFTEFT ]  ) menu->linkLeft();
-		else if ( input[ALTRIGHTIGHT]  ) menu->linkRight();
-		else if ( input[UP   ]  ) menu->linkUp();
-		else if ( input[DOWN ]  ) menu->linkDown();
-		// SELLINKAPP SELECTED
-		else if (menu->selLinkApp()!=NULL) {
-			if ( input[MANUAL] ) menu->selLinkApp()->showManual();
-			else if ( input.isActive(CANCEL) ) {
-				// VOLUME
-				if ( input[VOLDOWN] && !input.isActive(VOLUP) )
-					menu->selLinkApp()->setVolume( constrain(menu->selLinkApp()->volume()-1,0,100) );
-				if ( input[VOLUP] && !input.isActive(VOLDOWN) )
-					menu->selLinkApp()->setVolume( constrain(menu->selLinkApp()->volume()+1,0,100) );;
-				if ( input.isActive(VOLUP) && input.isActive(VOLDOWN) ) menu->selLinkApp()->setVolume(-1);
-			} else {
-				// CLOCK
-				if ( input[VOLDOWN] && !input.isActive(VOLUP) )
-					menu->selLinkApp()->setClock( constrain(menu->selLinkApp()->clock()-1,200,confInt["maxClock"]) );
-				if ( input[VOLUP] && !input.isActive(VOLDOWN) )
-					menu->selLinkApp()->setClock( constrain(menu->selLinkApp()->clock()+1,200,confInt["maxClock"]) );
-				if ( input.isActive(VOLUP) && input.isActive(VOLDOWN) ) menu->selLinkApp()->setClock(336);
-			}
-		}
-		if ( input.isActive(CANCEL) ) {
-			if (input.isActive(ALTLEFT) && input.isActive(ALTRIGHT))
-				saveScreenshot();
-		} else {
-			// SECTIONS
-			if ( input[ALTLEFT     ] ) {
-				menu->decSectionIndex();
-				offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
-			} else if ( input[ALTRIGHT     ] ) {
-				menu->incSectionIndex();
-				offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
-			}
-		}
-        */
 	}
 }
 
@@ -1129,47 +1072,6 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	//font
 	initFont();
 }
-
-/*
-void GMenu2X::activateSdUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh sd");
-		MessageBox mb(this,tr["USB Enabled (SD)"],"icons/usb.png");
-		mb.setButton(ACCEPT, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh sd");
-	}
-}
-
-void GMenu2X::activateNandUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh nand");
-		MessageBox mb(this,tr["USB Enabled (Nand)"],"icons/usb.png");
-		mb.setButton(ACCEPT, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh nand");
-	}
-}
-
-void GMenu2X::activateRootUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh root");
-		MessageBox mb(this,tr["USB Enabled (Root)"],"icons/usb.png");
-		mb.setButton(ACCEPT, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh root");
-	}
-}
-*/
 
 void GMenu2X::showManual() {
 	menu->selLinkApp()->showManual();
@@ -1643,20 +1545,6 @@ unsigned short GMenu2X::getBatteryLevel() {
 }
 
 void GMenu2X::setInputSpeed() {
-    /*
-	input.setInterval(150);
-	input.setInterval(30,  VOLDOWN);
-	input.setInterval(30,  VOLUP  );
-	input.setInterval(30,  CANCEL      );
-	input.setInterval(500, SETTINGS  );
-	input.setInterval(500, MENU );
-	input.setInterval(300, CLEAR      );
-	input.setInterval(300,  MANUAL      );
-	input.setInterval(1000,ACCEPT      );
-	//joy.setInterval(1000,ACTION_CLICK  );
-	input.setInterval(300, ALTLEFT      );
-	input.setInterval(300, ALTRIGHT      );
-    */
 	SDL_EnableKeyRepeat(1,150);
 }
 

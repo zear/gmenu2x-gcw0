@@ -166,11 +166,6 @@ public:
 	void main();
 	void options();
 	void skinMenu();
-	/*
-	void activateSdUsb();
-	void activateNandUsb();
-	void activateRootUsb();
-	*/
 	void about();
 	void viewLog();
 	void contextMenu();

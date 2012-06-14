@@ -403,7 +403,13 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	} // else, well.. we are no worse off :)
 
 	if (params!="") command += " " + params;
-	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
+#ifdef PLATFORM_DINGUX
+	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
+		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
+#else
+	if (gmenu2x->confInt["outputLogs"])
+		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
+#endif
 	if (dontleave) {
 		system(command.c_str());
 	} else {

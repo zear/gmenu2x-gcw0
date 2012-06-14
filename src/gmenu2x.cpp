@@ -243,23 +243,16 @@ void GMenu2X::initCPULimits() {
 
 void GMenu2X::init() {
 	batteryHandle = 0;
-	backlightHandle = 0;
 	usbHandle = 0;
 	acHandle = 0;
 
 	batteryHandle = fopen("/sys/class/power_supply/battery/capacity", "r");
 	usbHandle = fopen("/sys/class/power_supply/usb/online", "r");
 	acHandle = fopen("/sys/class/power_supply/ac/online", "r");
-#if defined(PLATFORM_NANONOTE)
-	backlightHandle = fopen("/sys/class/lcd/ili8960-lcd/contrast", "w+");
-#elif defined(PLATFORM_DINGUX)
-	backlightHandle = fopen("/sys/class/backlight/pwm-backlight/brightness", "w+");
-#endif
 }
 
 void GMenu2X::deinit() {
 	if (batteryHandle) fclose(batteryHandle);
-	if (backlightHandle) fclose(backlightHandle);
 	if (usbHandle) fclose(usbHandle);
 	if (acHandle) fclose(acHandle);
 }
@@ -652,27 +645,6 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	}
 }
 
-void GMenu2X::setBacklight(int val)
-{
-	if (backlightHandle) {
-		fprintf(backlightHandle, "%d", (val * 255) / 100);
-		fflush(backlightHandle);
-		rewind(backlightHandle);
-	}
-}
-
-int GMenu2X::getBackLight()
-{
-	int val = 255;
-	if (backlightHandle) {
-		fscanf(backlightHandle, "%d", &val);
-		rewind(backlightHandle);
-		val = (val * 100) / 255;
-		if (val < 0) val = 0; else if (val > 100) val = 100;
-	}
-	return val;
-}
-
 void GMenu2X::main() {
 	uint linksPerPage = linkColumns*linkRows;
 	int linkSpacingX = (resX-10 - linkColumns*skinConfInt["linkWidth"])/linkColumns;
@@ -904,8 +876,6 @@ void GMenu2X::explorer() {
 
 void GMenu2X::options() {
 	int curMenuClock = confInt["menuClock"];
-	int oldBacklight = getBackLight();
-	int newBacklight = oldBacklight;
 	bool showRootFolder = fileExists(CARD_ROOT);
 
 	FileLister fl_tr(getHome() + "/translations");
@@ -926,13 +896,11 @@ void GMenu2X::options() {
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], cpuFreqMin, cpuFreqSafeMax, cpuFreqMultiple));
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], cpuFreqMin, cpuFreqMax, cpuFreqMultiple));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
-	sd.addSetting(new MenuSettingInt(this, ts, tr["Lcd Backlight"], tr["Set Lcd Backlight value (default: 100)"], &newBacklight, 5, 100));
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Screen Timeout"], tr["Set screen's backlight timeout in seconds"], &confInt["backlightTimeout"], 0, 120));
 //	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Tv-Out encoding"], tr["Encoding of the tv-out signal"], &confStr["tvoutEncoding"], &encodings));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Show root"], tr["Show root folder in the file selection dialogs"], &showRootFolder));
 
 	if (sd.exec() && sd.edited()) {
-		if (newBacklight != oldBacklight) setBacklight(newBacklight);
 		if (curMenuClock != confInt["menuClock"]) setClock(confInt["menuClock"]);
 
 		if (confInt["backlightTimeout"] == 0) {

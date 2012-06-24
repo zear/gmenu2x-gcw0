@@ -1365,27 +1365,13 @@ void GMenu2X::scanner() {
 		lineY += 26;
 	}
 
-	scanbg.write(font,tr["Scanning SD filesystem..."],5,lineY);
+	scanbg.write(font,tr["Scanning filesystem..."],5,lineY);
 	scanbg.blit(s,0,0);
 	s->flip();
 	lineY += 26;
 
 	vector<string> files;
 	scanPath(CARD_ROOT, &files);
-
-	const char *nandpath = NULL;
-
-#ifdef PLATFORM_DINGUX
-	nandpath = "/media/ccnandb1";
-#endif
-
-	if (nandpath) {
-		scanbg.write(font,tr["Scanning NAND filesystem..."],5,lineY);
-		scanbg.blit(s,0,0);
-		s->flip();
-		lineY += 26;
-		scanPath(nandpath, &files);
-	}
 
 	stringstream ss;
 	ss << files.size();

@@ -43,7 +43,7 @@ ImageDialog::ImageDialog(
 	string path;
 
 	if (!file.empty()) {
-		path = strreplace(file, "skin:", gmenu2x->getExePath()+"skins/"+gmenu2x->confStr["skin"]+"/");
+		path = strreplace(file, "skin:", gmenu2x->sc.getSkinPath(gmenu2x->confStr["skin"]));
 		string::size_type pos = path.rfind("/");
 		if (pos != string::npos)
 			setPath(path.substr(0, pos));

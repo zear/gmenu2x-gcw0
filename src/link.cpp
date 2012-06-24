@@ -84,7 +84,7 @@ const string &Link::getIcon() {
 }
 
 void Link::setIcon(const string &icon) {
-	string skinpath = gmenu2x->getExePath()+"skins/"+gmenu2x->confStr["skin"];
+	string skinpath = gmenu2x->sc.getSkinPath(gmenu2x->confStr["skin"]);
 
 	if (icon.substr(0,skinpath.length()) == skinpath) {
 		string tempIcon = icon.substr(skinpath.length(), icon.length());
@@ -99,7 +99,7 @@ void Link::setIcon(const string &icon) {
 
 	iconPath = strreplace(this->icon,"skin:",skinpath+"/");
 	if (iconPath.empty() || !fileExists(iconPath)) {
-		iconPath = strreplace(this->icon,"skin:",gmenu2x->getExePath()+"skins/Default/");
+		iconPath = strreplace(this->icon,"skin:",gmenu2x->sc.getSkinPath("Default"));
 		if (!fileExists(iconPath)) searchIcon();
 	}
 

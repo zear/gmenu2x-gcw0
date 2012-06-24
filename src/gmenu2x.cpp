@@ -1461,21 +1461,25 @@ typedef struct {
 } MMSP2ADC;
 
 unsigned short GMenu2X::getBatteryLevel() {
-	if (!batteryHandle) return 0;
-	int battval = 0;
-	fscanf(batteryHandle, "%d", &battval);
-	rewind(batteryHandle);
-	if (battval>90) return 5;
-	if (battval>70) return 4;
-	if (battval>50) return 3;
-	if (battval>30) return 2;
-	if (battval>10) return 1;
+	if (usbHandle) {
+		int usbval = 0;
+		fscanf(usbHandle, "%d", &usbval);
+		rewind(usbHandle);
+		if (usbval == 1)
+			return 6;
+	}
 
-	if (!usbHandle) return 0;
-	int usbval = 0;
-	fscanf(usbHandle, "%d", &usbval);
-	rewind(usbHandle);
-	if (usbval==1) return 6;
+	if (batteryHandle) {
+		int battval = 0;
+		fscanf(batteryHandle, "%d", &battval);
+		rewind(batteryHandle);
+
+		if (battval>90) return 5;
+		if (battval>70) return 4;
+		if (battval>50) return 3;
+		if (battval>30) return 2;
+		if (battval>10) return 1;
+	}
 
 	return 0;
 }

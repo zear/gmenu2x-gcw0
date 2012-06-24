@@ -849,8 +849,7 @@ void GMenu2X::explorer() {
 		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 		//try relaunching gmenu2x
 		ERROR("Error executing selected application, re-launching gmenu2x\n");
-		chdir(getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
+		main();
 	}
 }
 

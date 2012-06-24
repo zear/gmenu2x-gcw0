@@ -462,8 +462,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		execlp("/bin/sh","/bin/sh", "-c", command.c_str(), NULL);
 		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 		//try relaunching gmenu2x
-		chdir(gmenu2x->getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
+		gmenu2x->main();
 	}
 
 	chdir(gmenu2x->getExePath().c_str());

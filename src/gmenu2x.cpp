@@ -241,22 +241,6 @@ void GMenu2X::initCPULimits() {
 	cpuFreqAppDefault = (cpuFreqAppDefault / cpuFreqMultiple) * cpuFreqMultiple;
 }
 
-void GMenu2X::init() {
-	batteryHandle = 0;
-	usbHandle = 0;
-	acHandle = 0;
-
-	batteryHandle = fopen("/sys/class/power_supply/battery/capacity", "r");
-	usbHandle = fopen("/sys/class/power_supply/usb/online", "r");
-	acHandle = fopen("/sys/class/power_supply/ac/online", "r");
-}
-
-void GMenu2X::deinit() {
-	if (batteryHandle) fclose(batteryHandle);
-	if (usbHandle) fclose(usbHandle);
-	if (acHandle) fclose(acHandle);
-}
-
 GMenu2X::GMenu2X()
 {
 	usbnet = samba = inet = web = false;
@@ -273,8 +257,6 @@ GMenu2X::GMenu2X()
 
 	path = "";
 	getExePath();
-
-	init();
 
 #ifdef UNLOCK_VT
 	unlockVT();
@@ -348,8 +330,6 @@ void GMenu2X::quit() {
 
 	SDL_Quit();
 	unsetenv("SDL_FBCON_DONT_CLEAR");
-
-	deinit();
 }
 
 void GMenu2X::initBG() {
@@ -1461,18 +1441,27 @@ typedef struct {
 } MMSP2ADC;
 
 unsigned short GMenu2X::getBatteryLevel() {
+	FILE *batteryHandle = NULL,
+		 *usbHandle = NULL;
+
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_NANONOTE)
+	usbHandle = fopen("/sys/class/power_supply/usb/online", "r");
+#endif
 	if (usbHandle) {
 		int usbval = 0;
 		fscanf(usbHandle, "%d", &usbval);
-		rewind(usbHandle);
+		fclose(usbHandle);
 		if (usbval == 1)
 			return 6;
 	}
 
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_NANONOTE)
+	batteryHandle = fopen("/sys/class/power_supply/battery/capacity", "r");
+#endif
 	if (batteryHandle) {
 		int battval = 0;
 		fscanf(batteryHandle, "%d", &battval);
-		rewind(batteryHandle);
+		fclose(batteryHandle);
 
 		if (battval>90) return 5;
 		if (battval>70) return 4;

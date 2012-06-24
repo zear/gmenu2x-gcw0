@@ -85,7 +85,6 @@ private:
 	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
 	*/
 	unsigned short getBatteryLevel();
-	FILE* batteryHandle, *usbHandle, *acHandle;
 	void browsePath(const std::string &path, std::vector<std::string>* directories, std::vector<std::string>* files);
 	/*!
 	Starts the scanning of the nand and sd filesystems, searching for dge and gpu files and creating the links in 2 dedicated sections.
@@ -116,10 +115,7 @@ private:
 	void initServices();
 	void initFont();
 	void initMenu();
-
 	void initCPULimits();
-	void init();
-	void deinit();
 
 	void showManual();
 

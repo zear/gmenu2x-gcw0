@@ -255,9 +255,6 @@ GMenu2X::GMenu2X()
 	bottomBarIconY = resY-18;
 	bottomBarTextY = resY-10;
 
-	path = "";
-	getExePath();
-
 #ifdef UNLOCK_VT
 	unlockVT();
 #endif
@@ -839,7 +836,6 @@ void GMenu2X::explorer() {
 		if (confInt["saveSelection"] && (confInt["section"]!=menu->selSectionIndex() || confInt["link"]!=menu->selLinkIndex()))
 			writeConfig();
 
-		//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
 		string command = cmdclean(fd.getPath()+"/"+fd.getFile());
 		chdir(fd.getPath().c_str());
 		quit();
@@ -1481,20 +1477,6 @@ void GMenu2X::setClock(unsigned mhz) {
 #if defined(PLATFORM_DINGUX) || defined(PLATFORM_NANONOTE)
 	jz_cpuspeed(mhz);
 #endif
-}
-
-const string &GMenu2X::getExePath() {
-	if (path.empty()) {
-		char buf[255];
-		memset(buf, 0, 255);
-		int l = readlink("/proc/self/exe", buf, 255);
-
-		path = buf;
-		path = path.substr(0,l);
-		l = path.rfind("/");
-		path = path.substr(0,l+1);
-	}
-	return path;
 }
 
 string GMenu2X::getDiskFree(const char *path) {

@@ -65,7 +65,6 @@ typedef std::tr1::unordered_map<std::string, int, std::tr1::hash<std::string> > 
 class GMenu2X {
 private:
 	Touchscreen ts;
-	std::string path; //!< Contains the working directory of GMenu2X
 
 	/*!
 	Retrieves the free disk space on the sd
@@ -133,14 +132,6 @@ public:
 	 */
 	uint resX, resY, halfX, halfY;
 	uint bottomBarIconY, bottomBarTextY, linkColumns, linkRows;
-
-	/*!
-	Retrieves the parent directory of GMenu2X.
-	This functions is used to initialize the "path" variable.
-	@see path
-	@return String containing the parent directory
-	*/
-	const std::string &getExePath();
 
 	InputManager input;
 

@@ -464,8 +464,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		//try relaunching gmenu2x
 		gmenu2x->main();
 	}
-
-	chdir(gmenu2x->getExePath().c_str());
 }
 
 const string &LinkApp::getExec() {

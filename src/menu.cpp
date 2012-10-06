@@ -61,25 +61,21 @@ uint Menu::firstDispRow() {
 void Menu::readSections(std::string parentDir)
 {
 	DIR *dirp;
-	struct stat st;
 	struct dirent *dptr;
 
 	dirp = opendir(parentDir.c_str());
 	if (!dirp) return;
 
 	while ((dptr = readdir(dirp))) {
-		int statret;
-		if (dptr->d_name[0]=='.') continue;
+		if (dptr->d_name[0] == '.' || dptr->d_type != DT_DIR)
+			continue;
 
 		string filepath = parentDir + "/" + dptr->d_name;
-		statret = stat(filepath.c_str(), &st);
-		if (!S_ISDIR(st.st_mode)) continue;
-		if (statret != -1) {
-			if (find(sections.begin(), sections.end(), (string)dptr->d_name) == sections.end()) {
-				sections.push_back((string)dptr->d_name);
-				vector<Link*> ll;
-				links.push_back(ll);
-			}
+
+		if (find(sections.begin(), sections.end(), (string)dptr->d_name) == sections.end()) {
+			sections.push_back((string)dptr->d_name);
+			vector<Link*> ll;
+			links.push_back(ll);
 		}
 	}
 
@@ -425,18 +421,14 @@ void Menu::setLinkIndex(int i) {
 void Menu::readLinksOfSection(std::string path, std::vector<std::string> &linkfiles)
 {
 	DIR *dirp;
-	struct stat st;
 	struct dirent *dptr;
 
 	if ((dirp = opendir(path.c_str())) == NULL) return;
 
 	while ((dptr = readdir(dirp))) {
-		if (dptr->d_name[0] == '.') continue;
+		if (dptr->d_type != DT_REG) continue;
 		string filepath = path + "/" + dptr->d_name;
-		int statret = stat(filepath.c_str(), &st);
-		if (S_ISDIR(st.st_mode)) continue;
-		if (statret != -1)
-			linkfiles.push_back(filepath);
+		linkfiles.push_back(filepath);
 	}
 
 	closedir(dirp);

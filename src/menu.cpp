@@ -48,6 +48,21 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	sort(sections.begin(),sections.end(),case_less());
 	setSectionIndex(0);
 	readLinks();
+
+#ifdef HAVE_LIBOPK
+	{
+		struct dirent *dptr;
+		DIR *dirp = opendir(CARD_ROOT);
+		if (dirp) {
+			while ((dptr = readdir(dirp))) {
+				if (dptr->d_type != DT_DIR)
+					continue;
+				readPackages((string) CARD_ROOT + dptr->d_name + "/apps");
+			}
+			closedir(dirp);
+		}
+	}
+#endif
 }
 
 Menu::~Menu() {
@@ -417,6 +432,44 @@ void Menu::setLinkIndex(int i) {
 
 	iLink = i;
 }
+
+#ifdef HAVE_LIBOPK
+void Menu::readPackages(std::string parentDir)
+{
+	DIR *dirp;
+	struct dirent *dptr;
+	vector<string> linkfiles;
+
+	dirp = opendir(parentDir.c_str());
+	if (!dirp)
+		return;
+
+	while ((dptr = readdir(dirp))) {
+		char *c;
+		LinkApp *link;
+		std::string path;
+
+		if (dptr->d_type != DT_REG)
+			continue;
+
+		c = strrchr(dptr->d_name, '.');
+		if (!c) /* File without extension */
+			continue;
+
+		if (strcasecmp(c + 1, "opk"))
+			continue;
+
+		path = parentDir + '/' + dptr->d_name;
+		link = new LinkApp(gmenu2x, ts, gmenu2x->input, path.c_str(), true);
+		link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
+
+		/* TODO: Read the category from the OPK. */
+		links[0].push_back(link);
+	}
+
+	closedir(dirp);
+}
+#endif
 
 void Menu::readLinksOfSection(std::string path, std::vector<std::string> &linkfiles)
 {

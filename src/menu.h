@@ -49,6 +49,11 @@ private:
 	// Load all the sections of the given "sections" directory.
 	void readSections(std::string parentDir);
 
+#ifdef HAVE_LIBOPK
+	// Load all the .opk packages of the given directory
+	void readPackages(std::string parentDir);
+#endif
+
 	// Load all the links on the given section directory.
 	void readLinksOfSection(std::string path, std::vector<std::string> &linkfiles);
 

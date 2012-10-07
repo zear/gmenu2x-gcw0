@@ -110,7 +110,10 @@ Surface *SurfaceCollection::add(const string &path) {
 		filePath = getSkinFilePath(filePath.substr(5,filePath.length()));
 		if (filePath.empty())
 			return NULL;
-	} else if (!fileExists(filePath)) return NULL;
+	} else if ((filePath.find('#') == filePath.npos) && (!fileExists(filePath))) {
+		WARNING("Unable to add image %s\n", path.c_str());
+		return NULL;
+	}
 
 	DEBUG("Adding surface: '%s'\n", path.c_str());
 	Surface *s = Surface::loadImage(filePath);

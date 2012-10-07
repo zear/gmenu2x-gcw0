@@ -12,6 +12,32 @@
 #include <png.h>
 #include <cassert>
 
+#ifdef HAVE_LIBOPK
+#include <opk.h>
+
+struct OpkParams {
+	std::string *sqfs_file, *icon_file;
+	unsigned int offset;
+	char *buf;
+};
+
+static void __readFromOpk(png_structp png_ptr, png_bytep ptr, png_size_t length)
+{
+	struct OpkParams *params = (struct OpkParams *) png_get_io_ptr(png_ptr);
+
+	if (!params->buf) {
+		params->buf = unsquashfs_single_file(params->sqfs_file->c_str(),
+					params->icon_file->c_str());
+		if (!params->buf) {
+			png_error(png_ptr, "Unable to open OPK package\n");
+			return;
+		}
+	}
+
+	memcpy(ptr, params->buf + params->offset, length);
+	params->offset += length;
+}
+#endif
 
 SDL_Surface *loadPNG(const std::string &path) {
 	// Declare these with function scope and initialize them to NULL,
@@ -20,6 +46,10 @@ SDL_Surface *loadPNG(const std::string &path) {
 	FILE *fp = NULL;
 	png_structp png = NULL;
 	png_infop info = NULL;
+#ifdef HAVE_LIBOPK
+	struct OpkParams *params = NULL;
+	std::string::size_type pos;
+#endif
 
 	// Create and initialize the top-level libpng struct.
 	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -37,11 +67,28 @@ SDL_Surface *loadPNG(const std::string &path) {
 		goto cleanup;
 	}
 
-	// Open input file.
-	fp = fopen(path.c_str(), "rb");
-	if (!fp) goto cleanup;
-	// Set up the input control if you are using standard C streams.
-	png_init_io(png, fp);
+#ifdef HAVE_LIBOPK
+	pos = path.find('#');
+	if (pos != path.npos) {
+		DEBUG("Registering specific callback for icon %s\n", path.c_str());
+
+		params = (struct OpkParams *) malloc(sizeof(*params));
+		params->sqfs_file = new std::string(path.substr(0, pos));
+		params->icon_file = new std::string(path.substr(pos + 1));
+		params->offset = 0;
+		params->buf = NULL;
+
+		png_set_read_fn(png, params, __readFromOpk);
+	} else {
+#else
+	if (1) {
+#endif /* HAVE_LIBOPK */
+		fp = fopen(path.c_str(), "rb");
+		if (!fp) goto cleanup;
+
+		// Set up the input control if you are using standard C streams.
+		png_init_io(png, fp);
+	}
 
 	// The call to png_read_info() gives us all of the information from the
 	// PNG file before the first IDAT (image data chunk).
@@ -117,6 +164,13 @@ cleanup:
 	// Clean up.
 	png_destroy_read_struct(&png, &info, NULL);
 	if (fp) fclose(fp);
+#ifdef HAVE_LIBOPK
+	if (params) {
+		if (params->buf)
+			free(params->buf);
+		free(params);
+	}
+#endif
 
 	return surface;
 }

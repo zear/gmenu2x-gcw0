@@ -47,6 +47,9 @@ private:
 	std::string file;
 
 	bool dontleave;
+#ifdef HAVE_LIBOPK
+	bool isOPK;
+#endif
 
 	void start();
 	void launch(
@@ -54,8 +57,14 @@ private:
 			const std::string &selectedDir = "");
 
 public:
+#ifdef HAVE_LIBOPK
+	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
+			const char* linkfile, bool opk = false);
+#else
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
 			const char* linkfile);
+#endif
+
 	virtual const std::string &searchIcon();
 
 #ifdef PLATFORM_DINGUX

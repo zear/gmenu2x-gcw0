@@ -41,11 +41,20 @@
 #include <linux/vt.h>
 #endif
 
+#ifdef HAVE_LIBOPK
+#include <opk.h>
+#endif
+
 using fastdelegate::MakeDelegate;
 using namespace std;
 
+#ifdef HAVE_LIBOPK
+LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
+				 const char* linkfile, bool opk)
+#else
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				 const char* linkfile)
+#endif
 	: Link(gmenu2x_, ts, MakeDelegate(this, &LinkApp::start))
 	, inputMgr(inputMgr_)
 {
@@ -61,6 +70,66 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	consoleApp = false;
 #endif
 
+#ifdef HAVE_LIBOPK
+	isOPK = opk;
+	if (opk) {
+		struct ParserData *pdata = openMetadata(linkfile);
+		char *param;
+		if (!pdata) {
+			ERROR("Unable to initialize libopk\n");
+			return;
+		}
+
+		file = linkfile;
+
+		param = readParam(pdata, "Name");
+		if (!param)
+			ERROR("Missing \"Name\" parameter\n");
+		else
+			title = param;
+
+		param = readParam(pdata, "Comment");
+		if (param)
+			description = param;
+
+		/* Read the icon from the OPK only
+		 * if it doesn't exist on the skin */
+		param = readParam(pdata, "Icon");
+		if (param) {
+			this->icon = gmenu2x->sc.getSkinFilePath((string) param + ".png");
+			if (this->icon.empty())
+				this->icon = (string) linkfile + '#' + param + ".png";
+			iconSurface = gmenu2x->sc[this->icon];
+		}
+
+		if (iconPath.empty())
+			searchIcon();
+
+		param = readParam(pdata, "Exec");
+		if (!param)
+			ERROR("Missing \"Exec\" parameter\n");
+		else
+			exec = param;
+
+#ifdef PLATFORM_DINGUX
+		param = readParam(pdata, "Terminal");
+		if (param)
+			consoleApp = !strcmp(param, "true");
+#endif
+
+		param = readParam(pdata, "X-OD-Manual");
+		if (param)
+			manual = param;
+
+		param = readParam(pdata, "X-OD-Daemon");
+		if (param)
+			dontleave = !strcmp(param, "true");
+
+		edited = false;
+		closeMetadata(pdata);
+	}
+#endif /* HAVE_LIBOPK */
+
 	string line;
 	ifstream infile (linkfile, ios_base::in);
 	while (getline(infile, line, '\n')) {
@@ -71,23 +140,31 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		string::size_type position = line.find("=");
 		string name = trim(line.substr(0,position));
 		string value = trim(line.substr(position+1));
-		if (name == "title") {
-			title = value;
-		} else if (name == "description") {
-			description = value;
-		} else if (name == "icon") {
-			setIcon(value);
-		} else if (name == "exec") {
-			exec = value;
-		} else if (name == "params") {
-			params = value;
-		} else if (name == "manual") {
-			manual = value;
-		} else if (name == "dontleave") {
-			if (value=="true") dontleave = true;
+#ifdef HAVE_LIBOPK
+		if (!opk) {
+#endif
+			if (name == "title") {
+				title = value;
+			} else if (name == "description") {
+				description = value;
+			} else if (name == "icon") {
+				setIcon(value);
+			} else if (name == "exec") {
+				exec = value;
+			} else if (name == "params") {
+				params = value;
+			} else if (name == "manual") {
+				manual = value;
+			} else if (name == "dontleave") {
+				if (value=="true") dontleave = true;
 #ifdef PLATFORM_DINGUX
-		} else if (name == "consoleapp") {
-			if (value == "true") consoleApp = true;
+			} else if (name == "consoleapp") {
+				if (value == "true") consoleApp = true;
+#endif
+			} else if (name == "selectorfilter") {
+				setSelectorFilter( value );
+#ifdef HAVE_LIBOPK
+			}
 #endif
 		} else if (name == "clock") {
 			setClock( atoi(value.c_str()) );
@@ -95,8 +172,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			setSelectorDir( value );
 		} else if (name == "selectorbrowser") {
 			if (value=="true") selectorbrowser = true;
-		} else if (name == "selectorfilter") {
-			setSelectorFilter( value );
 		} else if (name == "selectorscreens") {
 			setSelectorScreens( value );
 		} else if (name == "selectoraliases") {
@@ -162,22 +237,28 @@ bool LinkApp::save() {
 
 	ofstream f(file.c_str());
 	if (f.is_open()) {
-		if (title!=""          ) f << "title="           << title           << endl;
-		if (description!=""    ) f << "description="     << description     << endl;
-		if (icon!=""           ) f << "icon="            << icon            << endl;
-		if (exec!=""           ) f << "exec="            << exec            << endl;
-		if (params!=""         ) f << "params="          << params          << endl;
-		if (manual!=""         ) f << "manual="          << manual          << endl;
+#ifdef HAVE_LIBOPK
+		if (!isOPK) {
+#endif
+			if (title!=""          ) f << "title="           << title           << endl;
+			if (description!=""    ) f << "description="     << description     << endl;
+			if (icon!=""           ) f << "icon="            << icon            << endl;
+			if (exec!=""           ) f << "exec="            << exec            << endl;
+			if (params!=""         ) f << "params="          << params          << endl;
+			if (manual!=""         ) f << "manual="          << manual          << endl;
+			if (dontleave          ) f << "dontleave=true"                      << endl;
+#ifdef PLATFORM_DINGUX
+			if (consoleApp         ) f << "consoleapp=true"                     << endl;
+#endif
+			if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
+#ifdef HAVE_LIBOPK
+		}
+#endif
 		if (iclock!=0          ) f << "clock="           << iclock          << endl;
 		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
 		if (selectorbrowser    ) f << "selectorbrowser=true"                << endl;
-		if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
 		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
 		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
-		if (dontleave          ) f << "dontleave=true"                      << endl;
-#ifdef PLATFORM_DINGUX
-		if (consoleApp         ) f << "consoleapp=true"                     << endl;
-#endif
 		f.close();
 		sync();
 		return true;

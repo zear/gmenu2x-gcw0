@@ -49,7 +49,7 @@ private:
 	bool dontleave;
 #ifdef HAVE_LIBOPK
 	bool isOPK;
-	std::string opkMount, opkFile;
+	std::string opkMount, opkFile, category;
 #endif
 
 	void start();
@@ -59,6 +59,8 @@ private:
 
 public:
 #ifdef HAVE_LIBOPK
+	const std::string &getCategory() { return category; }
+
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
 			const char* linkfile, bool opk = false);
 #else

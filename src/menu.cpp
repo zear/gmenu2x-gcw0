@@ -448,6 +448,7 @@ void Menu::readPackages(std::string parentDir)
 		char *c;
 		LinkApp *link;
 		std::string path;
+		unsigned int i;
 
 		if (dptr->d_type != DT_REG)
 			continue;
@@ -463,8 +464,13 @@ void Menu::readPackages(std::string parentDir)
 		link = new LinkApp(gmenu2x, ts, gmenu2x->input, path.c_str(), true);
 		link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
 
-		/* TODO: Read the category from the OPK. */
-		links[0].push_back(link);
+		addSection(link->getCategory());
+		for (i = 0; i < sections.size(); i++) {
+			if (sections[i] == link->getCategory()) {
+				links[i].push_back(link);
+				break;
+			}
+		}
 	}
 
 	closedir(dirp);

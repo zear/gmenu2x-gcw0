@@ -88,8 +88,19 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		pos = opkMount.rfind('.');
 		opkMount = opkMount.substr(0, pos);
 
-		file = gmenu2x->getHome() + "/sections/" + opkMount;
+		file = gmenu2x->getHome() + "/sections/";
 		opkMount = (string) "/mnt/" + opkMount + '/';
+
+		param = opk_read_param(pdata, "Categories");
+		if (!param)
+			ERROR("Missing \"Categories\" parameter\n");
+		else {
+			category = param;
+			pos = category.find(';');
+			if (pos != category.npos)
+				category = category.substr(0, pos);
+			file += category + '/' + opkMount;
+		}
 
 		param = opk_read_param(pdata, "Name");
 		if (!param)

@@ -140,6 +140,18 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		string::size_type position = line.find("=");
 		string name = trim(line.substr(0,position));
 		string value = trim(line.substr(position+1));
+
+		if (name == "clock") {
+			setClock( atoi(value.c_str()) );
+		} else if (name == "selectordir") {
+			setSelectorDir( value );
+		} else if (name == "selectorbrowser") {
+			if (value=="true") selectorbrowser = true;
+		} else if (name == "selectorscreens") {
+			setSelectorScreens( value );
+		} else if (name == "selectoraliases") {
+			setAliasFile( value );
+		} else
 #ifdef HAVE_LIBOPK
 		if (!opk) {
 #endif
@@ -164,22 +176,11 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			} else if (name == "selectorfilter") {
 				setSelectorFilter( value );
 #ifdef HAVE_LIBOPK
-			}
+			} else
+				WARNING("Unrecognized option: '%s'\n", name.c_str());
 #endif
-		} else if (name == "clock") {
-			setClock( atoi(value.c_str()) );
-		} else if (name == "selectordir") {
-			setSelectorDir( value );
-		} else if (name == "selectorbrowser") {
-			if (value=="true") selectorbrowser = true;
-		} else if (name == "selectorscreens") {
-			setSelectorScreens( value );
-		} else if (name == "selectoraliases") {
-			setAliasFile( value );
-		} else {
+		} else
 			WARNING("Unrecognized option: '%s'\n", name.c_str());
-			break;
-		}
 	}
 	infile.close();
 

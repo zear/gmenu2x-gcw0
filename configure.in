@@ -25,7 +25,7 @@ AC_CHECK_LIB(SDL_gfx, rotozoomSurfaceXY,,check_sdl_gfx="no")
 AC_CHECK_LIB(png, png_read_image,,check_png="no")
 
 # Check for libopk
-AC_CHECK_LIB(opk, openMetadata)
+AC_CHECK_LIB(opk, opk_open)
 
 AC_ARG_ENABLE(platform,
 			  [  --enable-platform=X        specify the targeted platform],

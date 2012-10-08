@@ -516,8 +516,10 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (gmenu2x->confInt["outputLogs"])
 		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
 #endif
+#ifdef HAVE_LIBOPK
 	if (isOPK)
 		command += " ; umount -l " + opkMount;
+#endif
 	if (dontleave) {
 		system(command.c_str());
 	} else {

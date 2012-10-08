@@ -73,6 +73,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #ifdef HAVE_LIBOPK
 	isOPK = opk;
 	if (opk) {
+		string::size_type pos;
+
 		struct ParserData *pdata = opk_open(linkfile);
 		char *param;
 		if (!pdata) {
@@ -80,7 +82,14 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			return;
 		}
 
-		file = linkfile;
+		opkFile = file;
+		pos = file.rfind('/');
+		opkMount = file.substr(pos+1);
+		pos = opkMount.rfind('.');
+		opkMount = opkMount.substr(0, pos);
+
+		file = gmenu2x->getHome() + "/sections/" + opkMount;
+		opkMount = (string) "/mnt/" + opkMount + '/';
 
 		param = opk_read_param(pdata, "Name");
 		if (!param)
@@ -131,7 +140,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #endif /* HAVE_LIBOPK */
 
 	string line;
-	ifstream infile (linkfile, ios_base::in);
+	ifstream infile (file.c_str(), ios_base::in);
 	while (getline(infile, line, '\n')) {
 		line = trim(line);
 		if (line=="") continue;
@@ -426,6 +435,28 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	drawRun();
 	save();
 
+#ifdef HAVE_LIBOPK
+	if (isOPK) {
+		int err;
+
+		/* To be sure... */
+		string cmd = "umount " + opkMount;
+		system(cmd.c_str());
+
+		mkdir(opkMount.c_str(), 0700);
+		cmd = "mount -o loop,nosuid,ro " + opkFile + ' ' + opkMount;
+		err = system(cmd.c_str());
+
+		if (err) {
+			ERROR("Unable to mount OPK\n");
+			return;
+		}
+
+		chdir(opkMount.c_str());
+		exec = opkMount + exec;
+	}
+#endif
+
 	//Set correct working directory
 	string::size_type pos = exec.rfind("/");
 	if (pos != string::npos) {
@@ -485,6 +516,8 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (gmenu2x->confInt["outputLogs"])
 		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
 #endif
+	if (isOPK)
+		command += " ; umount -l " + opkMount;
 	if (dontleave) {
 		system(command.c_str());
 	} else {

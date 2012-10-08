@@ -49,6 +49,7 @@ private:
 	bool dontleave;
 #ifdef HAVE_LIBOPK
 	bool isOPK;
+	std::string opkMount, opkFile;
 #endif
 
 	void start();

@@ -73,7 +73,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #ifdef HAVE_LIBOPK
 	isOPK = opk;
 	if (opk) {
-		struct ParserData *pdata = openMetadata(linkfile);
+		struct ParserData *pdata = opk_open(linkfile);
 		char *param;
 		if (!pdata) {
 			ERROR("Unable to initialize libopk\n");
@@ -82,19 +82,19 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 
 		file = linkfile;
 
-		param = readParam(pdata, "Name");
+		param = opk_read_param(pdata, "Name");
 		if (!param)
 			ERROR("Missing \"Name\" parameter\n");
 		else
 			title = param;
 
-		param = readParam(pdata, "Comment");
+		param = opk_read_param(pdata, "Comment");
 		if (param)
 			description = param;
 
 		/* Read the icon from the OPK only
 		 * if it doesn't exist on the skin */
-		param = readParam(pdata, "Icon");
+		param = opk_read_param(pdata, "Icon");
 		if (param) {
 			this->icon = gmenu2x->sc.getSkinFilePath((string) param + ".png");
 			if (this->icon.empty())
@@ -105,28 +105,28 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		if (iconPath.empty())
 			searchIcon();
 
-		param = readParam(pdata, "Exec");
+		param = opk_read_param(pdata, "Exec");
 		if (!param)
 			ERROR("Missing \"Exec\" parameter\n");
 		else
 			exec = param;
 
 #ifdef PLATFORM_DINGUX
-		param = readParam(pdata, "Terminal");
+		param = opk_read_param(pdata, "Terminal");
 		if (param)
 			consoleApp = !strcmp(param, "true");
 #endif
 
-		param = readParam(pdata, "X-OD-Manual");
+		param = opk_read_param(pdata, "X-OD-Manual");
 		if (param)
 			manual = param;
 
-		param = readParam(pdata, "X-OD-Daemon");
+		param = opk_read_param(pdata, "X-OD-Daemon");
 		if (param)
 			dontleave = !strcmp(param, "true");
 
 		edited = false;
-		closeMetadata(pdata);
+		opk_close(pdata);
 	}
 #endif /* HAVE_LIBOPK */
 

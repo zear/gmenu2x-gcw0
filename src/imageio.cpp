@@ -26,7 +26,7 @@ static void __readFromOpk(png_structp png_ptr, png_bytep ptr, png_size_t length)
 	struct OpkParams *params = (struct OpkParams *) png_get_io_ptr(png_ptr);
 
 	if (!params->buf) {
-		params->buf = unsquashfs_single_file(params->sqfs_file->c_str(),
+		params->buf = opk_extract_file(params->sqfs_file->c_str(),
 					params->icon_file->c_str());
 		if (!params->buf) {
 			png_error(png_ptr, "Unable to open OPK package\n");

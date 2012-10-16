@@ -66,6 +66,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	selectorfilter = "";
 	icon = iconPath = "";
 	selectorbrowser = false;
+	editable = true;
 #ifdef PLATFORM_DINGUX
 	consoleApp = false;
 #endif
@@ -195,6 +196,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #endif
 			} else if (name == "selectorfilter") {
 				setSelectorFilter( value );
+			} else if (name == "editable") {
+				if (value == "false")
+					editable = false;
 #ifdef HAVE_LIBOPK
 			} else
 				WARNING("Unrecognized option: '%s'\n", name.c_str());

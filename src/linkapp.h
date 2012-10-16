@@ -40,7 +40,7 @@ private:
 	std::string sclock;
 	int iclock;
 	std::string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens;
-	bool selectorbrowser;
+	bool selectorbrowser, editable;
 	void drawRun();
 
 	std::string aliasfile;
@@ -99,6 +99,7 @@ public:
 	void showManual();
 	void selector(int startSelection=0, const std::string &selectorDir="");
 	bool targetExists();
+	bool isEditable() { return editable; }
 
 	const std::string &getFile() { return file; }
 	void renameFile(const std::string &name);

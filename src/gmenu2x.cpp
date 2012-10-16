@@ -1019,7 +1019,7 @@ void GMenu2X::contextMenu() {
 		}
 	}
 
-	if (menu->selLinkApp()!=NULL) {
+	if (menu->selLinkApp()!=NULL && menu->selLinkApp()->isEditable()) {
 		{
 		MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::editLink)};
 		voices.push_back(opt);

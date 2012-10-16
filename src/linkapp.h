@@ -40,7 +40,7 @@ private:
 	std::string sclock;
 	int iclock;
 	std::string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens;
-	bool selectorbrowser, useRamTimings;
+	bool selectorbrowser;
 	void drawRun();
 
 	std::string aliasfile;

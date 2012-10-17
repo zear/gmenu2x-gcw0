@@ -471,14 +471,16 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		chdir(opkMount.c_str());
 		exec = opkMount + exec;
 	}
-#endif
 
+#else
 	//Set correct working directory
 	string::size_type pos = exec.rfind("/");
 	if (pos != string::npos) {
 		string wd = exec.substr(0, pos + 1);
 		chdir(wd.c_str());
+		exec = exec.substr(pos + 1);
 	}
+#endif
 
 	//selectedFile
 	if (selectedFile!="") {

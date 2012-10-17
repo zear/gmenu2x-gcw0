@@ -120,7 +120,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			this->icon = gmenu2x->sc.getSkinFilePath((string) param + ".png");
 			if (this->icon.empty())
 				this->icon = (string) linkfile + '#' + param + ".png";
-			iconSurface = gmenu2x->sc[this->icon];
+			iconPath = this->icon;
+			updateSurfaces();
 		}
 
 		if (iconPath.empty())
@@ -311,7 +312,7 @@ void LinkApp::drawRun() {
 		gmenu2x->sc[getIcon()]->blit(gmenu2x->s,x,104);
 	else
 		gmenu2x->sc["icons/generic.png"]->blit(gmenu2x->s,x,104);*/
-	gmenu2x->sc[getIconPath()]->blit(gmenu2x->s,x,gmenu2x->halfY-16);
+	iconSurface->blit(gmenu2x->s,x,gmenu2x->halfY-16);
 	gmenu2x->s->write( gmenu2x->font, text, x+42, gmenu2x->halfY+1, ASFont::HAlignLeft, ASFont::VAlignMiddle );
 	gmenu2x->s->flip();
 }

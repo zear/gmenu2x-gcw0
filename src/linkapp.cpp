@@ -561,11 +561,15 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		   not going to work correctly.  Actually this would not be
 		   necessary, if SDL correctly restored terminal state after
 		   SDL_Quit(). */
-		pid_t pid = setsid();
-		if (pid == (pid_t)-1) {
-			WARNING("Failed to create new process group\n");
-		}
+		(void) setsid();
+
 		ioctl(1, TIOCSCTTY, STDOUT_FILENO);
+		(void) dup2(STDOUT_FILENO, 0);
+		(void) dup2(STDOUT_FILENO, 1);
+		(void) dup2(STDOUT_FILENO, 2);
+
+		if (STDOUT_FILENO > 2)
+			close(STDOUT_FILENO);
 
 		int pgid = tcgetpgrp(STDOUT_FILENO);
 		signal(SIGTTOU, SIG_IGN);

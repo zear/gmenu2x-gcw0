@@ -45,6 +45,10 @@
 #include <opk.h>
 #endif
 
+#ifdef HAVE_LIBXDGMIME
+#include <xdgmime.h>
+#endif
+
 using fastdelegate::MakeDelegate;
 using namespace std;
 
@@ -157,6 +161,35 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		if (param)
 			consoleApp = !strcmp(param, "true");
 #endif
+
+#ifdef HAVE_LIBXDGMIME
+		param = opk_read_param(pdata, "MimeType");
+		if (param) {
+			string::size_type oldpos = 0;
+			string mimetypes = param;
+
+			while ((pos = mimetypes.find(';')) != mimetypes.npos) {
+				int nb = 16;
+				char *extensions[nb];
+				string mimetype = mimetypes.substr(oldpos, pos);
+				mimetypes = mimetypes.substr(pos + 1);
+
+				nb = xdg_mime_get_extensions_from_mime_type(
+							mimetype.c_str(), extensions, nb);
+
+				while (nb--) {
+					selectorfilter += (string) extensions[nb] + ',';
+					free(extensions[nb]);
+				}
+
+				oldpos = pos + 1;
+			}
+
+			/* Remove last comma */
+			selectorfilter.erase(selectorfilter.end());
+			DEBUG("Compatible extensions: %s\n", selectorfilter.c_str());
+		}
+#endif /* HAVE_LIBXDGMIME */
 
 		param = opk_read_param(pdata, "X-OD-Manual");
 		if (param)

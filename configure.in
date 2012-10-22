@@ -27,6 +27,9 @@ AC_CHECK_LIB(png, png_read_image,,check_png="no")
 # Check for libopk
 AC_CHECK_LIB(opk, opk_open)
 
+# Check for libxdgmime
+AC_CHECK_LIB(xdgmime, xdg_mime_get_extensions_from_mime_type)
+
 AC_ARG_ENABLE(platform,
 			  [  --enable-platform=X        specify the targeted platform],
 			  [GMENU2X_PLATFORM="$enableval"], [GMENU2X_PLATFORM="default"])

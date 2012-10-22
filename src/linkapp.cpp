@@ -48,6 +48,8 @@
 using fastdelegate::MakeDelegate;
 using namespace std;
 
+static const char *tokens[] = { "%f", "%F", "%u", "%U", };
+
 #ifdef HAVE_LIBOPK
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				 const char* linkfile, bool opk)
@@ -130,8 +132,25 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		param = opk_read_param(pdata, "Exec");
 		if (!param)
 			ERROR("Missing \"Exec\" parameter\n");
-		else
-			exec = param;
+		else {
+			string tmp = param;
+			pos = tmp.find(' ');
+			exec = tmp.substr(0, pos);
+
+			if (pos != tmp.npos) {
+				unsigned int i;
+
+				params = tmp.substr(pos + 1);
+
+				for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++) {
+					if (params.find(tokens[i]) != params.npos) {
+						selectorbrowser = true;
+						selectordir = CARD_ROOT;
+						break;
+					}
+				}
+			}
+		}
 
 #ifdef PLATFORM_DINGUX
 		param = opk_read_param(pdata, "Terminal");
@@ -482,30 +501,25 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	}
 #endif
 
-	//selectedFile
-	if (selectedFile!="") {
-		string selectedFileExtension;
-		string selectedFileName;
-		string dir;
-		string::size_type i = selectedFile.rfind(".");
-		if (i != string::npos) {
-			selectedFileExtension = selectedFile.substr(i,selectedFile.length());
-			selectedFileName = selectedFile.substr(0,i);
-		}
+	if (selectedFile != "") {
+		string path;
 
-		if (selectedDir=="")
-			dir = getSelectorDir();
+		if (selectedDir == "")
+			path = getSelectorDir();
 		else
-			dir = selectedDir;
-		if (params=="") {
-			params = cmdclean(dir+selectedFile);
+			path = selectedDir;
+
+		path = cmdclean(path + selectedFile);
+
+		if (params == "") {
+			params = path;
 		} else {
-			string origParams = params;
-			params = strreplace(params,"[selFullPath]",cmdclean(dir+selectedFile));
-			params = strreplace(params,"[selPath]",cmdclean(dir));
-			params = strreplace(params,"[selFile]",cmdclean(selectedFileName));
-			params = strreplace(params,"[selExt]",cmdclean(selectedFileExtension));
-			if (params == origParams) params += " " + cmdclean(dir+selectedFile);
+			unsigned int i;
+			string::size_type pos;
+
+			for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++)
+				while((pos = params.find(tokens[i])) != params.npos)
+					params.replace(pos, 2, path);
 		}
 	}
 

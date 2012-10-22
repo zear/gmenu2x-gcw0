@@ -1179,7 +1179,6 @@ void GMenu2X::editLink() {
 	string linkDescription = menu->selLinkApp()->getDescription();
 	string linkIcon = menu->selLinkApp()->getIcon();
 	string linkManual = menu->selLinkApp()->getManual();
-	string linkParams = menu->selLinkApp()->getParams();
 	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
 	string linkSelDir = menu->selLinkApp()->getSelectorDir();
 	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
@@ -1197,7 +1196,6 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(this, ts, tr["Icon"], tr.translate("Select an icon for the link: $1", linkTitle.c_str(), NULL), &linkIcon, ".png,.bmp,.jpg,.jpeg"));
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Manual"], tr["Select a graphic/textual manual or a readme"], &linkManual, ".man.png,.txt"));
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock (default: 336)"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
-	sd.addSetting(new MenuSettingString(this, ts, tr["Parameters"], tr["Parameters to pass to the application"], &linkParams, diagTitle, diagIcon));
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
 	sd.addSetting(new MenuSettingString(this, ts, tr["Selector Filter"], tr["Selector filter (Separate values with a comma)"], &linkSelFilter, diagTitle, diagIcon));
@@ -1213,7 +1211,6 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setDescription(linkDescription);
 		menu->selLinkApp()->setIcon(linkIcon);
 		menu->selLinkApp()->setManual(linkManual);
-		menu->selLinkApp()->setParams(linkParams);
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);

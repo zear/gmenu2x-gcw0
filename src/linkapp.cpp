@@ -73,6 +73,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	icon = iconPath = "";
 	selectorbrowser = false;
 	editable = true;
+	edited = false;
 #ifdef PLATFORM_DINGUX
 	consoleApp = false;
 #endif
@@ -96,7 +97,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		opkMount = opkMount.substr(0, pos);
 
 		file = gmenu2x->getHome() + "/sections/";
-		opkMount = (string) "/mnt/" + opkMount + '/';
 
 		param = opk_read_param(pdata, "Categories");
 		if (!param)
@@ -108,6 +108,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				category = category.substr(0, pos);
 			file += category + '/' + opkMount;
 		}
+
+		opkMount = (string) "/mnt/" + opkMount + '/';
 
 		param = opk_read_param(pdata, "Name");
 		if (!param)
@@ -199,7 +201,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		if (param)
 			dontleave = !strcmp(param, "true");
 
-		edited = false;
+		edited = true;
 		opk_close(pdata);
 	}
 #endif /* HAVE_LIBOPK */
@@ -262,8 +264,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	infile.close();
 
 	if (iconPath.empty()) searchIcon();
-
-	edited = false;
 }
 
 const string &LinkApp::searchIcon() {
@@ -541,7 +541,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 			path = getSelectorDir();
 		else
 			path = selectedDir;
-
 		path = cmdclean(path + selectedFile);
 
 		if (params == "") {

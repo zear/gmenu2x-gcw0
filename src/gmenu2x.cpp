@@ -1023,7 +1023,11 @@ void GMenu2X::contextMenu() {
 		{
 		MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::editLink)};
 		voices.push_back(opt);
-		}{
+		}
+#ifdef HAVE_LIBOPK
+		if (!menu->selLinkApp()->isOpk())
+#endif
+		{
 		MenuOption opt = {tr.translate("Delete $1 link",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::deleteLink)};
 		voices.push_back(opt);
 		}

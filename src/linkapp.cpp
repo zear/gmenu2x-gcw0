@@ -527,13 +527,17 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		exec = opkMount + exec;
 	}
 
-#else
+	else {
+#endif
 	//Set correct working directory
 	string::size_type pos = exec.rfind("/");
 	if (pos != string::npos) {
 		string wd = exec.substr(0, pos + 1);
 		chdir(wd.c_str());
-		exec = exec.substr(pos + 1);
+		exec = wd + exec.substr(pos + 1);
+		DEBUG("Changed working directory to %s\n", wd.c_str());
+	}
+#ifdef HAVE_LIBOPK
 	}
 #endif
 

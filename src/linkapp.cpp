@@ -313,6 +313,8 @@ bool LinkApp::targetExists()
 bool LinkApp::save() {
 	if (!edited) return false;
 
+	DEBUG("Saving file: %s\n", file.c_str());
+
 	ofstream f(file.c_str());
 	if (f.is_open()) {
 #ifdef HAVE_LIBOPK
@@ -501,6 +503,11 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	drawRun();
+
+	if (selectedDir == "")
+		selectordir = getSelectorDir();
+	else
+		selectordir = selectedDir;
 	save();
 
 #ifdef HAVE_LIBOPK
@@ -535,13 +542,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 #endif
 
 	if (selectedFile != "") {
-		string path;
-
-		if (selectedDir == "")
-			path = getSelectorDir();
-		else
-			path = selectedDir;
-		path = cmdclean(path + selectedFile);
+		string path = cmdclean(selectordir + selectedFile);
 
 		if (params == "") {
 			params = path;

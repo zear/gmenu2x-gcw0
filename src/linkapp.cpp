@@ -71,7 +71,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	selectordir = "";
 	selectorfilter = "";
 	icon = iconPath = "";
-	selectorbrowser = false;
+	selectorbrowser = true;
 	editable = true;
 	edited = false;
 #ifdef PLATFORM_DINGUX
@@ -147,7 +147,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 
 				for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++) {
 					if (params.find(tokens[i]) != params.npos) {
-						selectorbrowser = true;
 						selectordir = CARD_ROOT;
 						break;
 					}
@@ -219,7 +218,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 		} else if (name == "selectordir") {
 			setSelectorDir( value );
 		} else if (name == "selectorbrowser") {
-			if (value=="true") selectorbrowser = true;
+			if (value=="false") selectorbrowser = false;
 		} else if (name == "selectorscreens") {
 			setSelectorScreens( value );
 		} else if (name == "selectoraliases") {
@@ -336,7 +335,7 @@ bool LinkApp::save() {
 #endif
 		if (iclock!=0          ) f << "clock="           << iclock          << endl;
 		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
-		if (selectorbrowser    ) f << "selectorbrowser=true"                << endl;
+		if (!selectorbrowser   ) f << "selectorbrowser=false"               << endl;
 		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
 		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
 		f.close();

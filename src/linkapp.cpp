@@ -132,9 +132,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			updateSurfaces();
 		}
 
-		if (iconPath.empty())
-			searchIcon();
-
 		param = opk_read_param(pdata, "Exec");
 		if (!param)
 			ERROR("Missing \"Exec\" parameter\n");
@@ -267,6 +264,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 }
 
 const string &LinkApp::searchIcon() {
+	if (!iconPath.empty())
+		return iconPath;
+
 	string execicon = exec;
 	string::size_type pos = exec.rfind(".");
 	if (pos != string::npos) execicon = exec.substr(0,pos);

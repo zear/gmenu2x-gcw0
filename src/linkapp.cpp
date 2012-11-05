@@ -90,6 +90,12 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			return;
 		}
 
+		if (!opk_open_metadata(pdata)) {
+			ERROR("OPK does not contain any meta-data\n");
+			opk_close(pdata);
+			return;
+		}
+
 		opkFile = file;
 		pos = file.rfind('/');
 		opkMount = file.substr(pos+1);

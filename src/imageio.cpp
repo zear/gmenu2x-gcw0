@@ -15,27 +15,12 @@
 #ifdef HAVE_LIBOPK
 #include <opk.h>
 
-struct OpkParams {
-	std::string *sqfs_file, *icon_file;
-	unsigned int offset;
-	char *buf;
-};
-
 static void __readFromOpk(png_structp png_ptr, png_bytep ptr, png_size_t length)
 {
-	struct OpkParams *params = (struct OpkParams *) png_get_io_ptr(png_ptr);
+	char **buf = (char **) png_get_io_ptr(png_ptr);
 
-	if (!params->buf) {
-		params->buf = opk_extract_file(params->sqfs_file->c_str(),
-					params->icon_file->c_str());
-		if (!params->buf) {
-			png_error(png_ptr, "Unable to open OPK package\n");
-			return;
-		}
-	}
-
-	memcpy(ptr, params->buf + params->offset, length);
-	params->offset += length;
+	memcpy(ptr, *buf, length);
+	*buf += length;
 }
 #endif
 
@@ -47,8 +32,9 @@ SDL_Surface *loadPNG(const std::string &path) {
 	png_structp png = NULL;
 	png_infop info = NULL;
 #ifdef HAVE_LIBOPK
-	struct OpkParams *params = NULL;
 	std::string::size_type pos;
+	struct ParserData *pdata = NULL;
+	char *buffer = NULL, *param;
 #endif
 
 	// Create and initialize the top-level libpng struct.
@@ -72,13 +58,16 @@ SDL_Surface *loadPNG(const std::string &path) {
 	if (pos != path.npos) {
 		DEBUG("Registering specific callback for icon %s\n", path.c_str());
 
-		params = (struct OpkParams *) malloc(sizeof(*params));
-		params->sqfs_file = new std::string(path.substr(0, pos));
-		params->icon_file = new std::string(path.substr(pos + 1));
-		params->offset = 0;
-		params->buf = NULL;
+		pdata = opk_open(path.substr(0, pos).c_str());
+		if (!pdata) {
+			ERROR("Unable to open OPK\n");
+			goto cleanup;
+		}
 
-		png_set_read_fn(png, params, __readFromOpk);
+		buffer = opk_extract_file(pdata, path.substr(pos + 1).c_str());
+		param = buffer;
+
+		png_set_read_fn(png, &param, __readFromOpk);
 	} else {
 #else
 	if (1) {
@@ -165,11 +154,10 @@ cleanup:
 	png_destroy_read_struct(&png, &info, NULL);
 	if (fp) fclose(fp);
 #ifdef HAVE_LIBOPK
-	if (params) {
-		if (params->buf)
-			free(params->buf);
-		free(params);
-	}
+	if (buffer)
+		free(buffer);
+	if (pdata)
+		opk_close(pdata);
 #endif
 
 	return surface;

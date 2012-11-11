@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -381,7 +382,49 @@ void LinkApp::start() {
 }
 
 void LinkApp::showManual() {
-	if (manual=="" || !fileExists(manual)) return;
+	if (manual.empty())
+		return;
+
+#ifdef HAVE_LIBOPK
+	if (isOPK) {
+		vector<string> readme;
+		char *token, *buf, *ptr;
+		struct ParserData *pdata;
+
+		pdata = opk_open(opkFile.c_str());
+		if (!pdata) {
+			WARNING("Unable to open OPK to read manual\n");
+			return;
+		}
+
+		buf = ptr = opk_extract_file(pdata, manual.c_str());
+		opk_close(pdata);
+
+		if (!buf) {
+			WARNING("Unable to read manual from OPK\n");
+			return;
+		}
+
+		while((token = strchr(ptr, '\n'))) {
+			*token = '\0';
+
+			string str(ptr);
+			readme.push_back(str);
+			ptr = token + 1;
+		}
+
+		/* Add the last line */
+		string str(ptr);
+		readme.push_back(str);
+		free(buf);
+
+		TextDialog td(gmenu2x, getTitle(), "ReadMe", getIconPath(), &readme);
+		td.exec();
+		return;
+	}
+#endif
+	if (!fileExists(manual))
+		return;
 
 	// Png manuals
 	string ext8 = manual.substr(manual.size()-8,8);

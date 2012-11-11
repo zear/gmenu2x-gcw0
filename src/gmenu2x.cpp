@@ -1011,7 +1011,7 @@ void GMenu2X::contextMenu() {
 
 	{
 		LinkApp* app = menu->selLinkApp();
-		if (app && fileExists(app->getManual())) {
+		if (app && !app->getManual().empty()) {
 			MenuOption opt = {tr.translate("Show manual of $1",menu->selLink()->getTitle().c_str(),NULL),
 				MakeDelegate(this, &GMenu2X::showManual),
 			};

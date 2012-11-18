@@ -73,6 +73,7 @@ esac
 
 AC_SUBST(PLATFORM)
 AC_SUBST(SCREEN_RES)
+AC_DEFINE_UNQUOTED(PLATFORM, "${PLATFORM}")
 
 
 AC_OUTPUT(Makefile src/Makefile data/Makefile)

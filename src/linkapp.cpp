@@ -86,16 +86,39 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 
 		struct ParserData *pdata = opk_open(linkfile);
 		char *param;
+		bool has_metadata = false;
+
 		if (!pdata) {
 			ERROR("Unable to initialize libopk\n");
 			return;
 		}
 
-		if (!opk_open_metadata(pdata)) {
-			ERROR("OPK does not contain any meta-data\n");
+		for(;;) {
+			const char *str = opk_open_metadata(pdata);
+			if (!str)
+				break;
+
+			/* Strip .desktop */
+			string metadata(str);
+			pos = metadata.rfind('.');
+			metadata = metadata.substr(0, pos);
+
+			/* Keep only the platform name */
+			pos = metadata.rfind('.');
+			metadata = metadata.substr(pos + 1);
+
+			if (metadata.compare(PLATFORM) == 0) {
+				has_metadata = true;
+				break;
+			}
+		}
+
+		if (!has_metadata) {
+			ERROR("%s does not contain any meta-data for this platform\n", linkfile);
 			opk_close(pdata);
 			return;
 		}
+
 
 		opkFile = file;
 		pos = file.rfind('/');

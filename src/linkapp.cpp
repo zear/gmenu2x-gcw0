@@ -38,7 +38,7 @@
 #include <fstream>
 #include <sstream>
 
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 #include <linux/vt.h>
 #endif
 
@@ -75,7 +75,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	selectorbrowser = true;
 	editable = true;
 	edited = false;
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 	consoleApp = false;
 #endif
 
@@ -161,7 +161,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			}
 		}
 
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 		param = opk_read_param(pdata, "Terminal");
 		if (param)
 			consoleApp = !strcmp(param, "true");
@@ -245,7 +245,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				manual = value;
 			} else if (name == "dontleave") {
 				if (value=="true") dontleave = true;
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 			} else if (name == "consoleapp") {
 				if (value == "true") consoleApp = true;
 #endif
@@ -330,7 +330,7 @@ bool LinkApp::save() {
 			if (params!=""         ) f << "params="          << params          << endl;
 			if (manual!=""         ) f << "manual="          << manual          << endl;
 			if (dontleave          ) f << "dontleave=true"                      << endl;
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 			if (consoleApp         ) f << "consoleapp=true"                     << endl;
 #endif
 			if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
@@ -623,7 +623,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	} // else, well.. we are no worse off :)
 
 	if (params!="") command += " " + params;
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
 		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
 #else
@@ -671,7 +671,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		signal(SIGTTOU, SIG_IGN);
 		tcsetpgrp(STDOUT_FILENO, pgid);
 
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 		if (consoleApp) {
 			/* Enable the framebuffer console */
 			char c = '1';

@@ -40,6 +40,11 @@ case "$GMENU2X_PLATFORM" in
 		PLATFORM="dingux"
 		SCREEN_RES="320x240"
 	;;
+	gcw0)
+		AC_DEFINE(PLATFORM_GCW0)
+		PLATFORM="gcw0"
+		SCREEN_RES="320x240"
+	;;
 	nanonote)
 		AC_DEFINE(PLATFORM_NANONOTE)
 		PLATFORM="nanonote"

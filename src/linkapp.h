@@ -71,7 +71,7 @@ public:
 
 	virtual const std::string &searchIcon();
 
-#ifdef PLATFORM_DINGUX
+#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
 	bool consoleApp;
 #endif
 

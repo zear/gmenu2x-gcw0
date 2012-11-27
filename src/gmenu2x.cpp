@@ -61,7 +61,7 @@
 
 #include <sys/fcntl.h> //for battery
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 #	define UNLOCK_VT
 #	include <sys/ioctl.h>
 #	include <linux/vt.h>
@@ -101,7 +101,7 @@ using namespace fastdelegate;
 
 #ifdef _CARD_ROOT
 const char *CARD_ROOT = _CARD_ROOT;
-#elif defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#elif defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 const char *CARD_ROOT = "/media/";
 #else
 const char *CARD_ROOT = "/card/"; //Note: Add a trailing /!
@@ -348,7 +348,7 @@ void GMenu2X::initBG() {
 	Surface *sd = Surface::loadImage("imgs/sd.png", confStr["skin"]);
 	if (sd) sd->blit(bgmain, 3, bottomBarIconY);
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	string df = getDiskFree("/boot");
 #else
 	string df = getDiskFree(CARD_ROOT);
@@ -735,7 +735,7 @@ void GMenu2X::main() {
 			s->rectangle( 12,52,296,helpBoxHeight,
 			skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
 			s->write( font, tr["CONTROLS"], 20, 60 );
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			s->write( font, tr["A: Launch link / Confirm action"], 20, 80 );
 			s->write( font, tr["B: Show this help menu"], 20, 95 );
 			s->write( font, tr["L, R: Change section"], 20, 110 );
@@ -1215,7 +1215,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens));
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Selector Aliases"], tr["File containing a list of aliases for the selector"], &linkSelAliases));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Don't Leave"], tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef()));
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Display Console"], tr["Must be enabled for console-based applications"], &menu->selLinkApp()->consoleApp));
 #endif
 #ifdef HAVE_LIBOPK
@@ -1431,7 +1431,7 @@ void GMenu2X::scanPath(string path, vector<string> *files) {
 			scanPath(filepath, files);
 		if (statRet != -1) {
 			ext = filepath.substr(filepath.length()-4,4);
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
 			if (ext==".dge")
 #else
 			if (ext==".pxml")
@@ -1452,7 +1452,7 @@ unsigned short GMenu2X::getBatteryLevel() {
 	FILE *batteryHandle = NULL,
 		 *usbHandle = NULL;
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
 	usbHandle = fopen("/sys/class/power_supply/usb/online", "r");
 #endif
 	if (usbHandle) {
@@ -1463,7 +1463,7 @@ unsigned short GMenu2X::getBatteryLevel() {
 			return 6;
 	}
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
 	batteryHandle = fopen("/sys/class/power_supply/battery/capacity", "r");
 #endif
 	if (batteryHandle) {
@@ -1487,7 +1487,7 @@ void GMenu2X::setInputSpeed() {
 
 void GMenu2X::setClock(unsigned mhz) {
 	mhz = constrain(mhz, cpuFreqMin, confInt["maxClock"]);
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
 	jz_cpuspeed(mhz);
 #endif
 }

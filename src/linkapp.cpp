@@ -38,7 +38,7 @@
 #include <fstream>
 #include <sstream>
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 #include <linux/vt.h>
 #endif
 
@@ -75,7 +75,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	selectorbrowser = true;
 	editable = true;
 	edited = false;
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	consoleApp = false;
 #endif
 
@@ -184,7 +184,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			}
 		}
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 		param = opk_read_param(pdata, "Terminal");
 		if (param)
 			consoleApp = !strcmp(param, "true");
@@ -268,7 +268,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				manual = value;
 			} else if (name == "dontleave") {
 				if (value=="true") dontleave = true;
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			} else if (name == "consoleapp") {
 				if (value == "true") consoleApp = true;
 #endif
@@ -353,7 +353,7 @@ bool LinkApp::save() {
 			if (params!=""         ) f << "params="          << params          << endl;
 			if (manual!=""         ) f << "manual="          << manual          << endl;
 			if (dontleave          ) f << "dontleave=true"                      << endl;
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			if (consoleApp         ) f << "consoleapp=true"                     << endl;
 #endif
 			if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
@@ -646,7 +646,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	} // else, well.. we are no worse off :)
 
 	if (params!="") command += " " + params;
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
 		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
 #else
@@ -694,7 +694,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		signal(SIGTTOU, SIG_IGN);
 		tcsetpgrp(STDOUT_FILENO, pgid);
 
-#if defined(PLATFORM_DINGUX) || defined(PLATFORM_GCW0)
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 		if (consoleApp) {
 			/* Enable the framebuffer console */
 			char c = '1';

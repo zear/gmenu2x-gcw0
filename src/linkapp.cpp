@@ -57,7 +57,7 @@ static const char *tokens[] = { "%f", "%F", "%u", "%U", };
 
 #ifdef HAVE_LIBOPK
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
-				 const char* linkfile, bool opk)
+				 const char* linkfile, struct ParserData *pdata)
 #else
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				 const char* linkfile)
@@ -80,45 +80,11 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #endif
 
 #ifdef HAVE_LIBOPK
-	isOPK = opk;
-	if (opk) {
+	isOPK = !!pdata;
+	if (isOPK) {
 		string::size_type pos;
 
-		struct ParserData *pdata = opk_open(linkfile);
 		char *param;
-		bool has_metadata = false;
-
-		if (!pdata) {
-			ERROR("Unable to initialize libopk\n");
-			return;
-		}
-
-		for(;;) {
-			const char *str = opk_open_metadata(pdata);
-			if (!str)
-				break;
-
-			/* Strip .desktop */
-			string metadata(str);
-			pos = metadata.rfind('.');
-			metadata = metadata.substr(0, pos);
-
-			/* Keep only the platform name */
-			pos = metadata.rfind('.');
-			metadata = metadata.substr(pos + 1);
-
-			if (metadata.compare(PLATFORM) == 0) {
-				has_metadata = true;
-				break;
-			}
-		}
-
-		if (!has_metadata) {
-			ERROR("%s does not contain any meta-data for this platform\n", linkfile);
-			opk_close(pdata);
-			return;
-		}
-
 
 		opkFile = file;
 		pos = file.rfind('/');
@@ -225,7 +191,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			dontleave = !strcmp(param, "true");
 
 		edited = true;
-		opk_close(pdata);
 	}
 #endif /* HAVE_LIBOPK */
 
@@ -252,7 +217,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			setAliasFile( value );
 		} else
 #ifdef HAVE_LIBOPK
-		if (!opk) {
+		if (!isOPK) {
 #endif
 			if (name == "title") {
 				title = value;

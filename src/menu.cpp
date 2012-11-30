@@ -27,6 +27,10 @@
 #include <fstream>
 #include <unistd.h>
 
+#ifdef HAVE_LIBOPK
+#include <opk.h>
+#endif
+
 #include "gmenu2x.h"
 #include "linkapp.h"
 #include "menu.h"
@@ -446,9 +450,9 @@ void Menu::readPackages(std::string parentDir)
 
 	while ((dptr = readdir(dirp))) {
 		char *c;
-		LinkApp *link;
 		std::string path;
 		unsigned int i;
+		struct ParserData *pdata;
 
 		if (dptr->d_type != DT_REG)
 			continue;
@@ -461,16 +465,54 @@ void Menu::readPackages(std::string parentDir)
 			continue;
 
 		path = parentDir + '/' + dptr->d_name;
-		link = new LinkApp(gmenu2x, ts, gmenu2x->input, path.c_str(), true);
-		link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
 
-		addSection(link->getCategory());
-		for (i = 0; i < sections.size(); i++) {
-			if (sections[i] == link->getCategory()) {
-				links[i].push_back(link);
+		pdata = opk_open(path.c_str());
+		if (!pdata) {
+			ERROR("Unable to open OPK %s\n", path.c_str());
+			continue;
+		}
+
+		for (;;) {
+			bool has_metadata = false;
+			LinkApp *link;
+
+			for (;;) {
+				string::size_type pos;
+				const char *str = opk_open_metadata(pdata);
+				if (!str)
+					break;
+
+				/* Strip .desktop */
+				string metadata(str);
+				pos = metadata.rfind('.');
+				metadata = metadata.substr(0, pos);
+
+				/* Keep only the platform name */
+				pos = metadata.rfind('.');
+				metadata = metadata.substr(pos + 1);
+
+				if (metadata.compare(PLATFORM) == 0) {
+					has_metadata = true;
+					break;
+				}
+			}
+
+			if (!has_metadata)
 				break;
+
+			link = new LinkApp(gmenu2x, ts, gmenu2x->input, path.c_str(), pdata);
+			link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
+
+			addSection(link->getCategory());
+			for (i = 0; i < sections.size(); i++) {
+				if (sections[i] == link->getCategory()) {
+					links[i].push_back(link);
+					break;
+				}
 			}
 		}
+
+		opk_close(pdata);
 	}
 
 	closedir(dirp);

@@ -63,7 +63,7 @@ public:
 	bool isOpk() { return isOPK; }
 
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
-			const char* linkfile, bool opk = false);
+			const char* linkfile, struct ParserData *pdata = NULL);
 #else
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
 			const char* linkfile);

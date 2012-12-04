@@ -277,7 +277,7 @@ GMenu2X::GMenu2X()
 	bg = NULL;
 	font = NULL;
 	menu = NULL;
-	setSkin(confStr["skin"], false);
+	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	initMenu();
 
 	if (!fileExists(confStr["wallpaper"])) {
@@ -976,8 +976,13 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 			}
 			skinconf.close();
 
-			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"]))
-				confStr["wallpaper"] = "skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"];
+			if (setWallpaper && !skinConfStr["wallpaper"].empty()) {
+				string fp = sc.getSkinFilePath("wallpapers/" + skinConfStr["wallpaper"]);
+				if (!fp.empty())
+					confStr["wallpaper"] = fp;
+				else
+					WARNING("Unable to find wallpaper defined on skin %s\n", skin.c_str());
+			}
 		}
 	}
 

@@ -1210,7 +1210,7 @@ void GMenu2X::editLink() {
 #ifdef HAVE_LIBOPK
 	}
 #endif
-	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock (default: 336)"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
+	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock frequency"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
 #ifdef HAVE_LIBOPK
@@ -1350,13 +1350,7 @@ void GMenu2X::scanner() {
 #ifdef PLATFORM_PANDORA
 	//char *configpath = pnd_conf_query_searchpath();
 #else
-	if (confInt["menuClock"]<336) {
-		setClock(336);
-		scanbg.write(font,tr["Raising cpu clock to 336MHz"],5,lineY);
-		scanbg.blit(s,0,0);
-		s->flip();
-		lineY += 26;
-	}
+	setSafeMaxClock();
 
 	scanbg.write(font,tr["Scanning filesystem..."],5,lineY);
 	scanbg.blit(s,0,0);
@@ -1399,14 +1393,7 @@ void GMenu2X::scanner() {
 	s->flip();
 	lineY += 26;
 
-	if (confInt["menuClock"]<336) {
-		setClock(confInt["menuClock"]);
-		scanbg.write(font,tr["Decreasing cpu clock"],5,lineY);
-		scanbg.blit(s,0,0);
-		s->flip();
-		lineY += 26;
-	}
-
+	setMenuClock();
 	sync();
 #endif
 

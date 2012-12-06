@@ -68,7 +68,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	manual = "";
 	file = linkfile;
 	dontleave = false;
-	setClock(336);
+	setClock(gmenu2x->getDefaultAppClock());
 	selectordir = "";
 	selectorfilter = "";
 	icon = iconPath = "";
@@ -418,7 +418,7 @@ void LinkApp::showManual() {
 	string ext8 = manual.substr(manual.size()-8,8);
 	if (ext8==".man.png" || ext8==".man.bmp" || ext8==".man.jpg" || manual.substr(manual.size()-9,9)==".man.jpeg") {
 		//Raise the clock to speed-up the loading of the manual
-		gmenu2x->setClock(336);
+		gmenu2x->setSafeMaxClock();
 
 		Surface *pngman = Surface::loadImage(manual);
 		if (!pngman) {
@@ -441,7 +441,7 @@ void LinkApp::showManual() {
 		ss >> spagecount;
 
 		//Lower the clock
-		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
+		gmenu2x->setMenuClock();
 
 		while (!close) {
 			if (repaint) {
@@ -496,12 +496,10 @@ void LinkApp::showManual() {
 		string line;
 		ifstream infile(manual.c_str(), ios_base::in);
 		if (infile.is_open()) {
-			gmenu2x->setClock(336);
 			while (getline(infile, line, '\n')) txtman.push_back(line);
 			infile.close();
 
 			TextManualDialog tmd(gmenu2x, getTitle(), getIconPath(), &txtman);
-			gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
 			tmd.exec();
 		}
 
@@ -514,12 +512,10 @@ void LinkApp::showManual() {
 	string line;
 	ifstream infile(manual.c_str(), ios_base::in);
 	if (infile.is_open()) {
-		gmenu2x->setClock(336);
 		while (getline(infile, line, '\n')) readme.push_back(line);
 		infile.close();
 
 		TextDialog td(gmenu2x, getTitle(), "ReadMe", getIconPath(), &readme);
-		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
 		td.exec();
 	}
 }

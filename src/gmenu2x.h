@@ -159,6 +159,9 @@ public:
 	void changeWallpaper();
 
 	void setClock(unsigned mhz);
+	unsigned getDefaultAppClock() { return cpuFreqAppDefault; }
+	void setMenuClock() { setClock(cpuFreqMenuDefault); }
+	void setSafeMaxClock() { setClock(cpuFreqSafeMax); }
 
 	void setInputSpeed();
 

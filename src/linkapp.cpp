@@ -68,7 +68,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	manual = "";
 	file = linkfile;
 	dontleave = false;
+#ifdef ENABLE_CPUFREQ
 	setClock(gmenu2x->getDefaultAppClock());
+#endif
 	selectordir = "";
 	selectorfilter = "";
 	icon = iconPath = "";
@@ -417,8 +419,10 @@ void LinkApp::showManual() {
 	// Png manuals
 	string ext8 = manual.substr(manual.size()-8,8);
 	if (ext8==".man.png" || ext8==".man.bmp" || ext8==".man.jpg" || manual.substr(manual.size()-9,9)==".man.jpeg") {
+#ifdef ENABLE_CPUFREQ
 		//Raise the clock to speed-up the loading of the manual
 		gmenu2x->setSafeMaxClock();
+#endif
 
 		Surface *pngman = Surface::loadImage(manual);
 		if (!pngman) {
@@ -440,8 +444,10 @@ void LinkApp::showManual() {
 		string spagecount;
 		ss >> spagecount;
 
+#ifdef ENABLE_CPUFREQ
 		//Lower the clock
 		gmenu2x->setMenuClock();
+#endif
 
 		while (!close) {
 			if (repaint) {
@@ -631,9 +637,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		if (selectedFile == "") {
 			gmenu2x->writeTmp();
 		}
+#ifdef ENABLE_CPUFREQ
 		if (clock() != gmenu2x->confInt["menuClock"]) {
 			gmenu2x->setClock(clock());
 		}
+#endif
 		gmenu2x->quit();
 
 		/* Make the terminal we're connected to (via stdin/stdout) our

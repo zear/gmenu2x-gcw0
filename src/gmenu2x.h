@@ -73,12 +73,16 @@ private:
 	std::string getDiskFree(const char *path);
 	unsigned short cpuX; //!< Offset for displaying cpu clock information
 	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
+#ifdef ENABLE_CPUFREQ
 	unsigned cpuFreqMin; //!< Minimum CPU frequency
 	unsigned cpuFreqMax; //!< Maximum theoretical CPU frequency
 	unsigned cpuFreqSafeMax; //!< Maximum safe CPU frequency
 	unsigned cpuFreqMenuDefault; //!< Default CPU frequency for gmenu2x
 	unsigned cpuFreqAppDefault; //!< Default CPU frequency for launched apps
 	unsigned cpuFreqMultiple; //!< All valid CPU frequencies are a multiple of this
+
+	void initCPULimits();
+#endif
 	/*!
 	Reads the current battery state and returns a number representing it's level of charge
 	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
@@ -114,7 +118,6 @@ private:
 	void initServices();
 	void initFont();
 	void initMenu();
-	void initCPULimits();
 
 	void showManual();
 
@@ -158,10 +161,12 @@ public:
 	void contextMenu();
 	void changeWallpaper();
 
+#ifdef ENABLE_CPUFREQ
 	void setClock(unsigned mhz);
-	unsigned getDefaultAppClock() { return cpuFreqAppDefault; }
 	void setMenuClock() { setClock(cpuFreqMenuDefault); }
 	void setSafeMaxClock() { setClock(cpuFreqSafeMax); }
+	unsigned getDefaultAppClock() { return cpuFreqAppDefault; }
+#endif
 
 	void setInputSpeed();
 

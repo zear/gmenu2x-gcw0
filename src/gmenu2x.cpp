@@ -220,6 +220,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	return 0;
 }
 
+#ifdef ENABLE_CPUFREQ
 void GMenu2X::initCPULimits() {
 	// Note: These values are for the Dingoo.
 	//       The NanoNote does not have cpufreq enabled in its kernel and
@@ -240,13 +241,16 @@ void GMenu2X::initCPULimits() {
 	cpuFreqMenuDefault = (cpuFreqMenuDefault / cpuFreqMultiple) * cpuFreqMultiple;
 	cpuFreqAppDefault = (cpuFreqAppDefault / cpuFreqMultiple) * cpuFreqMultiple;
 }
+#endif
 
 GMenu2X::GMenu2X()
 {
 	usbnet = samba = inet = web = false;
 	useSelectionPng = false;
 
+#ifdef ENABLE_CPUFREQ
 	initCPULimits();
+#endif
 	//load config data
 	readConfig();
 
@@ -303,7 +307,9 @@ GMenu2X::GMenu2X()
         PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );
 
 	setInputSpeed();
+#ifdef ENABLE_CPUFREQ
 	setClock(confInt["menuClock"]);
+#endif
 	//recover last session
 	readTmp();
 	if (lastSelectorElement>-1 && menu->selLinkApp()!=NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
@@ -356,12 +362,16 @@ void GMenu2X::initBG() {
 	bgmain->write(font, df, 22, bottomBarTextY, ASFont::HAlignLeft, ASFont::VAlignMiddle);
 	delete sd;
 
-	Surface *cpu = Surface::loadImage("imgs/cpu.png", confStr["skin"]);
 	cpuX = font->getTextWidth(df)+32;
+#ifdef ENABLE_CPUFREQ
+	Surface *cpu = Surface::loadImage("imgs/cpu.png", confStr["skin"]);
 	if (cpu) cpu->blit(bgmain, cpuX, bottomBarIconY);
 	cpuX += 19;
 	manualX = cpuX+font->getTextWidth("300MHz")+5;
 	delete cpu;
+#else
+	manualX = cpuX;
+#endif
 
 	int serviceX = resX-38;
 	if (usbnet) {
@@ -515,10 +525,12 @@ void GMenu2X::readConfig(string conffile) {
 		confStr["skin"] = "Default";
 
 	evalIntConf( &confInt["outputLogs"], 0, 0,1 );
+#ifdef ENABLE_CPUFREQ
 	evalIntConf( &confInt["maxClock"],
 				 cpuFreqSafeMax, cpuFreqMin, cpuFreqMax );
 	evalIntConf( &confInt["menuClock"],
 				 cpuFreqMenuDefault, cpuFreqMin, cpuFreqSafeMax );
+#endif
 	evalIntConf( &confInt["backlightTimeout"], 15, 0,120 );
 	evalIntConf( &confInt["videoBpp"], 32, 16, 32 );
 
@@ -702,7 +714,9 @@ void GMenu2X::main() {
 		if (menu->selLink()!=NULL) {
 			s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, ASFont::HAlignCenter, ASFont::VAlignBottom );
 			if (menu->selLinkApp()!=NULL) {
+#ifdef ENABLE_CPUFREQ
 				s->write ( font, menu->selLinkApp()->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, ASFont::HAlignLeft, ASFont::VAlignMiddle );
+#endif
 				//Manual indicator
 				if (!menu->selLinkApp()->getManual().empty())
 					sc.skinRes("imgs/manual.png")->blit(s,manualX,bottomBarIconY);
@@ -839,7 +853,9 @@ void GMenu2X::explorer() {
 		string command = cmdclean(fd.getPath()+"/"+fd.getFile());
 		chdir(fd.getPath().c_str());
 		quit();
+#ifdef ENABLE_CPUFREQ
 		setClock(cpuFreqAppDefault);
+#endif
 		execlp("/bin/sh","/bin/sh","-c",command.c_str(),NULL);
 
 		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
@@ -850,7 +866,9 @@ void GMenu2X::explorer() {
 }
 
 void GMenu2X::options() {
+#ifdef ENABLE_CPUFREQ
 	int curMenuClock = confInt["menuClock"];
+#endif
 	bool showRootFolder = fileExists(CARD_ROOT);
 
 	FileLister fl_tr(getHome() + "/translations");
@@ -868,15 +886,19 @@ void GMenu2X::options() {
 	SettingsDialog sd(this, input, ts, tr["Settings"]);
 	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
+#ifdef ENABLE_CPUFREQ
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], cpuFreqMin, cpuFreqSafeMax, cpuFreqMultiple));
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], cpuFreqMin, cpuFreqMax, cpuFreqMultiple));
+#endif
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Screen Timeout"], tr["Set screen's backlight timeout in seconds"], &confInt["backlightTimeout"], 0, 120));
 //	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Tv-Out encoding"], tr["Encoding of the tv-out signal"], &confStr["tvoutEncoding"], &encodings));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Show root"], tr["Show root folder in the file selection dialogs"], &showRootFolder));
 
 	if (sd.exec() && sd.edited()) {
+#ifdef ENABLE_CPUFREQ
 		if (curMenuClock != confInt["menuClock"]) setClock(confInt["menuClock"]);
+#endif
 
 		if (confInt["backlightTimeout"] == 0) {
 			if (PowerSaver::isRunning())
@@ -1210,7 +1232,9 @@ void GMenu2X::editLink() {
 #ifdef HAVE_LIBOPK
 	}
 #endif
+#ifdef ENABLE_CPUFREQ
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock frequency"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
+#endif
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
 #ifdef HAVE_LIBOPK
@@ -1350,7 +1374,9 @@ void GMenu2X::scanner() {
 #ifdef PLATFORM_PANDORA
 	//char *configpath = pnd_conf_query_searchpath();
 #else
+#ifdef ENABLE_CPUFREQ
 	setSafeMaxClock();
+#endif
 
 	scanbg.write(font,tr["Scanning filesystem..."],5,lineY);
 	scanbg.blit(s,0,0);
@@ -1393,7 +1419,9 @@ void GMenu2X::scanner() {
 	s->flip();
 	lineY += 26;
 
+#ifdef ENABLE_CPUFREQ
 	setMenuClock();
+#endif
 	sync();
 #endif
 
@@ -1477,12 +1505,14 @@ void GMenu2X::setInputSpeed() {
 	SDL_EnableKeyRepeat(1,150);
 }
 
+#ifdef ENABLE_CPUFREQ
 void GMenu2X::setClock(unsigned mhz) {
 	mhz = constrain(mhz, cpuFreqMin, confInt["maxClock"]);
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
 	jz_cpuspeed(mhz);
 #endif
 }
+#endif
 
 string GMenu2X::getDiskFree(const char *path) {
 	stringstream ss;

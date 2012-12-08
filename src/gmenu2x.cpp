@@ -1047,6 +1047,16 @@ void GMenu2X::contextMenu() {
 	}
 
 	if (menu->selLinkApp()!=NULL && menu->selLinkApp()->isEditable()) {
+
+/* FIXME(percuei): this permits to mask the "Edit link" entry
+ * on the contextual menu in case CPUFREQ support is
+ * not compiled in and the link corresponds to an OPK.
+ * This is not a good idea as it'll break things if
+ * a new config option is added to the contextual menu. */
+#if defined(HAVE_LIBOPK) && !defined(ENABLE_CPUFREQ)
+		if (!menu->selLinkApp()->isOpk() ||
+					!menu->selLinkApp()->getSelectorDir().empty())
+#endif
 		{
 		MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::editLink)};
 		voices.push_back(opt);

@@ -34,10 +34,6 @@ AC_ARG_ENABLE(platform,
 			  [  --enable-platform=X        specify the targeted platform],
 			  [GMENU2X_PLATFORM="$enableval"], [GMENU2X_PLATFORM="default"])
 
-AC_ARG_ENABLE(cpufreq,
-			  [  --disable-cpufreq          disable support for CPU frequency scaling],,
-			  [CPUFREQ=yes])
-
 case "$GMENU2X_PLATFORM" in
 	a320)
 		AC_DEFINE(PLATFORM_A320)
@@ -48,6 +44,7 @@ case "$GMENU2X_PLATFORM" in
 		AC_DEFINE(PLATFORM_GCW0)
 		PLATFORM="gcw0"
 		SCREEN_RES="320x240"
+		CPUFREQ=no
 	;;
 	nanonote)
 		AC_DEFINE(PLATFORM_NANONOTE)
@@ -75,11 +72,15 @@ case "$GMENU2X_PLATFORM" in
 	;;
 esac
 
+AC_ARG_ENABLE(cpufreq,
+			  [  --disable-cpufreq          disable support for CPU frequency scaling],
+			  [CPUFREQ=no],,)
+
 AC_SUBST(PLATFORM)
 AC_SUBST(SCREEN_RES)
 AC_DEFINE_UNQUOTED(PLATFORM, "${PLATFORM}")
 
-if test "x$CPUFREQ" = xyes ; then
+if test "x$CPUFREQ" != xno ; then
 	AC_DEFINE(ENABLE_CPUFREQ)
 fi
 

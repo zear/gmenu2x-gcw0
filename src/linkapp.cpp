@@ -408,8 +408,13 @@ void LinkApp::showManual() {
 		readme.push_back(str);
 		free(buf);
 
-		TextDialog td(gmenu2x, getTitle(), "ReadMe", getIconPath(), &readme);
-		td.exec();
+		if (manual.substr(manual.size()-8,8)==".man.txt") {
+			TextManualDialog tmd(gmenu2x, getTitle(), getIconPath(), &readme);
+			tmd.exec();
+		} else {
+			TextDialog td(gmenu2x, getTitle(), "ReadMe", getIconPath(), &readme);
+			td.exec();
+		}
 		return;
 	}
 #endif

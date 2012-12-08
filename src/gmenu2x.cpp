@@ -1231,12 +1231,17 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Manual"], tr["Select a graphic/textual manual or a readme"], &linkManual, ".man.png,.txt"));
 #ifdef HAVE_LIBOPK
 	}
+	if (!menu->selLinkApp()->isOpk() ||
+				!menu->selLinkApp()->getSelectorDir().empty()) {
+#endif
+	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
+	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
+#ifdef HAVE_LIBOPK
+	}
 #endif
 #ifdef ENABLE_CPUFREQ
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock frequency"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
 #endif
-	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
 #ifdef HAVE_LIBOPK
 	if (!menu->selLinkApp()->isOpk()) {
 #endif

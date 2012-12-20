@@ -20,7 +20,7 @@
 #define COLOR_DEBUG   "\e[0;34m"
 #endif
 #ifndef COLOR_WARNING
-#define COLOR_WARNING "\e[01;33m"
+#define COLOR_WARNING "\e[01;35m"
 #endif
 #ifndef COLOR_ERROR
 #define COLOR_ERROR   "\e[01;31m"

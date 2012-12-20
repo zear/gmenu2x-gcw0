@@ -632,12 +632,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (dontleave) {
 		system(command.c_str());
 	} else {
-		if (gmenu2x->confInt["saveSelection"] && (
-				gmenu2x->confInt["section"]!=gmenu2x->menu->selSectionIndex()
-				|| gmenu2x->confInt["link"]!=gmenu2x->menu->selLinkIndex()
-		)) {
-			gmenu2x->writeConfig();
-		}
+		gmenu2x->saveSelection();
 
 		if (selectedFile == "") {
 			gmenu2x->writeTmp();

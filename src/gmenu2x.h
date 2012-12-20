@@ -65,6 +65,7 @@ typedef std::tr1::unordered_map<std::string, int, std::tr1::hash<std::string> > 
 class GMenu2X {
 private:
 	Touchscreen ts;
+	Menu *menu;
 
 	/*!
 	Retrieves the free disk space on the sd
@@ -170,6 +171,7 @@ public:
 
 	void setInputSpeed();
 
+	void saveSelection();
 	void writeConfig();
 	void writeSkinConfig();
 	void writeTmp(int selelem=-1, const std::string &selectordir="");
@@ -189,8 +191,6 @@ public:
 
 	void drawTopBar(Surface *s=NULL);
 	void drawBottomBar(Surface *s=NULL);
-
-	Menu *menu;
 };
 
 #endif // GMENU2X_H

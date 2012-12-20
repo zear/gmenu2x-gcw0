@@ -539,6 +539,15 @@ void GMenu2X::readConfig(string conffile) {
 	resY = constrain( confInt["resolutionY"], 240,1200 );
 }
 
+void GMenu2X::saveSelection() {
+	if (confInt["saveSelection"] && (
+			confInt["section"] != menu->selSectionIndex()
+			|| confInt["link"] != menu->selLinkIndex()
+	)) {
+		writeConfig();
+	}
+}
+
 void GMenu2X::writeConfig() {
 	string conffile = getHome() + "/gmenu2x.conf";
 	ofstream inf(conffile.c_str());

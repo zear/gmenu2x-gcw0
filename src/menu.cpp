@@ -464,6 +464,12 @@ void Menu::readPackages(std::string parentDir)
 		if (strcasecmp(c + 1, "opk"))
 			continue;
 
+		if (dptr->d_name[0] == '.') {
+			// Ignore hidden files.
+			// Mac OS X places these on SD cards, probably to store metadata.
+			continue;
+		}
+
 		path = parentDir + '/' + dptr->d_name;
 
 		pdata = opk_open(path.c_str());

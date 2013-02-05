@@ -387,7 +387,8 @@ void LinkApp::showManual() {
 			return;
 		}
 
-		buf = ptr = opk_extract_file(pdata, manual.c_str());
+		buf = ptr = reinterpret_cast<char *>(
+				opk_extract_file(pdata, manual.c_str()));
 		opk_close(pdata);
 
 		if (!buf) {

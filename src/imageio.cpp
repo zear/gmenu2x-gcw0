@@ -34,7 +34,7 @@ SDL_Surface *loadPNG(const std::string &path) {
 #ifdef HAVE_LIBOPK
 	std::string::size_type pos;
 	struct ParserData *pdata = NULL;
-	char *buffer = NULL, *param;
+	void *buffer = NULL, *param;
 #endif
 
 	// Create and initialize the top-level libpng struct.

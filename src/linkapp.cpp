@@ -179,8 +179,10 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			}
 
 			/* Remove last comma */
-			selectorfilter.erase(selectorfilter.end());
-			DEBUG("Compatible extensions: %s\n", selectorfilter.c_str());
+			if (!selectorfilter.empty()) {
+				selectorfilter.erase(selectorfilter.end());
+				DEBUG("Compatible extensions: %s\n", selectorfilter.c_str());
+			}
 		}
 #endif /* HAVE_LIBXDGMIME */
 

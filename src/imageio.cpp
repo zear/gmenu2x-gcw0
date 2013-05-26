@@ -33,7 +33,7 @@ SDL_Surface *loadPNG(const std::string &path) {
 	png_infop info = NULL;
 #ifdef HAVE_LIBOPK
 	std::string::size_type pos;
-	struct ParserData *pdata = NULL;
+	struct OPK *opk = NULL;
 	void *buffer = NULL, *param;
 #endif
 
@@ -56,15 +56,24 @@ SDL_Surface *loadPNG(const std::string &path) {
 #ifdef HAVE_LIBOPK
 	pos = path.find('#');
 	if (pos != path.npos) {
+		int ret;
+		size_t length;
+
 		DEBUG("Registering specific callback for icon %s\n", path.c_str());
 
-		pdata = opk_open(path.substr(0, pos).c_str());
-		if (!pdata) {
+		opk = opk_open(path.substr(0, pos).c_str());
+		if (!opk) {
 			ERROR("Unable to open OPK\n");
 			goto cleanup;
 		}
 
-		buffer = opk_extract_file(pdata, path.substr(pos + 1).c_str());
+		ret = opk_extract_file(opk, path.substr(pos + 1).c_str(),
+					&buffer, &length);
+		if (ret < 0) {
+			ERROR("Unable to extract icon from OPK\n");
+			goto cleanup;
+		}
+
 		param = buffer;
 
 		png_set_read_fn(png, &param, __readFromOpk);
@@ -156,8 +165,8 @@ cleanup:
 #ifdef HAVE_LIBOPK
 	if (buffer)
 		free(buffer);
-	if (pdata)
-		opk_close(pdata);
+	if (opk)
+		opk_close(opk);
 #endif
 
 	return surface;

@@ -452,7 +452,7 @@ void Menu::readPackages(std::string parentDir)
 		char *c;
 		std::string path;
 		unsigned int i;
-		struct ParserData *pdata;
+		struct OPK *opk;
 
 		if (dptr->d_type != DT_REG)
 			continue;
@@ -472,8 +472,8 @@ void Menu::readPackages(std::string parentDir)
 
 		path = parentDir + '/' + dptr->d_name;
 
-		pdata = opk_open(path.c_str());
-		if (!pdata) {
+		opk = opk_open(path.c_str());
+		if (!opk) {
 			ERROR("Unable to open OPK %s\n", path.c_str());
 			continue;
 		}
@@ -484,12 +484,16 @@ void Menu::readPackages(std::string parentDir)
 
 			for (;;) {
 				string::size_type pos;
-				const char *str = opk_open_metadata(pdata);
-				if (!str)
+				const char *name;
+				int ret = opk_open_metadata(opk, &name);
+				if (ret < 0) {
+					ERROR("Error while loading meta-data\n");
+					break;
+				} else if (!ret)
 					break;
 
 				/* Strip .desktop */
-				string metadata(str);
+				string metadata(name);
 				pos = metadata.rfind('.');
 				metadata = metadata.substr(0, pos);
 
@@ -506,7 +510,7 @@ void Menu::readPackages(std::string parentDir)
 			if (!has_metadata)
 				break;
 
-			link = new LinkApp(gmenu2x, ts, gmenu2x->input, path.c_str(), pdata);
+			link = new LinkApp(gmenu2x, ts, gmenu2x->input, path.c_str(), opk);
 			link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
 
 			addSection(link->getCategory());
@@ -518,7 +522,7 @@ void Menu::readPackages(std::string parentDir)
 			}
 		}
 
-		opk_close(pdata);
+		opk_close(opk);
 	}
 
 	closedir(dirp);

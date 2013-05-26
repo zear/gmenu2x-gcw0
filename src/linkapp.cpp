@@ -57,7 +57,7 @@ static const char *tokens[] = { "%f", "%F", "%u", "%U", };
 
 #ifdef HAVE_LIBOPK
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
-				 const char* linkfile, struct ParserData *pdata)
+				 const char* linkfile, struct OPK *opk)
 #else
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				 const char* linkfile)
@@ -82,11 +82,12 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #endif
 
 #ifdef HAVE_LIBOPK
-	isOPK = !!pdata;
+	isOPK = !!opk;
 	if (isOPK) {
 		string::size_type pos;
-
-		char *param;
+		const char *key, *val;
+		size_t lkey, lval;
+		int ret;
 
 		opkFile = file;
 		pos = file.rfind('/');
@@ -96,104 +97,101 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 
 		file = gmenu2x->getHome() + "/sections/";
 
-		param = opk_read_param(pdata, "Categories");
-		if (!param)
-			ERROR("Missing \"Categories\" parameter\n");
-		else {
-			category = param;
-			pos = category.find(';');
-			if (pos != category.npos)
-				category = category.substr(0, pos);
-			file += category + '/' + opkMount;
+		while ((ret = opk_read_pair(opk, &key, &lkey, &val, &lval))) {
+			if (ret < 0) {
+				ERROR("Unable to read meta-data\n");
+				break;
+			}
+
+			char buf[lval + 1];
+			sprintf(buf, "%.*s", lval, val);
+
+			if (!strncmp(key, "Categories", lkey)) {
+				category = buf;
+
+				pos = category.find(';');
+				if (pos != category.npos)
+					category = category.substr(0, pos);
+				file += category + '/' + opkMount;
+
+			} else if (!strncmp(key, "Name", lkey)) {
+				title = buf;
+
+			} else if (!strncmp(key, "Comment", lkey)) {
+				description = buf;
+
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
+			} else if (!strncmp(key, "Terminal", lkey)) {
+				consoleApp = !strncmp(val, "true", lval);
+#endif
+
+			} else if (!strncmp(key, "X-OD-Manual", lkey)) {
+				manual = buf;
+
+			} else if (!strncmp(key, "X-OD-Daemon", lkey)) {
+				dontleave = !strncmp(val, "true", lval);
+
+			} else if (!strncmp(key, "Icon", lkey)) {
+				/* Read the icon from the OPK only
+				 * if it doesn't exist on the skin */
+				this->icon = gmenu2x->sc.getSkinFilePath((string) buf + ".png");
+				if (this->icon.empty())
+					this->icon = (string) linkfile + '#' + buf + ".png";
+				iconPath = this->icon;
+				updateSurfaces();
+
+			} else if (!strncmp(key, "Exec", lkey)) {
+				string tmp = buf;
+				pos = tmp.find(' ');
+				exec = tmp.substr(0, pos);
+
+				if (pos != tmp.npos) {
+					unsigned int i;
+
+					params = tmp.substr(pos + 1);
+
+					for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++) {
+						if (params.find(tokens[i]) != params.npos) {
+							selectordir = CARD_ROOT;
+							break;
+						}
+					}
+				}
+
+				continue;
+			}
+
+#ifdef HAVE_LIBXDGMIME
+			if (!strncmp(key, "MimeType", lkey)) {
+				string mimetypes = buf;
+
+				while ((pos = mimetypes.find(';')) != mimetypes.npos) {
+					int nb = 16;
+					char *extensions[nb];
+					string mimetype = mimetypes.substr(0, pos);
+					mimetypes = mimetypes.substr(pos + 1);
+
+					nb = xdg_mime_get_extensions_from_mime_type(
+								mimetype.c_str(), extensions, nb);
+
+					while (nb--) {
+						selectorfilter += (string) extensions[nb] + ',';
+						free(extensions[nb]);
+					}
+				}
+
+				/* Remove last comma */
+				if (!selectorfilter.empty()) {
+					selectorfilter.erase(selectorfilter.end());
+					DEBUG("Compatible extensions: %s\n", selectorfilter.c_str());
+				}
+
+				continue;
+			}
+#endif /* HAVE_LIBXDGMIME */
 		}
 
 		opkMount = (string) "/mnt/" + opkMount + '/';
-
-		param = opk_read_param(pdata, "Name");
-		if (!param)
-			ERROR("Missing \"Name\" parameter\n");
-		else
-			title = param;
-
-		param = opk_read_param(pdata, "Comment");
-		if (param)
-			description = param;
-
-		/* Read the icon from the OPK only
-		 * if it doesn't exist on the skin */
-		param = opk_read_param(pdata, "Icon");
-		if (param) {
-			this->icon = gmenu2x->sc.getSkinFilePath((string) param + ".png");
-			if (this->icon.empty())
-				this->icon = (string) linkfile + '#' + param + ".png";
-			iconPath = this->icon;
-			updateSurfaces();
-		}
-
-		param = opk_read_param(pdata, "Exec");
-		if (!param)
-			ERROR("Missing \"Exec\" parameter\n");
-		else {
-			string tmp = param;
-			pos = tmp.find(' ');
-			exec = tmp.substr(0, pos);
-
-			if (pos != tmp.npos) {
-				unsigned int i;
-
-				params = tmp.substr(pos + 1);
-
-				for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++) {
-					if (params.find(tokens[i]) != params.npos) {
-						selectordir = CARD_ROOT;
-						break;
-					}
-				}
-			}
-		}
-
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-		param = opk_read_param(pdata, "Terminal");
-		if (param)
-			consoleApp = !strcmp(param, "true");
-#endif
-
-#ifdef HAVE_LIBXDGMIME
-		param = opk_read_param(pdata, "MimeType");
-		if (param) {
-			string mimetypes = param;
-
-			while ((pos = mimetypes.find(';')) != mimetypes.npos) {
-				int nb = 16;
-				char *extensions[nb];
-				string mimetype = mimetypes.substr(0, pos);
-				mimetypes = mimetypes.substr(pos + 1);
-
-				nb = xdg_mime_get_extensions_from_mime_type(
-							mimetype.c_str(), extensions, nb);
-
-				while (nb--) {
-					selectorfilter += (string) extensions[nb] + ',';
-					free(extensions[nb]);
-				}
-			}
-
-			/* Remove last comma */
-			if (!selectorfilter.empty()) {
-				selectorfilter.erase(selectorfilter.end());
-				DEBUG("Compatible extensions: %s\n", selectorfilter.c_str());
-			}
-		}
-#endif /* HAVE_LIBXDGMIME */
-
-		param = opk_read_param(pdata, "X-OD-Manual");
-		if (param)
-			manual = param;
-
-		param = opk_read_param(pdata, "X-OD-Daemon");
-		if (param)
-			dontleave = !strcmp(param, "true");
-
 		edited = true;
 	}
 #endif /* HAVE_LIBOPK */
@@ -380,24 +378,26 @@ void LinkApp::showManual() {
 #ifdef HAVE_LIBOPK
 	if (isOPK) {
 		vector<string> readme;
-		char *token, *buf, *ptr;
-		struct ParserData *pdata;
+		char *token, *ptr;
+		struct OPK *opk;
+		int err;
+		void *buf;
+		size_t len;
 
-		pdata = opk_open(opkFile.c_str());
-		if (!pdata) {
+		opk = opk_open(opkFile.c_str());
+		if (!opk) {
 			WARNING("Unable to open OPK to read manual\n");
 			return;
 		}
 
-		buf = ptr = reinterpret_cast<char *>(
-				opk_extract_file(pdata, manual.c_str()));
-		opk_close(pdata);
-
-		if (!buf) {
+		err = opk_extract_file(opk, manual.c_str(), &buf, &len);
+		if (err < 0) {
 			WARNING("Unable to read manual from OPK\n");
 			return;
 		}
+		opk_close(opk);
 
+		ptr = (char *) buf;
 		while((token = strchr(ptr, '\n'))) {
 			*token = '\0';
 

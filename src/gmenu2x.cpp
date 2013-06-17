@@ -704,7 +704,6 @@ void GMenu2X::main() {
 		}
 
 		//Links
-		s->setClipRect(6,skinConfInt["topBarHeight"],resX-9,resY-74); //32*2+10
 		for (i=menu->firstDispRow()*linkColumns; i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size(); i++) {
 			int ir = i-menu->firstDispRow()*linkColumns;
 			x = (ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+6;

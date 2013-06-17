@@ -650,7 +650,7 @@ void GMenu2X::main() {
 	uint sectionLinkPadding = (skinConfInt["topBarHeight"] - 32 - font->getLineHeight()) / 3;
 
 	bool quit = false;
-	int x,y, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
+	int x,y;
 	int helpBoxHeight = 154;
 	uint i;
 	long tickBattery = -60000, tickNow;
@@ -704,10 +704,10 @@ void GMenu2X::main() {
 		}
 
 		//Links
-		s->setClipRect(offset,skinConfInt["topBarHeight"],resX-9,resY-74); //32*2+10
+		s->setClipRect(6,skinConfInt["topBarHeight"],resX-9,resY-74); //32*2+10
 		for (i=menu->firstDispRow()*linkColumns; i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size(); i++) {
 			int ir = i-menu->firstDispRow()*linkColumns;
-			x = (ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+offset;
+			x = (ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+6;
 			y = ir/linkColumns*(skinConfInt["linkHeight"]+linkSpacingY)+skinConfInt["topBarHeight"]+2;
 			menu->sectionLinks()->at(i)->setPosition(x,y);
 
@@ -841,11 +841,9 @@ void GMenu2X::main() {
                 break;
             case InputManager::ALTLEFT:
 				menu->decSectionIndex();
-				offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
                 break;
             case InputManager::ALTRIGHT:
 				menu->incSectionIndex();
-				offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
                 break;
             default:
                 break;

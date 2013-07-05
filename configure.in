@@ -21,6 +21,8 @@ AC_ARG_WITH(sdl-gfx-prefix,
 
 AC_CHECK_LIB(SDL_gfx, rotozoomSurfaceXY,,check_sdl_gfx="no")
 
+AC_CHECK_LIB(SDL_ttf, TTF_OpenFont)
+
 # Check for libpng
 AC_CHECK_LIB(png, png_read_image,,check_png="no")
 

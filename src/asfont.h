@@ -6,7 +6,7 @@
 #ifndef ASFONT_H
 #define ASFONT_H
 
-#include <SDL.h>
+#include <SDL_ttf.h>
 #include <string>
 #include <vector>
 
@@ -20,30 +20,33 @@ public:
 	ASFont(const std::string &font);
 	~ASFont();
 
-	bool utf8Code(unsigned char c);
-
 	int getTextWidth(const char *text);
-	int getTextWidth(const std::string& text);
 
-	int getHeight() {
-		return surface->h - 1;
-	}
-	int getLineHeight() {
-		return lineHeight;
+	int getTextWidth(const std::string& text)
+	{
+		return getTextWidth(text.c_str());
 	}
 
-	void write(Surface* surface, const std::string& text, int x, int y, HAlign halign = HAlignLeft, VAlign valign = VAlignTop);
+	bool utf8Code(unsigned char c)
+	{
+		return (c>=194 && c<=198) || c==208 || c==209;
+	}
+
+	int getHeight()
+	{
+		return fontheight;
+	}
+
+	void write(Surface *surface,
+				const std::string &text, int x, int y,
+				HAlign halign = HAlignLeft, VAlign valign = VAlignTop);
 
 private:
-	void writeLine(Surface *surface, const std::string &text, int x, int y);
-	void writeLine(Surface *surface, const std::string &text, int x, int y, HAlign halign);
-	void writeLine(Surface *surface, const std::string &text, int x, int y, HAlign halign, VAlign valign);
-	void writeLine(Surface *surface, const std::vector<std::string> &text, int x, int y, HAlign halign, VAlign valign);
+	void writeLine(Surface *surface, const char *text,
+				int x, int y, HAlign halign, VAlign valign);
 
-	SDL_Surface *surface;
-	std::vector<Uint16> charpos;
-	std::string characters;
-	int lineHeight;
+	TTF_Font *font;
+	unsigned int fontheight;
 };
 
 #endif /* ASFONT_H */

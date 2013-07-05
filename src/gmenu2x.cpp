@@ -647,7 +647,7 @@ void GMenu2X::main() {
 	uint linksPerPage = linkColumns*linkRows;
 	int linkSpacingX = (resX-10 - linkColumns*skinConfInt["linkWidth"])/linkColumns;
 	int linkSpacingY = (resY-35 - skinConfInt["topBarHeight"] - linkRows*skinConfInt["linkHeight"])/linkRows;
-	uint sectionLinkPadding = (skinConfInt["topBarHeight"] - 32 - font->getLineHeight()) / 3;
+	uint sectionLinkPadding = (skinConfInt["topBarHeight"] - 32 - font->getHeight()) / 3;
 
 	bool quit = false;
 	int x,y;

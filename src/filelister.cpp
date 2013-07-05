@@ -118,11 +118,20 @@ void FileLister::browse(bool clean)
 				  continue;
 
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
+					if (file.find('.') == string::npos) {
+						if (!it->empty())
+							continue;
+
+						files.push_back(file);
+						break;
+					}
+
 					if (it->length() < file.length()) {
+						if (file[file.length() - it->length() - 1] != '.')
+							continue;
+
 						string file_lowercase =
 									file.substr(file.length() - it->length());
-						if (file_lowercase[0] != '.')
-							continue;
 
 						/* XXX: This won't accept UTF-8 codes.
 						 * Thanksfully file extensions shouldn't contain any. */

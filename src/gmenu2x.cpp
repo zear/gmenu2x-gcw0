@@ -61,13 +61,6 @@
 
 #include <sys/fcntl.h> //for battery
 
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-#	define UNLOCK_VT
-#	include <sys/ioctl.h>
-#	include <linux/vt.h>
-#	include <linux/kd.h>
-#endif
-
 #ifdef PLATFORM_PANDORA
 //#include <pnd_container.h>
 //#include <pnd_conf.h>
@@ -141,52 +134,6 @@ static void quit_all(int err) {
     exit(err);
 }
 
-#ifdef UNLOCK_VT
-
-#define FB_TTY "/dev/tty%i"
-static void unlockVT()
-{
-	int i;
-	int fd;
-	char tty[10];
-
-	for (i=0; i < 10; i++) {
-		int mode;
-
-		sprintf(tty, FB_TTY, i);
-		fd = open(tty, O_RDWR);
-		if (fd < 0)
-		  continue;
-
-		if (ioctl(fd, KDGETMODE, &mode) < 0) {
-			WARNING("Unable to get mode for tty %i.\n", i);
-			close(fd);
-			return;
-		}
-
-		if (mode != KD_TEXT)
-		  break;
-
-		close(fd);
-	}
-
-	if (i==10) {
-		DEBUG("No graphic tty found.\n");
-		return;
-	}
-
-	DEBUG("Graphic tty found on %s.\n", tty);
-
-	if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
-		WARNING("unable to set keyboard mode.\n");
-
-	if (ioctl(fd, VT_UNLOCKSWITCH, 1) < 0)
-		WARNING("unable to unlock terminal.\n");
-
-	close(fd);
-}
-#endif
-
 const string GMenu2X::getHome(void)
 {
 	return gmenu2x_home;
@@ -258,10 +205,6 @@ GMenu2X::GMenu2X()
 	halfY = resY/2;
 	bottomBarIconY = resY-18;
 	bottomBarTextY = resY-10;
-
-#ifdef UNLOCK_VT
-	unlockVT();
-#endif
 
 	/* Do not clear the screen on exit.
 	 * This may require an SDL patch available at

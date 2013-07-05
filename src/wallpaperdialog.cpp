@@ -42,7 +42,7 @@ bool WallpaperDialog::exec()
 	bool close = false, result = true;
 
 	FileLister fl;
-	fl.setFilter(".png");
+	fl.setFilter("png");
 
 	string filepath = GMenu2X::getHome() + "/skins/"
 	  	+ gmenu2x->confStr["skin"] + "/wallpapers";

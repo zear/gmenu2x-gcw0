@@ -1186,7 +1186,9 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(this, ts, tr["Title"], tr["Link title"], &linkTitle, diagTitle, diagIcon));
 	sd.addSetting(new MenuSettingString(this, ts, tr["Description"], tr["Link description"], &linkDescription, diagTitle, diagIcon));
 	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Section"], tr["The section this link belongs to"], &newSection, &menu->getSections()));
-	sd.addSetting(new MenuSettingImage(this, ts, tr["Icon"], tr.translate("Select an icon for the link: $1", linkTitle.c_str(), NULL), &linkIcon, ".png,.bmp,.jpg,.jpeg"));
+	sd.addSetting(new MenuSettingImage(this, ts, tr["Icon"],
+					tr.translate("Select an icon for the link: $1",
+						linkTitle.c_str(), NULL), &linkIcon, "png"));
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Manual"], tr["Select a graphic/textual manual or a readme"], &linkManual, ".man.png,.txt"));
 #ifdef HAVE_LIBOPK
 	}

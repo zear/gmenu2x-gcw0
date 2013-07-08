@@ -80,9 +80,6 @@ void FileLister::browse(bool clean)
 			return;
 		}
 
-		vector<string> vfilter;
-		split(vfilter, getFilter(), ",");
-
 		string filepath, file;
 		struct stat st;
 		struct dirent *dptr;
@@ -117,6 +114,13 @@ void FileLister::browse(bool clean)
 				if (std::find(files.begin(), files.end(), file) != files.end())
 				  continue;
 
+				if (filter.compare("*") == 0) {
+					files.push_back(file);
+					continue;
+				}
+
+				vector<string> vfilter;
+				split(vfilter, filter, ",");
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
 					if (file.find('.') == string::npos) {
 						if (!it->empty())

@@ -1148,7 +1148,7 @@ void GMenu2X::changeWallpaper() {
 }
 
 void GMenu2X::addLink() {
-	FileDialog fd(this, ts, tr["Select an application"]);
+	FileDialog fd(this, ts, tr["Select an application"], "dge,sh,bin,py,");
 	if (fd.exec()) {
 		menu->addLink(fd.getPath(), fd.getFile());
 		sync();

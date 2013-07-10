@@ -52,6 +52,7 @@ private:
 #ifdef HAVE_LIBOPK
 	// Load all the .opk packages of the given directory
 	void readPackages(std::string parentDir);
+	void openPackage(std::string path);
 #endif
 
 	// Load all the links on the given section directory.

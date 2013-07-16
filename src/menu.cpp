@@ -34,6 +34,7 @@
 #include "gmenu2x.h"
 #include "linkapp.h"
 #include "menu.h"
+#include "monitor.h"
 #include "filelister.h"
 #include "utilities.h"
 #include "debug.h"
@@ -67,6 +68,9 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 					continue;
 
 				readPackages(path);
+#ifdef ENABLE_INOTIFY
+				monitors.push_back(new Monitor(path.c_str()));
+#endif
 			}
 			closedir(dirp);
 		}
@@ -533,6 +537,33 @@ void Menu::readPackages(std::string parentDir)
 
 	closedir(dirp);
 }
+
+#ifdef ENABLE_INOTIFY
+void Menu::removePackageLink(std::string path)
+{
+	for (vector< vector<Link*> >::iterator section = links.begin();
+				section < links.end(); section++) {
+		for (vector<Link*>::iterator link = section->begin();
+					link < section->end(); link++) {
+			LinkApp *app = dynamic_cast<LinkApp *> (*link);
+			if (!app || !app->isOpk() || app->getOpkFile().empty())
+				continue;
+
+			if (app->isOpk() && app->getOpkFile().compare(path) == 0) {
+				DEBUG("Removing link corresponding to package %s\n",
+							app->getOpkFile().c_str());
+				section->erase(link);
+				if (section - links.begin() == iSection
+							&& iLink == (int) section->size())
+					setLinkIndex(iLink - 1);
+				return;
+			}
+		}
+	}
+
+	ERROR("Unable to find link corresponding to %s\n", path.c_str());
+}
+#endif
 #endif
 
 void Menu::readLinksOfSection(std::string path, std::vector<std::string> &linkfiles)

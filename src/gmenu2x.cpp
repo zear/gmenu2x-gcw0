@@ -244,7 +244,7 @@ GMenu2X::GMenu2X()
 		DEBUG("Loading system input.conf file: %s.\n", input_file.c_str());
 	}
 
-	input.init(input_file);
+	input.init(input_file, menu);
 
 	if (confInt["backlightTimeout"] > 0)
         PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );

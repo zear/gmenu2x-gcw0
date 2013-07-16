@@ -22,13 +22,16 @@
 #include "inputmanager.h"
 #include "utilities.h"
 #include "powersaver.h"
+#include "menu.h"
 
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-void InputManager::init(const string &conffile) {
+void InputManager::init(const string &conffile, Menu *menu) {
+	this->menu = menu;
+
 	for (int i = 0; i < BUTTON_TYPE_SIZE; i++) {
 		buttonMap[i].source = UNMAPPED;
 	}
@@ -174,6 +177,15 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 			source = JOYSTICK;
 			break;
 #endif
+		case SDL_USEREVENT:
+			if (!event.user.code)
+				menu->removePackageLink((const char *) event.user.data1);
+			else
+				menu->openPackage((const char *) event.user.data1);
+			free(event.user.data1);
+			bevent->state = PRESSED;
+			bevent->button = REPAINT;
+			return true;
 		default:
 			return false;
 	}

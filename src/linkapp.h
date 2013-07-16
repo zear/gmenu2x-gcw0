@@ -61,6 +61,7 @@ public:
 #ifdef HAVE_LIBOPK
 	const std::string &getCategory() { return category; }
 	bool isOpk() { return isOPK; }
+	const std::string &getOpkFile() { return opkFile; }
 
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
 				const char* linkfile, struct OPK *opk = NULL);

@@ -24,6 +24,8 @@
 #include <SDL.h>
 #include <string>
 
+class Menu;
+
 class InputManager {
 public:
 	enum Button {
@@ -32,7 +34,8 @@ public:
 		ALTLEFT, ALTRIGHT,
 		MENU, SETTINGS,
 		VOLUP, VOLDOWN,
-		POWER, LOCK
+		POWER, LOCK,
+		REPAINT,
 	};
 	#define BUTTON_TYPE_SIZE 14
 
@@ -45,7 +48,7 @@ public:
 	InputManager();
 	~InputManager();
 
-	void init(const std::string &conffile);
+	void init(const std::string &conffile, Menu *menu);
 	bool waitForEvent(ButtonEvent *event);
 	Button waitForPressedButton();
 	Button waitForReleasedButton();
@@ -57,6 +60,8 @@ private:
 		ButtonSource source;
 		unsigned int code;
 	};
+
+	Menu *menu;
 
 	void readConfFile(const std::string &conffile);
 	bool getEvent(ButtonEvent *bevent, bool wait);

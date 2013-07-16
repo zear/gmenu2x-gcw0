@@ -28,6 +28,7 @@
 
 class LinkApp;
 class GMenu2X;
+class Monitor;
 
 /**
 Handles the menu structure
@@ -52,7 +53,9 @@ private:
 #ifdef HAVE_LIBOPK
 	// Load all the .opk packages of the given directory
 	void readPackages(std::string parentDir);
-	void openPackage(std::string path);
+#ifdef ENABLE_INOTIFY
+	std::vector<Monitor *> monitors;
+#endif
 #endif
 
 	// Load all the links on the given section directory.
@@ -61,6 +64,13 @@ private:
 public:
 	Menu(GMenu2X *gmenu2x, Touchscreen &ts);
 	~Menu();
+
+#ifdef HAVE_LIBOPK
+	void openPackage(std::string path);
+#ifdef ENABLE_INOTIFY
+	void removePackageLink(std::string path);
+#endif
+#endif
 
 	std::vector<Link*> *sectionLinks(int i = -1);
 

@@ -61,7 +61,12 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 			while ((dptr = readdir(dirp))) {
 				if (dptr->d_type != DT_DIR)
 					continue;
-				readPackages((string) CARD_ROOT + dptr->d_name + "/apps");
+
+				string path = (string) CARD_ROOT + dptr->d_name + "/apps";
+				if (access(path.c_str(), F_OK))
+					continue;
+
+				readPackages(path);
 			}
 			closedir(dirp);
 		}

@@ -76,6 +76,8 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 		}
 	}
 #endif
+
+	orderLinks();
 }
 
 Menu::~Menu() {
@@ -501,6 +503,7 @@ void Menu::openPackage(std::string path)
 	}
 
 	opk_close(opk);
+	orderLinks();
 }
 
 void Menu::readPackages(std::string parentDir)
@@ -584,6 +587,18 @@ void Menu::readLinksOfSection(std::string path, std::vector<std::string> &linkfi
 	}
 
 	closedir(dirp);
+}
+
+static bool compare_links(Link *a, Link *b)
+{
+	return a->getTitle().compare(b->getTitle()) <= 0;
+}
+
+void Menu::orderLinks()
+{
+	for (std::vector< std::vector<Link *> >::iterator section = links.begin();
+				section < links.end(); section++)
+		std::sort(section->begin(), section->end(), compare_links);
 }
 
 void Menu::readLinks() {

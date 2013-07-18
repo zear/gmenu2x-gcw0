@@ -46,6 +46,7 @@ private:
 
 	void readLinks();
 	void freeLinks();
+	void orderLinks();
 
 	// Load all the sections of the given "sections" directory.
 	void readSections(std::string parentDir);

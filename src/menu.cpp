@@ -541,6 +541,8 @@ void Menu::readPackages(std::string parentDir)
 #ifdef ENABLE_INOTIFY
 void Menu::removePackageLink(std::string path)
 {
+	bool found = false;
+
 	for (vector< vector<Link*> >::iterator section = links.begin();
 				section < links.end(); section++) {
 		for (vector<Link*>::iterator link = section->begin();
@@ -549,19 +551,21 @@ void Menu::removePackageLink(std::string path)
 			if (!app || !app->isOpk() || app->getOpkFile().empty())
 				continue;
 
-			if (app->isOpk() && app->getOpkFile().compare(path) == 0) {
+			if (app->getOpkFile().compare(path) == 0) {
 				DEBUG("Removing link corresponding to package %s\n",
 							app->getOpkFile().c_str());
 				section->erase(link);
 				if (section - links.begin() == iSection
 							&& iLink == (int) section->size())
 					setLinkIndex(iLink - 1);
-				return;
+				found = true;
+				link--;
 			}
 		}
 	}
 
-	ERROR("Unable to find link corresponding to %s\n", path.c_str());
+	if (!found)
+		ERROR("Unable to find link corresponding to %s\n", path.c_str());
 }
 #endif
 #endif

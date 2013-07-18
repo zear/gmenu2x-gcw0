@@ -84,24 +84,13 @@ const string &Link::getIcon() {
 }
 
 void Link::setIcon(const string &icon) {
-	string skinpath = gmenu2x->sc.getSkinPath(gmenu2x->confStr["skin"]);
+	this->icon = icon;
 
-	if (icon.substr(0,skinpath.length()) == skinpath) {
-		string tempIcon = icon.substr(skinpath.length(), icon.length());
-		string::size_type pos = tempIcon.find("/");
-		if (pos != string::npos)
-			this->icon = "skin:"+tempIcon.substr(pos+1,icon.length());
-		else
-			this->icon = icon;
-	} else {
-		this->icon = icon;
-	}
-
-	iconPath = strreplace(this->icon,"skin:",skinpath+"/");
-	if (iconPath.empty() || !fileExists(iconPath)) {
-		iconPath = strreplace(this->icon,"skin:",gmenu2x->sc.getSkinPath("Default"));
-		if (!fileExists(iconPath)) searchIcon();
-	}
+	if (icon.compare(0, 5, "skin:") == 0)
+		this->iconPath = gmenu2x->sc.getSkinFilePath(
+					icon.substr(5, string::npos));
+	else
+		this->iconPath = icon;
 
 	edited = true;
 	updateSurfaces();

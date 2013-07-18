@@ -451,6 +451,10 @@ void Menu::setLinkIndex(int i) {
 #ifdef HAVE_LIBOPK
 void Menu::openPackage(std::string path)
 {
+	/* First try to remove existing links of the same OPK
+	 * (needed for instance when an OPK is modified) */
+	removePackageLink(path);
+
 	struct OPK *opk = opk_open(path.c_str());
 	if (!opk) {
 		ERROR("Unable to open OPK %s\n", path.c_str());
@@ -544,8 +548,6 @@ void Menu::readPackages(std::string parentDir)
 #ifdef ENABLE_INOTIFY
 void Menu::removePackageLink(std::string path)
 {
-	bool found = false;
-
 	for (vector< vector<Link*> >::iterator section = links.begin();
 				section < links.end(); section++) {
 		for (vector<Link*>::iterator link = section->begin();
@@ -561,14 +563,10 @@ void Menu::removePackageLink(std::string path)
 				if (section - links.begin() == iSection
 							&& iLink == (int) section->size())
 					setLinkIndex(iLink - 1);
-				found = true;
 				link--;
 			}
 		}
 	}
-
-	if (!found)
-		ERROR("Unable to find link corresponding to %s\n", path.c_str());
 }
 #endif
 #endif

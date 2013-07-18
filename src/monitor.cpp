@@ -24,7 +24,7 @@ static void * inotify_thd(void *p)
 	}
 
 	wd = inotify_add_watch(fd, path, IN_MOVED_FROM | IN_MOVED_TO |
-				IN_CLOSE_WRITE | IN_DELETE);
+				IN_CLOSE_WRITE | IN_DELETE | IN_CREATE);
 	if (wd == -1) {
 		ERROR("Unable to add inotify watch\n");
 		close(fd);
@@ -48,7 +48,8 @@ static void * inotify_thd(void *p)
 
 		SDL_UserEvent e = {
 			.type = SDL_USEREVENT,
-			.code = (int) (event.mask & (IN_MOVED_TO | IN_CLOSE_WRITE)),
+			.code = (int) (event.mask &
+						(IN_MOVED_TO | IN_CLOSE_WRITE | IN_CREATE)),
 			.data1 = strdup(buf),
 			.data2 = NULL,
 		};

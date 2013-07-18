@@ -134,7 +134,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			} else if (!strncmp(key, "Icon", lkey)) {
 				/* Read the icon from the OPK only
 				 * if it doesn't exist on the skin */
-				this->icon = gmenu2x->sc.getSkinFilePath((string) buf + ".png");
+				this->icon = gmenu2x->sc.getSkinFilePath("icons/" + (string) buf + ".png");
 				if (this->icon.empty())
 					this->icon = (string) linkfile + '#' + buf + ".png";
 				iconPath = this->icon;

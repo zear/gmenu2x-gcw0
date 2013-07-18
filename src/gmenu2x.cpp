@@ -140,7 +140,7 @@ const string GMenu2X::getHome(void)
 }
 
 int main(int /*argc*/, char * /*argv*/[]) {
-	INFO("----\nGMenu2X starting: If you read this message in the logs, check http://gmenu2x.sourceforge.net/page/Troubleshooting for a solution\n----\n");
+	INFO("---- GMenu2X starting ----\n");
 
 	signal(SIGINT, &quit_all);
 	signal(SIGSEGV,&quit_all);

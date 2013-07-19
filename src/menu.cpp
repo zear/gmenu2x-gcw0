@@ -546,6 +546,9 @@ void Menu::readPackages(std::string parentDir)
 }
 
 #ifdef ENABLE_INOTIFY
+/* Remove all links that correspond to the given path.
+ * If "path" is a directory, it will remove all links that
+ * correspond to an OPK present in the directory. */
 void Menu::removePackageLink(std::string path)
 {
 	for (vector< vector<Link*> >::iterator section = links.begin();
@@ -556,7 +559,7 @@ void Menu::removePackageLink(std::string path)
 			if (!app || !app->isOpk() || app->getOpkFile().empty())
 				continue;
 
-			if (app->getOpkFile().compare(path) == 0) {
+			if (app->getOpkFile().compare(0, path.size(), path) == 0) {
 				DEBUG("Removing link corresponding to package %s\n",
 							app->getOpkFile().c_str());
 				section->erase(link);

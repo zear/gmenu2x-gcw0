@@ -58,6 +58,12 @@ int Monitor::run(void)
 		char buf[256];
 
 		read(fd, &event, len);
+
+		if (event.mask & (IN_DELETE_SELF | IN_MOVE_SELF)) {
+			inject_event(false, path.c_str());
+			break;
+		}
+
 		sprintf(buf, "%s/%s", path.c_str(), event.name);
 
 		if (!event_accepted(event))

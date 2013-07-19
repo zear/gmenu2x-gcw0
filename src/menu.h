@@ -68,6 +68,7 @@ public:
 
 #ifdef HAVE_LIBOPK
 	void openPackage(std::string path);
+	void openPackagesFromDir(std::string path);
 #ifdef ENABLE_INOTIFY
 	void removePackageLink(std::string path);
 #endif

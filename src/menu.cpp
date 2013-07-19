@@ -66,14 +66,8 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 				if (!strcmp(dptr->d_name, ".") || !strcmp(dptr->d_name, ".."))
 					continue;
 
-				string path = (string) CARD_ROOT + "/" + dptr->d_name + "/apps";
-				if (access(path.c_str(), F_OK))
-					continue;
-
-				readPackages(path);
-#ifdef ENABLE_INOTIFY
-				monitors.push_back(new Monitor(path.c_str()));
-#endif
+				openPackagesFromDir((string) CARD_ROOT + "/" +
+							dptr->d_name + "/apps");
 			}
 			closedir(dirp);
 		}
@@ -452,6 +446,18 @@ void Menu::setLinkIndex(int i) {
 }
 
 #ifdef HAVE_LIBOPK
+void Menu::openPackagesFromDir(std::string path)
+{
+	if (access(path.c_str(), F_OK))
+		return;
+
+	DEBUG("Opening packages from directory: %s\n", path.c_str());
+	readPackages(path);
+#ifdef ENABLE_INOTIFY
+	monitors.push_back(new Monitor(path.c_str()));
+#endif
+}
+
 void Menu::openPackage(std::string path)
 {
 	/* First try to remove existing links of the same OPK

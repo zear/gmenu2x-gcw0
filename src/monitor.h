@@ -9,7 +9,8 @@
 class Monitor {
 public:
 	Monitor(std::string path, unsigned int flags = IN_MOVE |
-				IN_CLOSE_WRITE | IN_DELETE | IN_CREATE);
+				IN_CLOSE_WRITE | IN_DELETE | IN_CREATE |
+				IN_DELETE_SELF | IN_MOVE_SELF);
 	virtual ~Monitor();
 
 	int run(void);

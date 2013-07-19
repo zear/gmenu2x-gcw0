@@ -95,11 +95,10 @@ using namespace fastdelegate;
 #ifdef _CARD_ROOT
 const char *CARD_ROOT = _CARD_ROOT;
 #elif defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-const char *CARD_ROOT = "/media/";
+const char *CARD_ROOT = "/media";
 #else
-const char *CARD_ROOT = "/card/"; //Note: Add a trailing /!
+const char *CARD_ROOT = "/card";
 #endif
-const int CARD_ROOT_LEN = strlen(CARD_ROOT)-1;
 
 static GMenu2X *app;
 static string gmenu2x_home;
@@ -614,7 +613,7 @@ void GMenu2X::main() {
 	btnContextMenu.setAction(MakeDelegate(this, &GMenu2X::contextMenu));
 
 	if (!fileExists(CARD_ROOT))
-		CARD_ROOT = "/";
+		CARD_ROOT = "";
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();

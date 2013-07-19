@@ -571,7 +571,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		}
 
 		chdir(opkMount.c_str());
-		exec = opkMount + exec;
+		if (exec[0] != '/') {
+			string tmp = opkMount + exec.substr(0, exec.find(" "));
+			if (fileExists(tmp))
+				exec = opkMount + exec;
+		}
 	}
 
 	else {

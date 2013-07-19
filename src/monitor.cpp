@@ -91,6 +91,7 @@ Monitor::Monitor(std::string path, unsigned int flags) : path(path)
 
 Monitor::~Monitor(void)
 {
-	pthread_kill(thd, SIGINT);
+	pthread_cancel(thd);
+	pthread_join(thd, NULL);
 }
 #endif

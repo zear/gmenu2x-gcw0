@@ -63,6 +63,9 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 				if (dptr->d_type != DT_DIR)
 					continue;
 
+				if (!strcmp(dptr->d_name, ".") || !strcmp(dptr->d_name, ".."))
+					continue;
+
 				string path = (string) CARD_ROOT + "/" + dptr->d_name + "/apps";
 				if (access(path.c_str(), F_OK))
 					continue;

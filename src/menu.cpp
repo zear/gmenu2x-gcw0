@@ -582,6 +582,15 @@ void Menu::removePackageLink(std::string path)
 			}
 		}
 	}
+
+	/* Remove registered monitors */
+	for (vector<Monitor *>::iterator it = monitors.begin();
+				it < monitors.end(); it++) {
+		if ((*it)->getPath().compare(0, path.size(), path) == 0) {
+			delete (*it);
+			monitors.erase(it);
+		}
+	}
 }
 #endif
 #endif

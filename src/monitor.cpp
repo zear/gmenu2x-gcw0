@@ -93,5 +93,6 @@ Monitor::~Monitor(void)
 {
 	pthread_cancel(thd);
 	pthread_join(thd, NULL);
+	DEBUG("Monitor thread stopped (was watching %s)\n", path.c_str());
 }
 #endif

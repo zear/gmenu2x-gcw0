@@ -14,6 +14,7 @@ public:
 	virtual ~Monitor();
 
 	int run(void);
+	const std::string getPath(void) { return path; }
 
 private:
 	std::string path;

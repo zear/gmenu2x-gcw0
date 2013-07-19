@@ -139,12 +139,20 @@ const string GMenu2X::getHome(void)
 	return gmenu2x_home;
 }
 
+static void set_handler(int signal, void (*handler)(int))
+{
+	struct sigaction sig;
+	sigaction(signal, NULL, &sig);
+	sig.sa_handler = handler;
+	sigaction(signal, &sig, NULL);
+}
+
 int main(int /*argc*/, char * /*argv*/[]) {
 	INFO("---- GMenu2X starting ----\n");
 
-	signal(SIGINT, &quit_all);
-	signal(SIGSEGV,&quit_all);
-	signal(SIGTERM,&quit_all);
+	set_handler(SIGINT, &quit_all);
+	set_handler(SIGSEGV, &quit_all);
+	set_handler(SIGTERM, &quit_all);
 
 	char *home = getenv("HOME");
 	if (home == NULL) {

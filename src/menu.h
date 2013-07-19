@@ -67,7 +67,7 @@ public:
 	~Menu();
 
 #ifdef HAVE_LIBOPK
-	void openPackage(std::string path);
+	void openPackage(std::string path, bool order = true);
 	void openPackagesFromDir(std::string path);
 #ifdef ENABLE_INOTIFY
 	void removePackageLink(std::string path);

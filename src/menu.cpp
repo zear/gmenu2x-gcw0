@@ -458,7 +458,7 @@ void Menu::openPackagesFromDir(std::string path)
 #endif
 }
 
-void Menu::openPackage(std::string path)
+void Menu::openPackage(std::string path, bool order)
 {
 	/* First try to remove existing links of the same OPK
 	 * (needed for instance when an OPK is modified) */
@@ -516,7 +516,9 @@ void Menu::openPackage(std::string path)
 	}
 
 	opk_close(opk);
-	orderLinks();
+
+	if (order)
+		orderLinks();
 }
 
 void Menu::readPackages(std::string parentDir)
@@ -548,10 +550,11 @@ void Menu::readPackages(std::string parentDir)
 			continue;
 		}
 
-		openPackage(parentDir + '/' + dptr->d_name);
+		openPackage(parentDir + '/' + dptr->d_name, false);
 	}
 
 	closedir(dirp);
+	orderLinks();
 }
 
 #ifdef ENABLE_INOTIFY
@@ -608,7 +611,8 @@ void Menu::orderLinks()
 {
 	for (std::vector< std::vector<Link *> >::iterator section = links.begin();
 				section < links.end(); section++)
-		std::sort(section->begin(), section->end(), compare_links);
+		if (section->size() > 1)
+			std::sort(section->begin(), section->end(), compare_links);
 }
 
 void Menu::readLinks() {

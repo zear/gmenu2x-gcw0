@@ -180,8 +180,12 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 		case SDL_USEREVENT:
 			if (!event.user.code)
 				menu->removePackageLink((const char *) event.user.data1);
-			else
+			else if (event.user.code == 1)
 				menu->openPackage((const char *) event.user.data1);
+			else if (event.user.code == 2)
+				menu->openPackagesFromDir(
+							((string) (const char *) event.user.data1
+							 + "/apps").c_str());
 			free(event.user.data1);
 			bevent->state = PRESSED;
 			bevent->button = REPAINT;

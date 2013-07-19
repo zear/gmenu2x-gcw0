@@ -35,6 +35,7 @@
 
 class ASFont;
 class Button;
+class MediaMonitor;
 class Menu;
 class Surface;
 
@@ -65,6 +66,7 @@ class GMenu2X {
 private:
 	Touchscreen ts;
 	Menu *menu;
+	MediaMonitor *monitor;
 
 	/*!
 	Retrieves the free disk space on the sd

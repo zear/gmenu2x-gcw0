@@ -29,6 +29,7 @@
 #include "iconbutton.h"
 #include "inputdialog.h"
 #include "linkapp.h"
+#include "mediamonitor.h"
 #include "menu.h"
 #include "menusettingbool.h"
 #include "menusettingdir.h"
@@ -226,6 +227,8 @@ GMenu2X::GMenu2X()
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	initMenu();
 
+	monitor = new MediaMonitor(CARD_ROOT);
+
 	if (!fileExists(confStr["wallpaper"])) {
 		DEBUG("No wallpaper defined; we will take the default one.\n");
 		confStr["wallpaper"] = DEFAULT_WALLPAPER_PATH;
@@ -266,6 +269,7 @@ GMenu2X::~GMenu2X() {
 
 	delete menu;
 	delete font;
+	delete monitor;
 }
 
 void GMenu2X::quit() {

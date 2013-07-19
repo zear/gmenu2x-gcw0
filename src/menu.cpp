@@ -79,6 +79,10 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 
 Menu::~Menu() {
 	freeLinks();
+
+	for (vector<Monitor *>::iterator it = monitors.begin();
+				it < monitors.end(); it++)
+		delete *it;
 }
 
 uint Menu::firstDispRow() {

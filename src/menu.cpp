@@ -494,7 +494,7 @@ void Menu::openPackage(std::string path, bool order)
 			pos = metadata.rfind('.');
 			metadata = metadata.substr(pos + 1);
 
-			if (metadata.compare(PLATFORM) == 0) {
+			if (!metadata.compare(PLATFORM) || !metadata.compare("all")) {
 				has_metadata = true;
 				break;
 			}

@@ -114,10 +114,14 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 					category = category.substr(0, pos);
 				file += category + '/' + opkMount;
 
-			} else if (!strncmp(key, "Name", lkey)) {
+			} else if ((!strncmp(key, "Name", lkey) && title.empty())
+						|| !strncmp(key, ("Name[" + gmenu2x->tr["Lng"] +
+								"]").c_str(), lkey)) {
 				title = buf;
 
-			} else if (!strncmp(key, "Comment", lkey)) {
+			} else if ((!strncmp(key, "Comment", lkey) && description.empty())
+						|| !strncmp(key, ("Comment[" +
+								gmenu2x->tr["Lng"] + "]").c_str(), lkey)) {
 				description = buf;
 
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)

@@ -72,7 +72,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	setClock(gmenu2x->getDefaultAppClock());
 #endif
 	selectordir = "";
-	selectorfilter = "";
+	selectorfilter = "*";
 	icon = iconPath = "";
 	selectorbrowser = true;
 	editable = true;
@@ -168,6 +168,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 #ifdef HAVE_LIBXDGMIME
 			if (!strncmp(key, "MimeType", lkey)) {
 				string mimetypes = buf;
+				selectorfilter = "";
 
 				while ((pos = mimetypes.find(';')) != mimetypes.npos) {
 					int nb = 16;
@@ -327,7 +328,7 @@ bool LinkApp::save() {
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			if (consoleApp         ) f << "consoleapp=true"                     << endl;
 #endif
-			if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
+			if (selectorfilter!="*" ) f << "selectorfilter="  << selectorfilter  << endl;
 #ifdef HAVE_LIBOPK
 		}
 #endif

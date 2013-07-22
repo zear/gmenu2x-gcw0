@@ -21,6 +21,7 @@
 #include "gp2x.h"
 
 #include "asfont.h"
+#include "clock.h"
 #include "cpu.h"
 #include "debug.h"
 #include "filedialog.h"
@@ -273,6 +274,8 @@ GMenu2X::GMenu2X()
 GMenu2X::~GMenu2X() {
 	if (PowerSaver::isRunning())
 		delete PowerSaver::getInstance();
+	if (Clock::isRunning())
+		delete Clock::getInstance();
 	quit();
 
 	delete menu;
@@ -705,6 +708,9 @@ void GMenu2X::main() {
 		//s->write( font, tr[batstr.c_str()], 20, 170 );
 		//On Screen Help
 
+		s->write(font, Clock::getInstance()->getTime(),
+					halfX, bottomBarTextY,
+					ASFont::HAlignCenter, ASFont::VAlignMiddle);
 
 		if (helpDisplayed) {
 			s->box(10,50,300,helpBoxHeight+4, skinConfColors[COLOR_MESSAGE_BOX_BG]);

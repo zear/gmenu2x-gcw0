@@ -85,7 +85,6 @@ void Clock::addTimer(int timeout)
 
 Clock::Clock(void)
 {
-	SDL_InitSubSystem(SDL_INIT_TIMER);
 	tzset();
 
 	int sec = update();
@@ -95,7 +94,6 @@ Clock::Clock(void)
 Clock::~Clock()
 {
 	SDL_RemoveTimer(timer);
-	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	instance = NULL;
 }
 

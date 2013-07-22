@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "debug.h"
+#include "inputmanager.h"
 #include "mediamonitor.h"
 
 MediaMonitor::MediaMonitor(std::string dir) :
@@ -21,7 +22,7 @@ void MediaMonitor::inject_event(bool is_add, const char *path)
 {
 	SDL_UserEvent e = {
 		.type = SDL_USEREVENT,
-		.code = is_add ? 2 : 0,
+		.code = is_add ? OPEN_PACKAGES_FROM_DIR : REMOVE_LINKS,
 		.data1 = strdup(path),
 		.data2 = NULL,
 	};

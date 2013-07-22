@@ -8,13 +8,14 @@
 #include <sys/inotify.h>
 #include <unistd.h>
 
+#include "inputmanager.h"
 #include "monitor.h"
 
 void Monitor::inject_event(bool is_add, const char *path)
 {
 	SDL_UserEvent e = {
 		.type = SDL_USEREVENT,
-		.code = (int) is_add,
+		.code = is_add ? OPEN_PACKAGE : REMOVE_LINKS,
 		.data1 = strdup(path),
 		.data2 = NULL,
 	};

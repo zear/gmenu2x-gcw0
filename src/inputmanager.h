@@ -26,6 +26,13 @@
 
 class Menu;
 
+enum EventCode {
+	REMOVE_LINKS,
+	OPEN_PACKAGE,
+	OPEN_PACKAGES_FROM_DIR,
+	REPAINT_MENU,
+};
+
 class InputManager {
 public:
 	enum Button {

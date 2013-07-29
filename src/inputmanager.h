@@ -23,6 +23,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <vector>
 
 class Menu;
 
@@ -74,7 +75,7 @@ private:
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED
-	SDL_Joystick *joystick;
+	std::vector<SDL_Joystick *> joysticks;
 #endif
 };
 

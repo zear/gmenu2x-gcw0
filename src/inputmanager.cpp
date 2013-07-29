@@ -41,19 +41,18 @@ void InputManager::init(const string &conffile, Menu *menu) {
 InputManager::InputManager()
 {
 #ifndef SDL_JOYSTICK_DISABLED
-	if (SDL_NumJoysticks() > 0) {
-		joystick = SDL_JoystickOpen(0);
-	} else {
-		joystick = NULL;
-	}
+	int i;
+	for (i = 0; i < SDL_NumJoysticks(); i++)
+		joysticks.push_back(SDL_JoystickOpen(i));
 #endif
 }
 
-InputManager::~InputManager() {
+InputManager::~InputManager()
+{
 #ifndef SDL_JOYSTICK_DISABLED
-	if (joystick) {
-		SDL_JoystickClose(joystick);
-	}
+	for (std::vector<SDL_Joystick *>::iterator it = joysticks.begin();
+				it < joysticks.end(); it++)
+		SDL_JoystickClose(*it);
 #endif
 }
 
@@ -139,10 +138,10 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 	int i;
 
 #ifndef SDL_JOYSTICK_DISABLED
-	if (joystick) {
+	if (joysticks.size() > 0)
 		SDL_JoystickUpdate();
-	}
 #endif
+
 	SDL_Event event;
 	if (wait) {
 		SDL_WaitEvent(&event);

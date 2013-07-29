@@ -42,8 +42,15 @@ InputManager::InputManager()
 {
 #ifndef SDL_JOYSTICK_DISABLED
 	int i;
+
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0) {
+		ERROR("Unable to init joystick subsystem\n");
+		return;
+	}
+
 	for (i = 0; i < SDL_NumJoysticks(); i++)
 		joysticks.push_back(SDL_JoystickOpen(i));
+	DEBUG("Opening %i joysticks\n", i);
 #endif
 }
 

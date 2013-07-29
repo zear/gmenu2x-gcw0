@@ -31,6 +31,6 @@ AM_CFLAGS= @CFLAGS@ @SDL_CFLAGS@
 
 AM_CXXFLAGS = @CXXFLAGS@ @SDL_CFLAGS@ \
 	-fno-exceptions \
-	-Wall -Wextra -Wundef -Wunused-macros
+	-Wall -Wextra -Wundef -Wunused-macros -std=c++11
 
 gmenu2x_LDADD = @LIBS@ @SDL_LIBS@

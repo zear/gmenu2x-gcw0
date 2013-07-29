@@ -81,10 +81,6 @@ void InputManager::readConfFile(const string &conffile) {
 		else if (name == "altright") button = ALTRIGHT;
 		else if (name == "menu")     button = MENU;
 		else if (name == "settings") button = SETTINGS;
-		else if (name == "volup")    button = VOLUP;
-		else if (name == "voldown")  button = VOLDOWN;
-		else if (name == "power")    button = POWER;
-		else if (name == "lock")     button = LOCK;
 		else {
 			WARNING("InputManager: Ignoring unknown button name \"%s\"\n",
 					name.c_str());

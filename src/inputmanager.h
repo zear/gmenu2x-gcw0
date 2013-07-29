@@ -40,11 +40,9 @@ public:
 		ACCEPT, CANCEL,
 		ALTLEFT, ALTRIGHT,
 		MENU, SETTINGS,
-		VOLUP, VOLDOWN,
-		POWER, LOCK,
 		REPAINT,
 	};
-	#define BUTTON_TYPE_SIZE 14
+	#define BUTTON_TYPE_SIZE 10
 
 	enum ButtonState { PRESSED, RELEASED };
 	struct ButtonEvent {

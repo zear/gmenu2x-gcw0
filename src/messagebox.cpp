@@ -52,8 +52,6 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttonLabels[InputManager::ALTRIGHT] = "r";
 	buttonLabels[InputManager::SETTINGS] = "start";
 	buttonLabels[InputManager::MENU] = "select";
-	buttonLabels[InputManager::VOLUP] = "vol+";
-	buttonLabels[InputManager::VOLDOWN] = "vol-";
 }
 
 void MessageBox::setButton(InputManager::Button button, const string &label) {

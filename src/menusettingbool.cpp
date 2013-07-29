@@ -20,6 +20,7 @@
 
 #include "menusettingbool.h"
 
+#include "delegate.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "utilities.h"
@@ -27,7 +28,6 @@
 #include <sstream>
 
 using std::string;
-using fastdelegate::MakeDelegate;
 
 MenuSettingBool::MenuSettingBool(
 		GMenu2X *gmenu2x, Touchscreen &ts,
@@ -60,7 +60,7 @@ void MenuSettingBool::initButton()
 	IconButton *btn = new IconButton(gmenu2x, ts,
 									 "skin:imgs/buttons/accept.png",
 									 gmenu2x->tr["Switch"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingBool::toggle));
+	btn->setAction(BIND(&MenuSettingBool::toggle));
 	buttonBox.add(btn);
 }
 

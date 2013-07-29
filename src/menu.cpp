@@ -198,7 +198,7 @@ void Menu::setSectionIndex(int i) {
 /*====================================
    LINKS MANAGEMENT
   ====================================*/
-bool Menu::addActionLink(uint section, const string &title, LinkRunAction action, const string &description, const string &icon) {
+bool Menu::addActionLink(uint section, const string &title, function_t action, const string &description, const string &icon) {
 	if (section>=sections.size()) return false;
 
 	Link *link = new Link(gmenu2x, ts, action);

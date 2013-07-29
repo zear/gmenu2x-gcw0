@@ -21,17 +21,16 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "FastDelegate.h"
+#include "delegate.h"
 
 #include <SDL.h>
 
-typedef fastdelegate::FastDelegate0<> ButtonAction;
 class Touchscreen;
 
 class Button {
 protected:
 	Touchscreen &ts;
-	ButtonAction action;
+	function_t action;
 	SDL_Rect rect;
 	bool doubleClick;
 	int lastTick;
@@ -53,7 +52,7 @@ public:
 
 	void exec();
 	void voidAction() {};
-	void setAction(ButtonAction action);
+	void setAction(function_t action);
 };
 
 #endif // BUTTON_H

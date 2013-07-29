@@ -28,7 +28,6 @@
 
 using std::string;
 using std::stringstream;
-using fastdelegate::MakeDelegate;
 
 MenuSettingRGBA::MenuSettingRGBA(
 		GMenu2X *gmenu2x, Touchscreen &ts_,

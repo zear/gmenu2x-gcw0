@@ -20,6 +20,7 @@
 
 #include "menusettingint.h"
 
+#include "delegate.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "utilities.h"
@@ -28,7 +29,6 @@
 
 using std::string;
 using std::stringstream;
-using fastdelegate::MakeDelegate;
 
 MenuSettingInt::MenuSettingInt(
 		GMenu2X *gmenu2x, Touchscreen &ts,
@@ -46,8 +46,8 @@ MenuSettingInt::MenuSettingInt(
 	setValue(this->value());
 
 	//Delegates
-	ButtonAction actionInc = MakeDelegate(this, &MenuSettingInt::inc);
-	ButtonAction actionDec = MakeDelegate(this, &MenuSettingInt::dec);
+	function_t actionInc = BIND(&MenuSettingInt::inc);
+	function_t actionDec = BIND(&MenuSettingInt::dec);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/l.png");
 	btn->setAction(actionDec);

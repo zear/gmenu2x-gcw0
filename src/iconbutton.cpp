@@ -5,7 +5,6 @@
 #include "surface.h"
 
 using namespace std;
-using namespace fastdelegate;
 
 IconButton::IconButton(
 		GMenu2X *gmenu2x_, Touchscreen &ts_,
@@ -68,6 +67,6 @@ void IconButton::recalcSize() {
 	setSize(w, h);
 }
 
-void IconButton::setAction(ButtonAction action) {
+void IconButton::setAction(function_t action) {
 	this->action = action;
 }

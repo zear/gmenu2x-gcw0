@@ -1,12 +1,10 @@
 #include "browsedialog.h"
 
-#include "FastDelegate.h"
 #include "filelister.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "utilities.h"
 
-using namespace fastdelegate;
 using std::string;
 
 BrowseDialog::BrowseDialog(
@@ -23,19 +21,19 @@ BrowseDialog::BrowseDialog(
 
 	buttonBox.add(new IconButton(gmenu2x, ts, "skin:imgs/buttons/left.png"));
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/cancel.png", gmenu2x->tr["Up one folder"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryUp));
+	btn->setAction(BIND(&BrowseDialog::directoryUp));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/accept.png", gmenu2x->tr["Enter folder"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryEnter));
+	btn->setAction(BIND(&BrowseDialog::directoryEnter));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/start.png", gmenu2x->tr["Confirm"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::confirm));
+	btn->setAction(BIND(&BrowseDialog::confirm));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/select.png", gmenu2x->tr["Exit"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::quit));
+	btn->setAction(BIND(&BrowseDialog::quit));
 	buttonBox.add(btn);
 
 	iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");

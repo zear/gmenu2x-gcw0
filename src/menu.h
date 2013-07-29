@@ -22,6 +22,7 @@
 #define MENU_H
 
 #include "link.h"
+#include "delegate.h"
 
 #include <string>
 #include <vector>
@@ -85,7 +86,7 @@ public:
 	uint firstDispRow();
 
 	bool addActionLink(uint section, const std::string &title,
-			LinkRunAction action, const std::string &description="",
+			function_t action, const std::string &description="",
 			const std::string &icon="");
 	bool addLink(std::string path, std::string file, std::string section="");
 	bool addSection(const std::string &sectionName);

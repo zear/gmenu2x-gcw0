@@ -23,7 +23,6 @@
 
 #include "surfacecollection.h"
 #include "translator.h"
-#include "FastDelegate.h"
 #include "touchscreen.h"
 #include "inputmanager.h"
 #include "surface.h"

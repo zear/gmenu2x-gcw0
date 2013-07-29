@@ -1,12 +1,12 @@
 #include "button.h"
+#include "delegate.h"
 #include "gmenu2x.h"
 
 using namespace std;
-using namespace fastdelegate;
 
 Button::Button(Touchscreen &ts_, bool doubleClick_)
 	: ts(ts_)
-	, action(MakeDelegate(this, &Button::voidAction))
+	, action(BIND(&Button::voidAction))
 	, rect((SDL_Rect) { 0, 0, 0, 0 })
 	, doubleClick(doubleClick_)
 	, lastTick(0)
@@ -64,6 +64,6 @@ void Button::setPosition(int x, int y) {
 	rect.y = y;
 }
 
-void Button::setAction(ButtonAction action) {
+void Button::setAction(function_t action) {
 	this->action = action;
 }

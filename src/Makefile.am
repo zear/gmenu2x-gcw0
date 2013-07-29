@@ -14,7 +14,7 @@ gmenu2x_SOURCES = asfont.cpp button.cpp cpu.cpp dirdialog.cpp filedialog.cpp \
 	browsedialog.cpp buttonbox.cpp dialog.cpp \
 	imageio.cpp powersaver.cpp monitor.cpp mediamonitor.cpp clock.cpp
 
-noinst_HEADERS = asfont.h button.h cpu.h dirdialog.h FastDelegate.h \
+noinst_HEADERS = asfont.h button.h cpu.h dirdialog.h \
 	filedialog.h filelister.h gmenu2x.h gp2x.h iconbutton.h imagedialog.h \
 	inputdialog.h inputmanager.h linkapp.h link.h \
 	menu.h menusettingbool.h menusettingdir.h \

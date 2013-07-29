@@ -19,7 +19,7 @@ public:
 
 	virtual void setPosition(int x, int y);
 
-	void setAction(ButtonAction action);
+	void setAction(function_t action);
 
 private:
 	void updateSurfaces();

@@ -21,6 +21,7 @@
 #include "linkapp.h"
 
 #include "debug.h"
+#include "delegate.h"
 #include "gmenu2x.h"
 #include "menu.h"
 #include "selector.h"
@@ -50,7 +51,6 @@
 #include <xdgmime.h>
 #endif
 
-using fastdelegate::MakeDelegate;
 using namespace std;
 
 static const char *tokens[] = { "%f", "%F", "%u", "%U", };
@@ -62,7 +62,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				 const char* linkfile)
 #endif
-	: Link(gmenu2x_, ts, MakeDelegate(this, &LinkApp::start))
+	: Link(gmenu2x_, ts, BIND(&LinkApp::start))
 	, inputMgr(inputMgr_)
 {
 	manual = "";

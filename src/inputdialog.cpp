@@ -21,6 +21,7 @@
 #include "inputdialog.h"
 
 #include "buttonbox.h"
+#include "delegate.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "utilities.h"
@@ -28,7 +29,6 @@
 #include <SDL_gfxPrimitives.h>
 
 using namespace std;
-using namespace fastdelegate;
 
 #define KEY_WIDTH 20
 #define KEY_HEIGHT 20
@@ -96,22 +96,22 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 	buttonbox = new ButtonBox(gmenu2x);
 	IconButton *btnBackspace = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/l.png", gmenu2x->tr["Backspace"]);
-	btnBackspace->setAction(MakeDelegate(this, &InputDialog::backspace));
+	btnBackspace->setAction(BIND(&InputDialog::backspace));
 	buttonbox->add(btnBackspace);
 
 	IconButton *btnSpace = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/r.png", gmenu2x->tr["Space"]);
-	btnSpace->setAction(MakeDelegate(this, &InputDialog::space));
+	btnSpace->setAction(BIND(&InputDialog::space));
 	buttonbox->add(btnSpace);
 
 	IconButton *btnConfirm = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/accept.png", gmenu2x->tr["Confirm"]);
-	btnConfirm->setAction(MakeDelegate(this, &InputDialog::confirm));
+	btnConfirm->setAction(BIND(&InputDialog::confirm));
 	buttonbox->add(btnConfirm);
 
 	IconButton *btnChangeKeys = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/cancel.png", gmenu2x->tr["Change keys"]);
-	btnChangeKeys->setAction(MakeDelegate(this, &InputDialog::changeKeys));
+	btnChangeKeys->setAction(BIND(&InputDialog::changeKeys));
 	buttonbox->add(btnChangeKeys);
 }
 

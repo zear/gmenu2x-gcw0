@@ -20,12 +20,12 @@
 
 #include "menusettingstring.h"
 
+#include "delegate.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "inputdialog.h"
 
 using std::string;
-using fastdelegate::MakeDelegate;
 
 MenuSettingString::MenuSettingString(
 		GMenu2X *gmenu2x, Touchscreen &ts_,
@@ -39,11 +39,11 @@ MenuSettingString::MenuSettingString(
 	IconButton *btn;
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/cancel.png", gmenu2x->tr["Clear"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingString::clear));
+	btn->setAction(BIND(&MenuSettingString::clear));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/accept.png", gmenu2x->tr["Edit"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingString::edit));
+	btn->setAction(BIND(&MenuSettingString::edit));
 	buttonBox.add(btn);
 }
 

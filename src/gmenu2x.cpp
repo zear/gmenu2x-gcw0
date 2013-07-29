@@ -80,14 +80,12 @@
 
 #include <sys/mman.h>
 
-typedef fastdelegate::FastDelegate0<> MenuAction;
 struct MenuOption {
 	std::string text;
-	MenuAction action;
+	function_t action;
 };
 
 using namespace std;
-using namespace fastdelegate;
 
 #ifndef DEFAULT_WALLPAPER_PATH
 #define DEFAULT_WALLPAPER_PATH \
@@ -378,17 +376,17 @@ void GMenu2X::initMenu() {
 	for (uint i=0; i<menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i]=="applications") {
-			menu->addActionLink(i,"Explorer",MakeDelegate(this,&GMenu2X::explorer),tr["Launch an application"],"skin:icons/explorer.png");
+			menu->addActionLink(i,"Explorer", BIND(&GMenu2X::explorer),tr["Launch an application"],"skin:icons/explorer.png");
 		}
 
 		//Add virtual links in the setting section
 		else if (menu->getSections()[i]=="settings") {
-			menu->addActionLink(i,"GMenu2X",MakeDelegate(this,&GMenu2X::options),tr["Configure GMenu2X's options"],"skin:icons/configure.png");
-			menu->addActionLink(i,tr["Skin"],MakeDelegate(this,&GMenu2X::skinMenu),tr["Configure skin"],"skin:icons/skin.png");
-			menu->addActionLink(i,tr["Wallpaper"],MakeDelegate(this,&GMenu2X::changeWallpaper),tr["Change GMenu2X wallpaper"],"skin:icons/wallpaper.png");
+			menu->addActionLink(i,"GMenu2X",BIND(&GMenu2X::options),tr["Configure GMenu2X's options"],"skin:icons/configure.png");
+			menu->addActionLink(i,tr["Skin"],BIND(&GMenu2X::skinMenu),tr["Configure skin"],"skin:icons/skin.png");
+			menu->addActionLink(i,tr["Wallpaper"],BIND(&GMenu2X::changeWallpaper),tr["Change GMenu2X wallpaper"],"skin:icons/wallpaper.png");
 			if (fileExists(getHome()+"/log.txt"))
-				menu->addActionLink(i,tr["Log Viewer"],MakeDelegate(this,&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
-			menu->addActionLink(i,tr["About"],MakeDelegate(this,&GMenu2X::about),tr["Info about GMenu2X"],"skin:icons/about.png");
+				menu->addActionLink(i,tr["Log Viewer"],BIND(&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
+			menu->addActionLink(i,tr["About"],BIND(&GMenu2X::about),tr["Info about GMenu2X"],"skin:icons/about.png");
 		}
 	}
 
@@ -625,7 +623,7 @@ void GMenu2X::main() {
 
 	IconButton btnContextMenu(this, ts, "skin:imgs/menu.png");
 	btnContextMenu.setPosition(resX-38, bottomBarIconY);
-	btnContextMenu.setAction(MakeDelegate(this, &GMenu2X::contextMenu));
+	btnContextMenu.setAction(BIND(&GMenu2X::contextMenu));
 
 	if (!fileExists(CARD_ROOT))
 		CARD_ROOT = "";
@@ -1002,7 +1000,7 @@ void GMenu2X::showManual() {
 void GMenu2X::contextMenu() {
 	vector<MenuOption> voices;
 	{
-	MenuOption opt = {tr.translate("Add link in $1",menu->selSection().c_str(),NULL), MakeDelegate(this, &GMenu2X::addLink)};
+	MenuOption opt = {tr.translate("Add link in $1",menu->selSection().c_str(),NULL), BIND(&GMenu2X::addLink)};
 	voices.push_back(opt);
 	}
 
@@ -1010,7 +1008,7 @@ void GMenu2X::contextMenu() {
 		LinkApp* app = menu->selLinkApp();
 		if (app && !app->getManual().empty()) {
 			MenuOption opt = {tr.translate("Show manual of $1",menu->selLink()->getTitle().c_str(),NULL),
-				MakeDelegate(this, &GMenu2X::showManual),
+				BIND(&GMenu2X::showManual),
 			};
 			voices.push_back(opt);
 		}
@@ -1028,29 +1026,29 @@ void GMenu2X::contextMenu() {
 					!menu->selLinkApp()->getSelectorDir().empty())
 #endif
 		{
-		MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::editLink)};
+		MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), BIND(&GMenu2X::editLink)};
 		voices.push_back(opt);
 		}
 #ifdef HAVE_LIBOPK
 		if (!menu->selLinkApp()->isOpk())
 #endif
 		{
-		MenuOption opt = {tr.translate("Delete $1 link",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::deleteLink)};
+		MenuOption opt = {tr.translate("Delete $1 link",menu->selLink()->getTitle().c_str(),NULL), BIND(&GMenu2X::deleteLink)};
 		voices.push_back(opt);
 		}
 	}
 
 	{
-	MenuOption opt = {tr["Add section"], MakeDelegate(this, &GMenu2X::addSection)};
+	MenuOption opt = {tr["Add section"], BIND(&GMenu2X::addSection)};
 	voices.push_back(opt);
 	}{
-	MenuOption opt = {tr["Rename section"], MakeDelegate(this, &GMenu2X::renameSection)};
+	MenuOption opt = {tr["Rename section"], BIND(&GMenu2X::renameSection)};
 	voices.push_back(opt);
 	}{
-	MenuOption opt = {tr["Delete section"], MakeDelegate(this, &GMenu2X::deleteSection)};
+	MenuOption opt = {tr["Delete section"], BIND(&GMenu2X::deleteSection)};
 	voices.push_back(opt);
 	}{
-	MenuOption opt = {tr["Scan for applications and games"], MakeDelegate(this, &GMenu2X::scanner)};
+	MenuOption opt = {tr["Scan for applications and games"], BIND(&GMenu2X::scanner)};
 	voices.push_back(opt);
 	}
 

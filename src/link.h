@@ -37,6 +37,8 @@ Base class that represents a link on screen.
 */
 class Link : public Button {
 private:
+	void recalcCoordinates();
+
 	function_t action;
 	uint iconX, padding;
 
@@ -48,7 +50,6 @@ protected:
 	Surface *iconSurface;
 	Surface *icon_hover;
 
-	void recalcCoordinates();
 	void updateSurfaces();
 
 public:

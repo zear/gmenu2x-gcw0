@@ -44,7 +44,9 @@ Link::Link(GMenu2X *gmenu2x_, Touchscreen &ts, function_t action_)
 }
 
 void Link::paint() {
-	iconSurface->blit(gmenu2x->s, iconX, rect.y+padding, 32,32);
+	if (iconSurface) {
+		iconSurface->blit(gmenu2x->s, iconX, rect.y+padding, 32,32);
+	}
 	gmenu2x->s->write( gmenu2x->font, getTitle(), iconX+16, rect.y+gmenu2x->skinConfInt["linkHeight"]-padding, ASFont::HAlignCenter, ASFont::VAlignBottom );
 }
 

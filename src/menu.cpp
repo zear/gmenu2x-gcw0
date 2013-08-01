@@ -115,28 +115,31 @@ void Menu::readSections(std::string parentDir)
 
 void Menu::loadIcons() {
 	//reload section icons
-	for (uint i=0; i<sections.size(); i++) {
-		string sectionIcon = "sections/"+sections[i]+".png";
+	vector<string>::size_type i = 0;
+	for (string sectionName : sections) {
+		string sectionIcon = "sections/" + sectionName + ".png";
 		if (!gmenu2x->sc.getSkinFilePath(sectionIcon).empty())
-			gmenu2x->sc.add("skin:"+sectionIcon);
+			gmenu2x->sc.add("skin:" + sectionIcon);
 
-		//check link's icons
-		string linkIcon;
-		for (uint x=0; x<sectionLinks(i)->size(); x++) {
-			linkIcon = sectionLinks(i)->at(x)->getIcon();
-			LinkApp *linkapp = dynamic_cast<LinkApp*>(sectionLinks(i)->at(x));
+		for (Link *&link : links[i]) {
+			LinkApp *linkapp = dynamic_cast<LinkApp*>(link);
 
-			if (linkIcon.substr(0,5)=="skin:") {
-				linkIcon = gmenu2x->sc.getSkinFilePath(linkIcon.substr(5,linkIcon.length()));
+			//check link's icons
+			string linkIcon = link->getIcon();
+			if (linkIcon.substr(0,5) == "skin:") {
+				linkIcon = gmenu2x->sc.getSkinFilePath(
+						linkIcon.substr(5, linkIcon.length()));
 				if (linkapp != NULL && !fileExists(linkIcon))
 					linkapp->searchIcon();
 				else
-					sectionLinks(i)->at(x)->setIconPath(linkIcon);
+					link->setIconPath(linkIcon);
 
 			} else if (!fileExists(linkIcon)) {
 				if (linkapp != NULL) linkapp->searchIcon();
 			}
 		}
+
+		i++;
 	}
 }
 

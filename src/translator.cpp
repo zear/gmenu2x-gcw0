@@ -30,7 +30,6 @@
 #include <stdarg.h>
 
 using namespace std;
-using std::tr1::unordered_map;
 
 Translator::Translator(const string &lang) {
 	_lang = "";

@@ -29,8 +29,8 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include <tr1/unordered_map>
 
 class ASFont;
 class Button;
@@ -58,8 +58,8 @@ enum color {
 	NUM_COLORS,
 };
 
-typedef std::tr1::unordered_map<std::string, std::string, std::tr1::hash<std::string> > ConfStrHash;
-typedef std::tr1::unordered_map<std::string, int, std::tr1::hash<std::string> > ConfIntHash;
+typedef std::unordered_map<std::string, std::string, std::hash<std::string> > ConfStrHash;
+typedef std::unordered_map<std::string, int, std::hash<std::string> > ConfIntHash;
 
 class GMenu2X {
 private:

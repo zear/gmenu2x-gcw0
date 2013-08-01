@@ -38,7 +38,6 @@
 #include <fstream>
 
 using namespace std;
-using std::tr1::unordered_map;
 
 #define SELECTOR_ELEMENTS 11
 

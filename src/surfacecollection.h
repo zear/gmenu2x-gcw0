@@ -21,11 +21,11 @@
 #define SURFACECOLLECTION_H
 
 #include <string>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 class Surface;
 
-typedef std::tr1::unordered_map<std::string, Surface *> SurfaceHash;
+typedef std::unordered_map<std::string, Surface *> SurfaceHash;
 
 /**
 Hash Map of surfaces that loads surfaces not already loaded and reuses already loaded ones.

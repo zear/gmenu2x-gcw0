@@ -50,6 +50,7 @@ protected:
 	Surface *iconSurface;
 	Surface *icon_hover;
 
+	void setIconPath(const std::string &icon);
 	void updateSurfaces();
 
 public:
@@ -58,6 +59,9 @@ public:
 
 	virtual void paint();
 	virtual bool paintHover();
+
+	virtual void loadIcon();
+	virtual const std::string &searchIcon();
 
 	void setSize(int w, int h);
 	void setPosition(int x, int y);
@@ -68,9 +72,7 @@ public:
 	void setDescription(const std::string &description);
 	const std::string &getIcon();
 	void setIcon(const std::string &icon);
-	virtual const std::string &searchIcon();
 	const std::string &getIconPath();
-	void setIconPath(const std::string &icon);
 
 	void run();
 };

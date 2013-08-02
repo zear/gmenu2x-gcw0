@@ -122,21 +122,7 @@ void Menu::loadIcons() {
 			gmenu2x->sc.add("skin:" + sectionIcon);
 
 		for (Link *&link : links[i]) {
-			LinkApp *linkapp = dynamic_cast<LinkApp*>(link);
-
-			//check link's icons
-			string linkIcon = link->getIcon();
-			if (linkIcon.substr(0,5) == "skin:") {
-				linkIcon = gmenu2x->sc.getSkinFilePath(
-						linkIcon.substr(5, linkIcon.length()));
-				if (linkapp != NULL && !fileExists(linkIcon))
-					linkapp->searchIcon();
-				else
-					link->setIconPath(linkIcon);
-
-			} else if (!fileExists(linkIcon)) {
-				if (linkapp != NULL) linkapp->searchIcon();
-			}
+			link->loadIcon();
 		}
 
 		i++;

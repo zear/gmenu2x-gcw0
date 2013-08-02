@@ -70,6 +70,7 @@ public:
 			const char* linkfile);
 #endif
 
+	virtual void loadIcon();
 	virtual const std::string &searchIcon();
 
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)

@@ -261,6 +261,20 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	if (iconPath.empty()) searchIcon();
 }
 
+void LinkApp::loadIcon() {
+	if (icon.compare(0, 5, "skin:") == 0) {
+		string linkIcon = gmenu2x->sc.getSkinFilePath(
+				icon.substr(5, string::npos));
+		if (!fileExists(linkIcon))
+			searchIcon();
+		else
+			setIconPath(linkIcon);
+
+	} else if (!fileExists(icon)) {
+		searchIcon();
+	}
+}
+
 const string &LinkApp::searchIcon() {
 	if (!iconPath.empty())
 		return iconPath;

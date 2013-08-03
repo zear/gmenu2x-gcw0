@@ -34,6 +34,11 @@ using namespace std;
 #define KEY_HEIGHT 20
 #define KB_TOP 90
 
+static bool utf8Code(unsigned char c)
+{
+	return (c>=194 && c<=198) || c==208 || c==209;
+}
+
 InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 		Touchscreen &ts_, const string &text,
 		const string &startvalue, const string &title, const string &icon)
@@ -121,7 +126,7 @@ void InputDialog::setKeyboard(int kb) {
 	this->kb = &(keyboard[kb]);
 	kbLength = this->kb->at(0).length();
 	for (int x = 0, l = kbLength; x < l; x++) {
-		if (gmenu2x->font->utf8Code(this->kb->at(0)[x])) {
+		if (utf8Code(this->kb->at(0)[x])) {
 			kbLength--;
 			x++;
 		}
@@ -221,7 +226,7 @@ bool InputDialog::exec() {
 void InputDialog::backspace() {
 	// Check for UTF8 characters.
 	input = input.substr(0, input.length()
-		- (gmenu2x->font->utf8Code(input[input.length() - 2]) ? 2 : 1));
+		- (utf8Code(input[input.length() - 2]) ? 2 : 1));
 }
 
 void InputDialog::space() {
@@ -237,7 +242,7 @@ void InputDialog::confirm() {
 	} else {
 		int xc = 0;
 		for (uint x = 0; x < kb->at(selRow).length(); x++) {
-			bool utf8 = gmenu2x->font->utf8Code(kb->at(selRow)[x]);
+			bool utf8 = utf8Code(kb->at(selRow)[x]);
 			if (xc == selCol) input += kb->at(selRow).substr(x, utf8 ? 2 : 1);
 			if (utf8) x++;
 			xc++;
@@ -281,7 +286,7 @@ void InputDialog::drawVirtualKeyboard() {
 		for (uint x=0, xc=0; x<line.length(); x++) {
 			string charX;
 			//utf8 characters
-			if (gmenu2x->font->utf8Code(line[x])) {
+			if (utf8Code(line[x])) {
 				charX = line.substr(x,2);
 				x++;
 			} else

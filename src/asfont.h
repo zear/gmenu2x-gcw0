@@ -27,11 +27,6 @@ public:
 		return getTextWidth(text.c_str());
 	}
 
-	bool utf8Code(unsigned char c)
-	{
-		return (c>=194 && c<=198) || c==208 || c==209;
-	}
-
 	int getHeight()
 	{
 		return fontheight;

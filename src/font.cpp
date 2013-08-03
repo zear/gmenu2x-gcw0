@@ -14,19 +14,25 @@
 
 using namespace std;
 
-Font::Font(const string &path)
+Font *Font::defaultFont()
 {
 	if (!TTF_WasInit() && TTF_Init() < 0) {
 		ERROR("Unable to init SDL_ttf library\n");
-		return;
+		return nullptr;
 	}
 
-	font = TTF_OpenFont(TTF_FONT, TTF_FONT_SIZE);
+	TTF_Font *font = TTF_OpenFont(TTF_FONT, TTF_FONT_SIZE);
 	if (!font) {
 		ERROR("Unable to open font\n");
-		return;
+		return nullptr;
 	}
 
+	return new Font(font);
+}
+
+Font::Font(TTF_Font *font)
+	: font(font)
+{
 	fontheight = TTF_FontHeight(font);
 }
 

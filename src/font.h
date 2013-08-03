@@ -14,7 +14,11 @@ public:
 	enum HAlign { HAlignLeft, HAlignRight,  HAlignCenter };
 	enum VAlign { VAlignTop,  VAlignBottom, VAlignMiddle };
 
-	Font(const std::string &font);
+	/**
+	 * Returns a newly created Font object for the default font,
+	 * or nullptr if there was a problem creating it.
+	 */
+	static Font *defaultFont();
 	~Font();
 
 	int getTextWidth(const char *text);
@@ -34,6 +38,8 @@ public:
 				HAlign halign = HAlignLeft, VAlign valign = VAlignTop);
 
 private:
+	Font(TTF_Font *font);
+
 	void writeLine(Surface *surface, const char *text,
 				int x, int y, HAlign halign, VAlign valign);
 

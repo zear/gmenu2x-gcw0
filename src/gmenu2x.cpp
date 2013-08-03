@@ -356,18 +356,13 @@ void GMenu2X::initBG() {
 }
 
 void GMenu2X::initFont() {
-	if (font != NULL) {
-		delete font;
-		font = NULL;
-	}
-
-	string fontFile = sc.getSkinFilePath("imgs/font.png");
-	if (fontFile.empty()) {
-		ERROR("Font png not found!\n");
+	delete font;
+	font = Font::defaultFont();
+	if (!font) {
+		ERROR("Cannot function without font; aborting...\n");
 		quit();
 		exit(-1);
 	}
-	font = new Font(fontFile);
 }
 
 void GMenu2X::initMenu() {

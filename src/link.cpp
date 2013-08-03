@@ -23,6 +23,7 @@
 #include "gmenu2x.h"
 #include "menu.h"
 #include "selector.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <fstream>
@@ -47,12 +48,12 @@ void Link::paint() {
 	if (iconSurface) {
 		iconSurface->blit(gmenu2x->s, iconX, rect.y+padding, 32,32);
 	}
-	gmenu2x->s->write( gmenu2x->font, getTitle(), iconX+16, rect.y+gmenu2x->skinConfInt["linkHeight"]-padding, ASFont::HAlignCenter, ASFont::VAlignBottom );
+	gmenu2x->s->write(gmenu2x->font, getTitle(), iconX+16, rect.y + gmenu2x->skinConfInt["linkHeight"]-padding, Font::HAlignCenter, Font::VAlignBottom);
 }
 
 bool Link::paintHover() {
 	if (gmenu2x->useSelectionPng)
-		gmenu2x->sc["imgs/selection.png"]->blit(gmenu2x->s,rect,ASFont::HAlignCenter,ASFont::VAlignMiddle);
+		gmenu2x->sc["imgs/selection.png"]->blit(gmenu2x->s, rect, Font::HAlignCenter, Font::VAlignMiddle);
 	else
 		gmenu2x->s->box(rect.x, rect.y, rect.w, rect.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 	return true;

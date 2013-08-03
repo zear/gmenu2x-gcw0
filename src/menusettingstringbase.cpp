@@ -17,8 +17,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
 #include "menusettingstringbase.h"
 #include "gmenu2x.h"
+#include "surface.h"
 
 using std::string;
 
@@ -39,7 +41,7 @@ void MenuSettingStringBase::draw(int y)
 {
 	MenuSetting::draw(y);
 	gmenu2x->s->write(gmenu2x->font, value(), 155, y,
-			ASFont::HAlignLeft, ASFont::VAlignTop);
+			Font::HAlignLeft, Font::VAlignTop);
 }
 
 bool MenuSettingStringBase::handleButtonPress(InputManager::Button button)

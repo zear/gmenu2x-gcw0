@@ -192,25 +192,25 @@ void Surface::setClipRect(SDL_Rect rect) {
 	SDL_SetClipRect(raw,&rect);
 }
 
-bool Surface::blit(Surface *destination, SDL_Rect container, ASFont::HAlign halign, ASFont::VAlign valign) {
+bool Surface::blit(Surface *destination, SDL_Rect container, Font::HAlign halign, Font::VAlign valign) {
 	switch (halign) {
-	case ASFont::HAlignLeft:
+	case Font::HAlignLeft:
 		break;
-	case ASFont::HAlignCenter:
+	case Font::HAlignCenter:
 		container.x += container.w/2-halfW;
 		break;
-	case ASFont::HAlignRight:
+	case Font::HAlignRight:
 		container.x += container.w-raw->w;
 		break;
 	}
 
 	switch (valign) {
-	case ASFont::VAlignTop:
+	case Font::VAlignTop:
 		break;
-	case ASFont::VAlignMiddle:
+	case Font::VAlignMiddle:
 		container.y += container.h/2-halfH;
 		break;
-	case ASFont::VAlignBottom:
+	case Font::VAlignBottom:
 		container.y += container.h-raw->h;
 		break;
 	}

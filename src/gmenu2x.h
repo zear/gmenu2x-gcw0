@@ -32,8 +32,8 @@
 #include <unordered_map>
 #include <vector>
 
-class ASFont;
 class Button;
+class Font;
 class MediaMonitor;
 class Menu;
 class Surface;
@@ -151,7 +151,7 @@ public:
 	SurfaceCollection sc;
 	Translator tr;
 	Surface *s, *bg;
-	ASFont *font;
+	Font *font;
 
 	//Status functions
 	void main();

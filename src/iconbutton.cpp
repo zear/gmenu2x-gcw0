@@ -1,6 +1,6 @@
 #include "iconbutton.h"
 
-#include "asfont.h"
+#include "font.h"
 #include "gmenu2x.h"
 #include "surface.h"
 
@@ -35,7 +35,7 @@ void IconButton::paint() {
 	}
 	if (label != "") {
 		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y,
-				ASFont::HAlignLeft, ASFont::VAlignMiddle);
+				Font::HAlignLeft, Font::VAlignMiddle);
 	}
 }
 

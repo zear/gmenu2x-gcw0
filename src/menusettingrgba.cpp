@@ -22,6 +22,7 @@
 
 #include "gmenu2x.h"
 #include "iconbutton.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <sstream>
@@ -53,10 +54,10 @@ void MenuSettingRGBA::draw(int y) {
 	MenuSetting::draw(y);
 	gmenu2x->s->rectangle( 153, y+1, 11, 11, 0,0,0,255 );
 	gmenu2x->s->box( 154, y+2, 9, 9, value() );
-	gmenu2x->s->write( gmenu2x->font, "R: "+strR, 169, y, ASFont::HAlignLeft, ASFont::VAlignTop );
-	gmenu2x->s->write( gmenu2x->font, "G: "+strG, 205, y, ASFont::HAlignLeft, ASFont::VAlignTop );
-	gmenu2x->s->write( gmenu2x->font, "B: "+strB, 241, y, ASFont::HAlignLeft, ASFont::VAlignTop );
-	gmenu2x->s->write( gmenu2x->font, "A: "+strA, 277, y, ASFont::HAlignLeft, ASFont::VAlignTop );
+	gmenu2x->s->write( gmenu2x->font, "R: "+strR, 169, y, Font::HAlignLeft, Font::VAlignTop );
+	gmenu2x->s->write( gmenu2x->font, "G: "+strG, 205, y, Font::HAlignLeft, Font::VAlignTop );
+	gmenu2x->s->write( gmenu2x->font, "B: "+strB, 241, y, Font::HAlignLeft, Font::VAlignTop );
+	gmenu2x->s->write( gmenu2x->font, "A: "+strA, 277, y, Font::HAlignLeft, Font::VAlignTop );
 }
 
 void MenuSettingRGBA::handleTS() {

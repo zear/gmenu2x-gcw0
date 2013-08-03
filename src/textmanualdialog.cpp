@@ -21,6 +21,7 @@
 #include "textmanualdialog.h"
 
 #include "gmenu2x.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <algorithm>
@@ -104,7 +105,7 @@ void TextManualDialog::exec() {
 		ss << page+1;
 		ss >> pageStatus;
 		pageStatus = gmenu2x->tr["Page"]+": "+pageStatus+"/"+spagecount;
-		gmenu2x->s->write(gmenu2x->font, pageStatus, 310, 230, ASFont::HAlignRight, ASFont::VAlignMiddle);
+		gmenu2x->s->write(gmenu2x->font, pageStatus, 310, 230, Font::HAlignRight, Font::VAlignMiddle);
 
 		gmenu2x->s->flip();
 

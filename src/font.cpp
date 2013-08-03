@@ -1,4 +1,5 @@
-#include "asfont.h"
+#include "font.h"
+
 #include "debug.h"
 #include "surface.h"
 #include "utilities.h"
@@ -13,7 +14,7 @@
 
 using namespace std;
 
-ASFont::ASFont(const string &path)
+Font::Font(const string &path)
 {
 	if (!TTF_WasInit() && TTF_Init() < 0) {
 		ERROR("Unable to init SDL_ttf library\n");
@@ -29,20 +30,20 @@ ASFont::ASFont(const string &path)
 	fontheight = TTF_FontHeight(font);
 }
 
-ASFont::~ASFont()
+Font::~Font()
 {
 	TTF_CloseFont(font);
 	TTF_Quit();
 }
 
-int ASFont::getTextWidth(const char *text)
+int Font::getTextWidth(const char *text)
 {
 	int w, h;
 	TTF_SizeUTF8(font, text, &w, &h);
 	return w;
 }
 
-void ASFont::write(Surface *surface, const string &text,
+void Font::write(Surface *surface, const string &text,
 			int x, int y, HAlign halign, VAlign valign)
 {
 	if (text.find("\n", 0) == string::npos) {
@@ -59,7 +60,7 @@ void ASFont::write(Surface *surface, const string &text,
 	}
 }
 
-void ASFont::writeLine(Surface *surface, const char *text,
+void Font::writeLine(Surface *surface, const char *text,
 				int x, int y, HAlign halign, VAlign valign)
 {
 	switch (halign) {

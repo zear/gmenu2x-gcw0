@@ -3,6 +3,7 @@
 #include "filelister.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
+#include "surface.h"
 #include "utilities.h"
 
 using std::string;
@@ -269,7 +270,7 @@ void BrowseDialog::paint()
 		}
 		icon->blit(gmenu2x->s, 5, offsetY);
 		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + 8,
-				ASFont::HAlignLeft, ASFont::VAlignMiddle);
+				Font::HAlignLeft, Font::VAlignMiddle);
 
 		if (ts.available() && ts.pressed()
 				&& ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {

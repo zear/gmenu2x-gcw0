@@ -1,24 +1,21 @@
-// Based on SFont by Karl Bartel.
-// Adapted to C++ by Massimiliano Torromeo.
-// Refactored by Maarten ter Huurne and several others (see git log).
+// Original font class was replaced by an SDL_ttf based one by Paul Cercueil.
 // License: GPL version 2 or later.
 
-#ifndef ASFONT_H
-#define ASFONT_H
+#ifndef FONT_H
+#define FONT_H
 
 #include <SDL_ttf.h>
 #include <string>
-#include <vector>
 
 class Surface;
 
-class ASFont {
+class Font {
 public:
 	enum HAlign { HAlignLeft, HAlignRight,  HAlignCenter };
 	enum VAlign { VAlignTop,  VAlignBottom, VAlignMiddle };
 
-	ASFont(const std::string &font);
-	~ASFont();
+	Font(const std::string &font);
+	~Font();
 
 	int getTextWidth(const char *text);
 
@@ -44,4 +41,4 @@ private:
 	unsigned int fontheight;
 };
 
-#endif /* ASFONT_H */
+#endif /* FONT_H */

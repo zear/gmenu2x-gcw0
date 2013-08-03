@@ -23,6 +23,7 @@
 #include "delegate.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <sstream>
@@ -67,7 +68,7 @@ void MenuSettingBool::initButton()
 void MenuSettingBool::draw(int y)
 {
 	MenuSetting::draw(y);
-	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y, ASFont::HAlignLeft, ASFont::VAlignTop );
+	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y, Font::HAlignLeft, Font::VAlignTop );
 }
 
 bool MenuSettingBool::handleButtonPress(InputManager::Button button)

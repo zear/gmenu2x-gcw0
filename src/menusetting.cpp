@@ -20,8 +20,9 @@
 
 #include "menusetting.h"
 
-#include "asfont.h"
+#include "font.h"
 #include "gmenu2x.h"
+#include "surface.h"
 
 using std::string;
 
@@ -40,7 +41,7 @@ MenuSetting::~MenuSetting()
 
 void MenuSetting::draw(int y)
 {
-	gmenu2x->s->write( gmenu2x->font, name, 5, y, ASFont::HAlignLeft, ASFont::VAlignTop );
+	gmenu2x->s->write( gmenu2x->font, name, 5, y, Font::HAlignLeft, Font::VAlignTop );
 }
 
 void MenuSetting::handleTS()

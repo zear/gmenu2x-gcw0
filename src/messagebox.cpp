@@ -20,6 +20,7 @@
 
 #include "messagebox.h"
 #include "gmenu2x.h"
+#include "surface.h"
 
 #include <SDL_gfxPrimitives.h>
 
@@ -77,7 +78,7 @@ int MessageBox::exec() {
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blitCenter( &bg, box.x+25, box.y+gmenu2x->font->getHeight()+3 );
-	bg.write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), box.y+gmenu2x->font->getHeight()+3, ASFont::HAlignLeft, ASFont::VAlignMiddle );
+	bg.write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), box.y+gmenu2x->font->getHeight()+3, Font::HAlignLeft, Font::VAlignMiddle );
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
 	for (uint i = 0; i < BUTTON_TYPE_SIZE; i++) {

@@ -20,12 +20,12 @@
 
 #include "gp2x.h"
 
-#include "asfont.h"
 #include "clock.h"
 #include "cpu.h"
 #include "debug.h"
 #include "filedialog.h"
 #include "filelister.h"
+#include "font.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 #include "inputdialog.h"
@@ -314,7 +314,7 @@ void GMenu2X::initBG() {
 #else
 	string df = getDiskFree(CARD_ROOT);
 #endif
-	bgmain->write(font, df, 22, bottomBarTextY, ASFont::HAlignLeft, ASFont::VAlignMiddle);
+	bgmain->write(font, df, 22, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle);
 	delete sd;
 
 	cpuX = font->getTextWidth(df)+32;
@@ -367,7 +367,7 @@ void GMenu2X::initFont() {
 		quit();
 		exit(-1);
 	}
-	font = new ASFont(fontFile);
+	font = new Font(fontFile);
 }
 
 void GMenu2X::initMenu() {
@@ -655,7 +655,7 @@ void GMenu2X::main() {
 				sc[sectionIcon]->blit(s,x-16,sectionLinkPadding,32,32);
 			else
 				sc.skinRes("icons/section.png")->blit(s,x-16,sectionLinkPadding);
-			s->write( font, menu->getSections()[i], x, skinConfInt["topBarHeight"]-sectionLinkPadding, ASFont::HAlignCenter, ASFont::VAlignBottom );
+			s->write( font, menu->getSections()[i], x, skinConfInt["topBarHeight"]-sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom );
 		}
 
 		//Links
@@ -675,10 +675,10 @@ void GMenu2X::main() {
 		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(),43,resY-81);
 
 		if (menu->selLink()!=NULL) {
-			s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, ASFont::HAlignCenter, ASFont::VAlignBottom );
+			s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, Font::HAlignCenter, Font::VAlignBottom );
 			if (menu->selLinkApp()!=NULL) {
 #ifdef ENABLE_CPUFREQ
-				s->write ( font, menu->selLinkApp()->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, ASFont::HAlignLeft, ASFont::VAlignMiddle );
+				s->write ( font, menu->selLinkApp()->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle );
 #endif
 				//Manual indicator
 				if (!menu->selLinkApp()->getManual().empty())
@@ -708,7 +708,7 @@ void GMenu2X::main() {
 
 		s->write(font, Clock::getInstance()->getTime(),
 					halfX, bottomBarTextY,
-					ASFont::HAlignCenter, ASFont::VAlignMiddle);
+					Font::HAlignCenter, Font::VAlignMiddle);
 
 		if (helpDisplayed) {
 			s->box(10,50,300,helpBoxHeight+4, skinConfColors[COLOR_MESSAGE_BOX_BG]);
@@ -738,7 +738,7 @@ void GMenu2X::main() {
 			tickFPS = tickNow;
 			drawn_frames = 0;
 		}
-		s->write( font, fps+" FPS", resX-1,1 ,ASFont::HAlignRight );
+		s->write(font, fps + " FPS", resX - 1, 1, Font::HAlignRight);
 #endif
 
 		s->flip();
@@ -1098,7 +1098,7 @@ void GMenu2X::contextMenu() {
 		//draw selection rect
 		s->box( selbox.x, selbox.y, selbox.w, selbox.h, skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
 		for (i=0; i<voices.size(); i++)
-			s->write( font, voices[i].text, box.x+12, box.y+5+(h+2)*i, ASFont::HAlignLeft, ASFont::VAlignTop );
+			s->write( font, voices[i].text, box.x+12, box.y+5+(h+2)*i, Font::HAlignLeft, Font::VAlignTop );
 		s->flip();
 
 		//touchscreen
@@ -1353,7 +1353,7 @@ void GMenu2X::scanner() {
 	Surface scanbg(bg);
 	drawButton(&scanbg, "cancel", tr["Exit"],
 	drawButton(&scanbg, "accept", "", 5)-10);
-	scanbg.write(font,tr["Link Scanner"],halfX,7,ASFont::HAlignCenter,ASFont::VAlignMiddle);
+	scanbg.write(font,tr["Link Scanner"],halfX,7,Font::HAlignCenter,Font::VAlignMiddle);
 	scanbg.convertToDisplayFormat();
 
 	uint lineY = 42;
@@ -1532,7 +1532,7 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		re.w = sc["imgs/buttons/"+btn+".png"]->width() + 3;
-		s->write(font, text, x+re.w, y, ASFont::HAlignLeft, ASFont::VAlignMiddle);
+		s->write(font, text, x+re.w, y, Font::HAlignLeft, Font::VAlignMiddle);
 		re.w += font->getTextWidth(text);
 	}
 	return x+re.w+6;
@@ -1544,7 +1544,7 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 		x -= 16;
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		x -= 3;
-		s->write(font, text, x, y, ASFont::HAlignRight, ASFont::VAlignMiddle);
+		s->write(font, text, x, y, Font::HAlignRight, Font::VAlignMiddle);
 		return x-6-font->getTextWidth(text);
 	}
 	return x-6;

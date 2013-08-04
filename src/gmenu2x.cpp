@@ -603,60 +603,16 @@ void GMenu2X::paint() {
 	//Background
 	sc["bgmain"]->blit(s,0,0);
 
-	//Sections
-	uint sectionLinkPadding = (skinConfInt["topBarHeight"] - 32 - font->getHeight()) / 3;
-	uint sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["linkWidth"]) / 2;
-	if (menu->firstDispSection()>0)
-		sc.skinRes("imgs/l_enabled.png")->blit(s,0,0);
-	else
-		sc.skinRes("imgs/l_disabled.png")->blit(s,0,0);
-	if (menu->firstDispSection()+linkColumns<menu->getSections().size())
-		sc.skinRes("imgs/r_enabled.png")->blit(s,resX-10,0);
-	else
-		sc.skinRes("imgs/r_disabled.png")->blit(s,resX-10,0);
-	for (uint i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + linkColumns; i++) {
-		string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
-		int x = (i-menu->firstDispSection())*skinConfInt["linkWidth"]+sectionsCoordX;
-		if (menu->selSectionIndex()==(int)i)
-			s->box(x, 0, skinConfInt["linkWidth"],
-			skinConfInt["topBarHeight"], skinConfColors[COLOR_SELECTION_BG]);
-		x += skinConfInt["linkWidth"]/2;
-		if (sc.exists(sectionIcon))
-			sc[sectionIcon]->blit(s,x-16,sectionLinkPadding,32,32);
-		else
-			sc.skinRes("icons/section.png")->blit(s,x-16,sectionLinkPadding);
-		s->write( font, menu->getSections()[i], x, skinConfInt["topBarHeight"]-sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom );
-	}
+	menu->paint(*s);
 
-	//Links
-	uint linksPerPage = linkColumns * linkRows;
-	int linkSpacingX = (resX-10 - linkColumns*skinConfInt["linkWidth"])/linkColumns;
-	int linkSpacingY = (resY-35 - skinConfInt["topBarHeight"] - linkRows*skinConfInt["linkHeight"])/linkRows;
-	for (uint i = menu->firstDispRow() * linkColumns; i < menu->firstDispRow() * linkColumns + linksPerPage && i < menu->sectionLinks()->size(); i++) {
-		int ir = i-menu->firstDispRow()*linkColumns;
-		int x = (ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+6;
-		int y = ir/linkColumns*(skinConfInt["linkHeight"]+linkSpacingY)+skinConfInt["topBarHeight"]+2;
-		menu->sectionLinks()->at(i)->setPosition(x,y);
-
-		if (i == (uint)menu->selLinkIndex())
-			menu->sectionLinks()->at(i)->paintHover();
-
-		menu->sectionLinks()->at(i)->paint();
-	}
-	s->clearClipRect();
-
-	drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(),43,resY-81);
-
-	if (menu->selLink()!=NULL) {
-		s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, Font::HAlignCenter, Font::VAlignBottom );
-		if (menu->selLinkApp()!=NULL) {
+	LinkApp *linkApp = menu->selLinkApp();
+	if (linkApp) {
 #ifdef ENABLE_CPUFREQ
-			s->write ( font, menu->selLinkApp()->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle );
+		s->write(font, linkApp->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle);
 #endif
-			//Manual indicator
-			if (!menu->selLinkApp()->getManual().empty())
-				sc.skinRes("imgs/manual.png")->blit(s,manualX,bottomBarIconY);
-		}
+		//Manual indicator
+		if (!linkApp->getManual().empty())
+			sc.skinRes("imgs/manual.png")->blit(s, manualX, bottomBarIconY);
 	}
 
 	if (ts.available()) {

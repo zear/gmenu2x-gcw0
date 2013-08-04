@@ -129,6 +129,72 @@ void Menu::loadIcons() {
 	}
 }
 
+void Menu::paint(Surface &s) {
+	const uint width = s.width(), height = s.height();
+	const uint linkColumns = gmenu2x->linkColumns, linkRows = gmenu2x->linkRows;
+	Font &font = *gmenu2x->font;
+	SurfaceCollection sc = gmenu2x->sc;
+
+	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
+	const int topBarHeight = skinConfInt["topBarHeight"];
+	const int linkWidth = skinConfInt["linkWidth"];
+	const int linkHeight = skinConfInt["linkHeight"];
+	RGBAColor &selectionBgColor = gmenu2x->skinConfColors[COLOR_SELECTION_BG];
+
+	//Sections
+	const uint sectionLinkPadding = (topBarHeight - 32 - font.getHeight()) / 3;
+	const uint sectionsCoordX =
+			(width - constrain((uint)sections.size(), 0 , linkColumns) * linkWidth) / 2;
+	if (iFirstDispSection > 0) {
+		sc.skinRes("imgs/l_enabled.png")->blit(&s, 0, 0);
+	} else {
+		sc.skinRes("imgs/l_disabled.png")->blit(&s, 0, 0);
+	}
+	if (iFirstDispSection + linkColumns < sections.size()) {
+		sc.skinRes("imgs/r_enabled.png")->blit(&s, width - 10, 0);
+	} else {
+		sc.skinRes("imgs/r_disabled.png")->blit(&s, width - 10, 0);
+	}
+	for (uint i = iFirstDispSection; i < sections.size() && i < iFirstDispSection + linkColumns; i++) {
+		string sectionIcon = "skin:sections/" + sections[i] + ".png";
+		int x = (i - iFirstDispSection) * linkWidth + sectionsCoordX;
+		if (i == (uint)iSection) {
+			s.box(x, 0, linkWidth, topBarHeight, selectionBgColor);
+		}
+		x += linkWidth / 2;
+		if (sc.exists(sectionIcon)) {
+			sc[sectionIcon]->blit(&s, x - 16, sectionLinkPadding, 32, 32);
+		} else {
+			sc.skinRes("icons/section.png")->blit(&s, x - 16, sectionLinkPadding);
+		}
+		s.write(&font, sections[i], x, topBarHeight - sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom);
+	}
+
+	//Links
+	const uint linksPerPage = linkColumns * linkRows;
+	const int linkSpacingX = (width - 10 - linkColumns * linkWidth) / linkColumns;
+	const int linkSpacingY = (height - 35 - topBarHeight - linkRows * linkHeight) / linkRows;
+	for (uint i = iFirstDispRow * linkColumns; i < iFirstDispRow * linkColumns + linksPerPage && i < sectionLinks()->size(); i++) {
+		const int ir = i - iFirstDispRow * linkColumns;
+		const int x = (ir % linkColumns) * (linkWidth + linkSpacingX) + 6;
+		const int y = ir / linkColumns * (linkHeight + linkSpacingY) + topBarHeight + 2;
+		sectionLinks()->at(i)->setPosition(x, y);
+
+		if (i == (uint)iLink) {
+			sectionLinks()->at(i)->paintHover();
+		}
+
+		sectionLinks()->at(i)->paint();
+	}
+	s.clearClipRect();
+
+	gmenu2x->drawScrollBar(linkRows, sectionLinks()->size() / linkColumns + ((sectionLinks()->size() % linkColumns == 0) ? 0 : 1), iFirstDispRow, 43, height - 81);
+
+	if (selLink()) {
+		s.write(&font, selLink()->getDescription(), width / 2, height - 19, Font::HAlignCenter, Font::VAlignBottom);
+	}
+}
+
 /*====================================
    SECTION MANAGEMENT
   ====================================*/

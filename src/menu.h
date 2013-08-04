@@ -30,6 +30,7 @@
 class LinkApp;
 class GMenu2X;
 class Monitor;
+class Surface;
 
 /**
 Handles the menu structure
@@ -94,6 +95,7 @@ public:
 	void deleteSelectedSection();
 
 	void loadIcons();
+	void paint(Surface &s);
 	bool linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSectionIndex);
 
 	int selLinkIndex();

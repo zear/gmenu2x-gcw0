@@ -140,7 +140,7 @@ public:
 	 * Variables needed for elements disposition
 	 */
 	uint resX, resY, halfX, halfY;
-	uint bottomBarIconY, bottomBarTextY, linkColumns, linkRows;
+	uint bottomBarIconY, bottomBarTextY;
 
 	InputManager input;
 

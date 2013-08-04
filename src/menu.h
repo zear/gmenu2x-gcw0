@@ -46,6 +46,8 @@ private:
 	std::vector<std::string> sections;
 	std::vector< std::vector<Link*> > links;
 
+	uint linkColumns, linkRows;
+
 	std::vector<Link*> *sectionLinks(int i = -1);
 
 	void readLinks();
@@ -92,7 +94,7 @@ public:
 	void deleteSelectedLink();
 	void deleteSelectedSection();
 
-	void loadIcons();
+	void skinUpdated();
 	void paint(Surface &s);
 	void handleTS();
 	bool linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSectionIndex);

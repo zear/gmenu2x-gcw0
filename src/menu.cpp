@@ -109,7 +109,13 @@ void Menu::readSections(std::string parentDir)
 	closedir(dirp);
 }
 
-void Menu::loadIcons() {
+void Menu::skinUpdated() {
+	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
+
+	//recalculate some coordinates based on the new element sizes
+	linkColumns = (gmenu2x->resX - 10) / skinConfInt["linkWidth"];
+	linkRows = (gmenu2x->resY - 35 - skinConfInt["topBarHeight"]) / skinConfInt["linkHeight"];
+
 	//reload section icons
 	vector<string>::size_type i = 0;
 	for (string sectionName : sections) {
@@ -127,7 +133,6 @@ void Menu::loadIcons() {
 
 void Menu::paint(Surface &s) {
 	const uint width = s.width(), height = s.height();
-	const uint linkColumns = gmenu2x->linkColumns, linkRows = gmenu2x->linkRows;
 	Font &font = *gmenu2x->font;
 	SurfaceCollection sc = gmenu2x->sc;
 
@@ -205,7 +210,6 @@ void Menu::handleTS() {
 	const int topBarHeight = skinConfInt["topBarHeight"];
 	const int linkWidth = skinConfInt["linkWidth"];
 	const int screenWidth = gmenu2x->resX;
-	const uint linkColumns = gmenu2x->linkColumns, linkRows = gmenu2x->linkRows;
 
 	SDL_Rect re = {
 		0, 0,
@@ -474,43 +478,45 @@ bool Menu::linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSecti
 }
 
 void Menu::linkLeft() {
-	if (iLink%gmenu2x->linkColumns == 0)
-		setLinkIndex( sectionLinks()->size()>iLink+gmenu2x->linkColumns-1 ? iLink+gmenu2x->linkColumns-1 : sectionLinks()->size()-1 );
+	if (iLink % linkColumns == 0)
+		setLinkIndex(sectionLinks()->size() > iLink + linkColumns - 1
+				? iLink + linkColumns - 1 : sectionLinks()->size() - 1);
 	else
-		setLinkIndex(iLink-1);
+		setLinkIndex(iLink - 1);
 }
 
 void Menu::linkRight() {
-	if (iLink%gmenu2x->linkColumns == (gmenu2x->linkColumns-1) || iLink == (int)sectionLinks()->size()-1)
-		setLinkIndex(iLink-iLink%gmenu2x->linkColumns);
+	if (iLink % linkColumns == linkColumns - 1
+			|| iLink == (int)sectionLinks()->size() - 1)
+		setLinkIndex(iLink - iLink % linkColumns);
 	else
-		setLinkIndex(iLink+1);
+		setLinkIndex(iLink + 1);
 }
 
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 
 void Menu::linkUp() {
-	int l = iLink-gmenu2x->linkColumns;
+	int l = iLink - linkColumns;
 	if (l<0) {
 		unsigned int rows;
-		rows = DIV_ROUND_UP(sectionLinks()->size(), gmenu2x->linkColumns);
-		l = (rows*gmenu2x->linkColumns)+l;
+		rows = DIV_ROUND_UP(sectionLinks()->size(), linkColumns);
+		l = (rows * linkColumns) + l;
 		if (l >= (int)sectionLinks()->size())
-			l -= gmenu2x->linkColumns;
+			l -= linkColumns;
 	}
 	setLinkIndex(l);
 }
 
 void Menu::linkDown() {
-	uint l = iLink+gmenu2x->linkColumns;
+	uint l = iLink + linkColumns;
 	if (l >= sectionLinks()->size()) {
 		unsigned int rows, curCol;
-		rows = DIV_ROUND_UP(sectionLinks()->size(), gmenu2x->linkColumns);
-		curCol = DIV_ROUND_UP(iLink + 1, gmenu2x->linkColumns);
+		rows = DIV_ROUND_UP(sectionLinks()->size(), linkColumns);
+		curCol = DIV_ROUND_UP(iLink + 1, linkColumns);
 		if (rows > curCol)
-			l = sectionLinks()->size()-1;
+			l = sectionLinks()->size() - 1;
 		else
-			l %= gmenu2x->linkColumns;
+			l %= linkColumns;
 	}
 	setLinkIndex(l);
 }
@@ -534,10 +540,10 @@ void Menu::setLinkIndex(int i) {
 	else if (i>=(int)sectionLinks()->size())
 		i=0;
 
-	if (i>=(int)(iFirstDispRow*gmenu2x->linkColumns+gmenu2x->linkColumns*gmenu2x->linkRows))
-		iFirstDispRow = i/gmenu2x->linkColumns-gmenu2x->linkRows+1;
-	else if (i<(int)(iFirstDispRow*gmenu2x->linkColumns))
-		iFirstDispRow = i/gmenu2x->linkColumns;
+	if (i >= (int)(iFirstDispRow * linkColumns + linkColumns * linkRows))
+		iFirstDispRow = i / linkColumns - linkRows + 1;
+	else if (i<(int)(iFirstDispRow * linkColumns))
+		iFirstDispRow = i / linkColumns;
 
 	iLink = i;
 }

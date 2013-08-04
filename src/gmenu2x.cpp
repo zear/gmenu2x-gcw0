@@ -394,7 +394,7 @@ void GMenu2X::initMenu() {
 	btnContextMenu->setPosition(resX - 38, bottomBarIconY);
 	btnContextMenu->setAction(BIND(&GMenu2X::contextMenu));
 
-	menu->loadIcons();
+	menu->skinUpdated();
 
 	//DEBUG
 	//menu->addLink( CARD_ROOT, "sample.pxml", "applications" );
@@ -895,11 +895,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	evalIntConf( &skinConfInt["linkHeight"], 40, 32,120 );
 	evalIntConf( &skinConfInt["linkWidth"], 60, 32,120 );
 
-	//recalculate some coordinates based on the new element sizes
-	linkColumns = (resX-10)/skinConfInt["linkWidth"];
-	linkRows = (resY-35-skinConfInt["topBarHeight"])/skinConfInt["linkHeight"];
-
-	if (menu != NULL) menu->loadIcons();
+	if (menu != NULL) menu->skinUpdated();
 
 	//Selection png
 	useSelectionPng = sc.addSkinRes("imgs/selection.png", false) != NULL;

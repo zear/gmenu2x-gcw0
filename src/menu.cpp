@@ -85,10 +85,6 @@ Menu::~Menu() {
 		delete *it;
 }
 
-uint Menu::firstDispRow() {
-	return iFirstDispRow;
-}
-
 void Menu::readSections(std::string parentDir)
 {
 	DIR *dirp;
@@ -195,6 +191,43 @@ void Menu::paint(Surface &s) {
 	}
 }
 
+void Menu::handleTS() {
+	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
+	const int topBarHeight = skinConfInt["topBarHeight"];
+	const int linkWidth = skinConfInt["linkWidth"];
+	const int screenWidth = gmenu2x->resX;
+	const uint linkColumns = gmenu2x->linkColumns, linkRows = gmenu2x->linkRows;
+
+	SDL_Rect re = {
+		0, 0,
+		static_cast<Uint16>(screenWidth), static_cast<Uint16>(topBarHeight)
+	};
+	if (ts.pressed() && ts.inRect(re)) {
+		re.w = linkWidth;
+		uint sectionsCoordX = (screenWidth - constrain((uint)sections.size(), 0, linkColumns) * linkWidth) / 2;
+		for (uint i = iFirstDispSection; !ts.handled() && i < sections.size() && i < iFirstDispSection + linkColumns; i++) {
+			re.x = (i - iFirstDispSection) * re.w + sectionsCoordX;
+
+			if (ts.inRect(re)) {
+				setSectionIndex(i);
+				ts.setHandled();
+			}
+		}
+	}
+
+	const uint linksPerPage = linkColumns * linkRows;
+	uint i = iFirstDispRow * linkColumns;
+	while (i < (iFirstDispRow * linkColumns) + linksPerPage && i < sectionLinks()->size()) {
+		if (sectionLinks()->at(i)->isPressed()) {
+			setLinkIndex(i);
+		}
+		if (sectionLinks()->at(i)->handleTS()) {
+			i = sectionLinks()->size();
+		}
+		i++;
+	}
+}
+
 /*====================================
    SECTION MANAGEMENT
   ====================================*/
@@ -220,10 +253,6 @@ void Menu::decSectionIndex() {
 
 void Menu::incSectionIndex() {
 	setSectionIndex(iSection+1);
-}
-
-uint Menu::firstDispSection() {
-	return iFirstDispSection;
 }
 
 int Menu::selSectionIndex() {

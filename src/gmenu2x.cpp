@@ -683,33 +683,7 @@ void GMenu2X::main() {
 		if (ts.available()) {
 			ts.poll();
 			btnContextMenu->handleTS();
-			const int topBarHeight = skinConfInt["topBarHeight"];
-			SDL_Rect re = {
-				0, 0,
-				static_cast<Uint16>(resX), static_cast<Uint16>(topBarHeight)
-			};
-			if (ts.pressed() && ts.inRect(re)) {
-				re.w = skinConfInt["linkWidth"];
-				uint sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["linkWidth"]) / 2;
-				for (uint i=menu->firstDispSection(); !ts.handled() && i<menu->getSections().size() && i<menu->firstDispSection()+linkColumns; i++) {
-					re.x = (i-menu->firstDispSection())*re.w+sectionsCoordX;
-
-					if (ts.inRect(re)) {
-						menu->setSectionIndex(i);
-						ts.setHandled();
-					}
-				}
-			}
-
-			uint linksPerPage = linkColumns*linkRows;
-			uint i=menu->firstDispRow()*linkColumns;
-			while ( i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size()) {
-				if (menu->sectionLinks()->at(i)->isPressed())
-					menu->setLinkIndex(i);
-				if (menu->sectionLinks()->at(i)->handleTS())
-					i = menu->sectionLinks()->size();
-				i++;
-			}
+			menu->handleTS();
 		}
 
         switch (input.waitForPressedButton()) {

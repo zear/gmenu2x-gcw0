@@ -46,6 +46,8 @@ private:
 	std::vector<std::string> sections;
 	std::vector< std::vector<Link*> > links;
 
+	std::vector<Link*> *sectionLinks(int i = -1);
+
 	void readLinks();
 	void freeLinks();
 	void orderLinks();
@@ -76,15 +78,11 @@ public:
 #endif
 #endif
 
-	std::vector<Link*> *sectionLinks(int i = -1);
-
 	int selSectionIndex();
 	const std::string &selSection();
 	void decSectionIndex();
 	void incSectionIndex();
 	void setSectionIndex(int i);
-	uint firstDispSection();
-	uint firstDispRow();
 
 	bool addActionLink(uint section, const std::string &title,
 			function_t action, const std::string &description="",
@@ -96,6 +94,7 @@ public:
 
 	void loadIcons();
 	void paint(Surface &s);
+	void handleTS();
 	bool linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSectionIndex);
 
 	int selLinkIndex();

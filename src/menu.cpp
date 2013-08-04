@@ -176,10 +176,13 @@ void Menu::paint(Surface &s) {
 	//Links
 	const uint linksPerPage = linkColumns * linkRows;
 	const int linkSpacingX = (width - 10 - linkColumns * linkWidth) / linkColumns;
+	const int linkMarginX = (
+			width - linkWidth * linkColumns - linkSpacingX * (linkColumns - 1)
+			) / 2;
 	const int linkSpacingY = (height - 35 - topBarHeight - linkRows * linkHeight) / linkRows;
 	for (uint i = iFirstDispRow * linkColumns; i < iFirstDispRow * linkColumns + linksPerPage && i < numLinks; i++) {
 		const int ir = i - iFirstDispRow * linkColumns;
-		const int x = (ir % linkColumns) * (linkWidth + linkSpacingX) + 6;
+		const int x = linkMarginX + (ir % linkColumns) * (linkWidth + linkSpacingX);
 		const int y = ir / linkColumns * (linkHeight + linkSpacingY) + topBarHeight + 2;
 		sectionLinks.at(i)->setPosition(x, y);
 

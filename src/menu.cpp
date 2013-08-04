@@ -133,6 +133,7 @@ void Menu::paint(Surface &s) {
 
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];
+	const int bottomBarHeight = 21;
 	const int linkWidth = skinConfInt["linkWidth"];
 	const int linkHeight = skinConfInt["linkHeight"];
 	RGBAColor &selectionBgColor = gmenu2x->skinConfColors[COLOR_SELECTION_BG];
@@ -166,28 +167,33 @@ void Menu::paint(Surface &s) {
 		s.write(&font, sections[i], x, topBarHeight - sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom);
 	}
 
+	vector<Link*> &sectionLinks = links[iSection];
+	const uint numLinks = sectionLinks.size();
+	gmenu2x->drawScrollBar(
+			linkRows, (numLinks + linkColumns - 1) / linkColumns, iFirstDispRow,
+			topBarHeight + 1, height - topBarHeight - bottomBarHeight - 2);
+
 	//Links
 	const uint linksPerPage = linkColumns * linkRows;
 	const int linkSpacingX = (width - 10 - linkColumns * linkWidth) / linkColumns;
 	const int linkSpacingY = (height - 35 - topBarHeight - linkRows * linkHeight) / linkRows;
-	for (uint i = iFirstDispRow * linkColumns; i < iFirstDispRow * linkColumns + linksPerPage && i < sectionLinks()->size(); i++) {
+	for (uint i = iFirstDispRow * linkColumns; i < iFirstDispRow * linkColumns + linksPerPage && i < numLinks; i++) {
 		const int ir = i - iFirstDispRow * linkColumns;
 		const int x = (ir % linkColumns) * (linkWidth + linkSpacingX) + 6;
 		const int y = ir / linkColumns * (linkHeight + linkSpacingY) + topBarHeight + 2;
-		sectionLinks()->at(i)->setPosition(x, y);
+		sectionLinks.at(i)->setPosition(x, y);
 
 		if (i == (uint)iLink) {
-			sectionLinks()->at(i)->paintHover();
+			sectionLinks.at(i)->paintHover();
 		}
 
-		sectionLinks()->at(i)->paint();
+		sectionLinks.at(i)->paint();
 	}
-	s.clearClipRect();
-
-	gmenu2x->drawScrollBar(linkRows, sectionLinks()->size() / linkColumns + ((sectionLinks()->size() % linkColumns == 0) ? 0 : 1), iFirstDispRow, 43, height - 81);
 
 	if (selLink()) {
-		s.write(&font, selLink()->getDescription(), width / 2, height - 19, Font::HAlignCenter, Font::VAlignBottom);
+		s.write(&font, selLink()->getDescription(),
+				width / 2, height - bottomBarHeight + 2,
+				Font::HAlignCenter, Font::VAlignBottom);
 	}
 }
 

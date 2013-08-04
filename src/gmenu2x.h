@@ -34,6 +34,7 @@
 
 class Button;
 class Font;
+class IconButton;
 class MediaMonitor;
 class Menu;
 class Surface;
@@ -66,6 +67,7 @@ private:
 	Touchscreen ts;
 	Menu *menu;
 	MediaMonitor *monitor;
+	std::string batteryIcon;
 
 	/*!
 	Retrieves the free disk space on the sd
@@ -120,6 +122,9 @@ private:
 	void initFont();
 	void initMenu();
 
+	void paint();
+	void paintHelp();
+
 	void showManual();
 
 public:
@@ -152,6 +157,7 @@ public:
 	Translator tr;
 	Surface *s, *bg;
 	Font *font;
+	IconButton *btnContextMenu;
 
 	//Status functions
 	void main();

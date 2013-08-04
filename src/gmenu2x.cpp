@@ -231,6 +231,7 @@ GMenu2X::GMenu2X()
 	bg = NULL;
 	font = NULL;
 	menu = NULL;
+	btnContextMenu = nullptr;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	initMenu();
 
@@ -277,6 +278,7 @@ GMenu2X::~GMenu2X() {
 	quit();
 
 	delete menu;
+	delete btnContextMenu;
 	delete font;
 	delete monitor;
 }
@@ -387,6 +389,10 @@ void GMenu2X::initMenu() {
 
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
+
+	btnContextMenu = new IconButton(this, ts, "skin:imgs/menu.png");
+	btnContextMenu->setPosition(resX - 38, bottomBarIconY);
+	btnContextMenu->setAction(BIND(&GMenu2X::contextMenu));
 
 	menu->loadIcons();
 
@@ -593,160 +599,143 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	}
 }
 
-void GMenu2X::main() {
-	uint linksPerPage = linkColumns*linkRows;
+void GMenu2X::paint() {
+	//Background
+	sc["bgmain"]->blit(s,0,0);
+
+	//Sections
+	uint sectionLinkPadding = (skinConfInt["topBarHeight"] - 32 - font->getHeight()) / 3;
+	uint sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["linkWidth"]) / 2;
+	if (menu->firstDispSection()>0)
+		sc.skinRes("imgs/l_enabled.png")->blit(s,0,0);
+	else
+		sc.skinRes("imgs/l_disabled.png")->blit(s,0,0);
+	if (menu->firstDispSection()+linkColumns<menu->getSections().size())
+		sc.skinRes("imgs/r_enabled.png")->blit(s,resX-10,0);
+	else
+		sc.skinRes("imgs/r_disabled.png")->blit(s,resX-10,0);
+	for (uint i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + linkColumns; i++) {
+		string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
+		int x = (i-menu->firstDispSection())*skinConfInt["linkWidth"]+sectionsCoordX;
+		if (menu->selSectionIndex()==(int)i)
+			s->box(x, 0, skinConfInt["linkWidth"],
+			skinConfInt["topBarHeight"], skinConfColors[COLOR_SELECTION_BG]);
+		x += skinConfInt["linkWidth"]/2;
+		if (sc.exists(sectionIcon))
+			sc[sectionIcon]->blit(s,x-16,sectionLinkPadding,32,32);
+		else
+			sc.skinRes("icons/section.png")->blit(s,x-16,sectionLinkPadding);
+		s->write( font, menu->getSections()[i], x, skinConfInt["topBarHeight"]-sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom );
+	}
+
+	//Links
+	uint linksPerPage = linkColumns * linkRows;
 	int linkSpacingX = (resX-10 - linkColumns*skinConfInt["linkWidth"])/linkColumns;
 	int linkSpacingY = (resY-35 - skinConfInt["topBarHeight"] - linkRows*skinConfInt["linkHeight"])/linkRows;
-	uint sectionLinkPadding = (skinConfInt["topBarHeight"] - 32 - font->getHeight()) / 3;
+	for (uint i = menu->firstDispRow() * linkColumns; i < menu->firstDispRow() * linkColumns + linksPerPage && i < menu->sectionLinks()->size(); i++) {
+		int ir = i-menu->firstDispRow()*linkColumns;
+		int x = (ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+6;
+		int y = ir/linkColumns*(skinConfInt["linkHeight"]+linkSpacingY)+skinConfInt["topBarHeight"]+2;
+		menu->sectionLinks()->at(i)->setPosition(x,y);
 
-	bool quit = false;
-	int x,y;
-	int helpBoxHeight = 154;
-	uint i;
-	long tickBattery = -60000, tickNow;
-	string batteryIcon = "imgs/battery/0.png";
-	stringstream ss;
-	uint sectionsCoordX = 24;
-	SDL_Rect re = {0,0,0,0};
-	bool helpDisplayed = false;
-#ifdef WITH_DEBUG
-	//framerate
-	long tickFPS = SDL_GetTicks();
-	int drawn_frames = 0;
-	string fps = "";
+		if (i == (uint)menu->selLinkIndex())
+			menu->sectionLinks()->at(i)->paintHover();
+
+		menu->sectionLinks()->at(i)->paint();
+	}
+	s->clearClipRect();
+
+	drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(),43,resY-81);
+
+	if (menu->selLink()!=NULL) {
+		s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, Font::HAlignCenter, Font::VAlignBottom );
+		if (menu->selLinkApp()!=NULL) {
+#ifdef ENABLE_CPUFREQ
+			s->write ( font, menu->selLinkApp()->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle );
 #endif
+			//Manual indicator
+			if (!menu->selLinkApp()->getManual().empty())
+				sc.skinRes("imgs/manual.png")->blit(s,manualX,bottomBarIconY);
+		}
+	}
 
-	IconButton btnContextMenu(this, ts, "skin:imgs/menu.png");
-	btnContextMenu.setPosition(resX-38, bottomBarIconY);
-	btnContextMenu.setAction(BIND(&GMenu2X::contextMenu));
+	if (ts.available()) {
+		btnContextMenu->paint();
+	}
+
+	sc.skinRes(batteryIcon)->blit( s, resX-19, bottomBarIconY );
+	//s->write( font, tr[batstr.c_str()], 20, 170 );
+
+	s->write(font, Clock::getInstance()->getTime(),
+				halfX, bottomBarTextY,
+				Font::HAlignCenter, Font::VAlignMiddle);
+}
+
+void GMenu2X::paintHelp() {
+	//On Screen Help
+	int helpBoxHeight = 154;
+	s->box(10,50,300,helpBoxHeight+4, skinConfColors[COLOR_MESSAGE_BOX_BG]);
+	s->rectangle( 12,52,296,helpBoxHeight,
+	skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
+	s->write( font, tr["CONTROLS"], 20, 60 );
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
+	s->write( font, tr["A: Launch link / Confirm action"], 20, 80 );
+	s->write( font, tr["B: Show this help menu"], 20, 95 );
+	s->write( font, tr["L, R: Change section"], 20, 110 );
+	s->write( font, tr["SELECT: Show contextual menu"], 20, 155 );
+	s->write( font, tr["START: Show options menu"], 20, 170 );
+#endif
+}
+
+void GMenu2X::main() {
+
+	batteryIcon = "imgs/battery/0.png";
+	long tickBattery = -60000;
 
 	if (!fileExists(CARD_ROOT))
 		CARD_ROOT = "";
 
+	bool helpDisplayed = false;
+
+	bool quit = false;
 	while (!quit) {
-		tickNow = SDL_GetTicks();
-
-		//Background
-		sc["bgmain"]->blit(s,0,0);
-
-		//Sections
-		sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["linkWidth"]) / 2;
-		if (menu->firstDispSection()>0)
-			sc.skinRes("imgs/l_enabled.png")->blit(s,0,0);
-		else
-			sc.skinRes("imgs/l_disabled.png")->blit(s,0,0);
-		if (menu->firstDispSection()+linkColumns<menu->getSections().size())
-			sc.skinRes("imgs/r_enabled.png")->blit(s,resX-10,0);
-		else
-			sc.skinRes("imgs/r_disabled.png")->blit(s,resX-10,0);
-		for (i=menu->firstDispSection(); i<menu->getSections().size() && i<menu->firstDispSection()+linkColumns; i++) {
-			string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
-			x = (i-menu->firstDispSection())*skinConfInt["linkWidth"]+sectionsCoordX;
-			if (menu->selSectionIndex()==(int)i)
-				s->box(x, 0, skinConfInt["linkWidth"],
-				skinConfInt["topBarHeight"], skinConfColors[COLOR_SELECTION_BG]);
-			x += skinConfInt["linkWidth"]/2;
-			if (sc.exists(sectionIcon))
-				sc[sectionIcon]->blit(s,x-16,sectionLinkPadding,32,32);
-			else
-				sc.skinRes("icons/section.png")->blit(s,x-16,sectionLinkPadding);
-			s->write( font, menu->getSections()[i], x, skinConfInt["topBarHeight"]-sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom );
-		}
-
-		//Links
-		for (i=menu->firstDispRow()*linkColumns; i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size(); i++) {
-			int ir = i-menu->firstDispRow()*linkColumns;
-			x = (ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+6;
-			y = ir/linkColumns*(skinConfInt["linkHeight"]+linkSpacingY)+skinConfInt["topBarHeight"]+2;
-			menu->sectionLinks()->at(i)->setPosition(x,y);
-
-			if (i==(uint)menu->selLinkIndex())
-				menu->sectionLinks()->at(i)->paintHover();
-
-			menu->sectionLinks()->at(i)->paint();
-		}
-		s->clearClipRect();
-
-		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(),43,resY-81);
-
-		if (menu->selLink()!=NULL) {
-			s->write ( font, menu->selLink()->getDescription(), halfX, resY-19, Font::HAlignCenter, Font::VAlignBottom );
-			if (menu->selLinkApp()!=NULL) {
-#ifdef ENABLE_CPUFREQ
-				s->write ( font, menu->selLinkApp()->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle );
-#endif
-				//Manual indicator
-				if (!menu->selLinkApp()->getManual().empty())
-					sc.skinRes("imgs/manual.png")->blit(s,manualX,bottomBarIconY);
-			}
-		}
-
-		if (ts.available()) {
-			btnContextMenu.paint();
-		}
 		//check battery status every 60 seconds
-		if (tickNow-tickBattery >= 60000) {
+		long tickNow = SDL_GetTicks();
+		if (tickNow - tickBattery >= 60000) {
 			tickBattery = tickNow;
 			unsigned short battlevel = getBatteryLevel();
 			if (battlevel>5) {
 				batteryIcon = "imgs/battery/ac.png";
 			} else {
-				ss.clear();
-				ss << battlevel;
+				stringstream ss;
+				ss << "imgs/battery/" << battlevel << ".png";
 				ss >> batteryIcon;
-				batteryIcon = "imgs/battery/"+batteryIcon+".png";
 			}
 		}
-		sc.skinRes(batteryIcon)->blit( s, resX-19, bottomBarIconY );
-		//s->write( font, tr[batstr.c_str()], 20, 170 );
-		//On Screen Help
 
-		s->write(font, Clock::getInstance()->getTime(),
-					halfX, bottomBarTextY,
-					Font::HAlignCenter, Font::VAlignMiddle);
-
+		paint();
 		if (helpDisplayed) {
-			s->box(10,50,300,helpBoxHeight+4, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-			s->rectangle( 12,52,296,helpBoxHeight,
-			skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-			s->write( font, tr["CONTROLS"], 20, 60 );
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-			s->write( font, tr["A: Launch link / Confirm action"], 20, 80 );
-			s->write( font, tr["B: Show this help menu"], 20, 95 );
-			s->write( font, tr["L, R: Change section"], 20, 110 );
-			s->write( font, tr["SELECT: Show contextual menu"], 20, 155 );
-			s->write( font, tr["START: Show options menu"], 20, 170 );
-#endif
+			paintHelp();
 			s->flip();
 			while (input.waitForPressedButton() != InputManager::CANCEL) {}
 			helpDisplayed=false;
 			continue;
 		}
-
-#ifdef WITH_DEBUG
-		//framerate
-		drawn_frames++;
-		if (tickNow-tickFPS>=1000) {
-			ss.clear();
-			ss << drawn_frames*(tickNow-tickFPS+1)/1000;
-			ss >> fps;
-			tickFPS = tickNow;
-			drawn_frames = 0;
-		}
-		s->write(font, fps + " FPS", resX - 1, 1, Font::HAlignRight);
-#endif
-
 		s->flip();
 
 		//touchscreen
 		if (ts.available()) {
 			ts.poll();
-			btnContextMenu.handleTS();
-			re.x = 0; re.y = 0; re.h = skinConfInt["topBarHeight"]; re.w = resX;
+			btnContextMenu->handleTS();
+			const int topBarHeight = skinConfInt["topBarHeight"];
+			SDL_Rect re = {
+				0, 0,
+				static_cast<Uint16>(resX), static_cast<Uint16>(topBarHeight)
+			};
 			if (ts.pressed() && ts.inRect(re)) {
 				re.w = skinConfInt["linkWidth"];
-				sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["linkWidth"]) / 2;
-				for (i=menu->firstDispSection(); !ts.handled() && i<menu->getSections().size() && i<menu->firstDispSection()+linkColumns; i++) {
+				uint sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["linkWidth"]) / 2;
+				for (uint i=menu->firstDispSection(); !ts.handled() && i<menu->getSections().size() && i<menu->firstDispSection()+linkColumns; i++) {
 					re.x = (i-menu->firstDispSection())*re.w+sectionsCoordX;
 
 					if (ts.inRect(re)) {
@@ -756,7 +745,8 @@ void GMenu2X::main() {
 				}
 			}
 
-			i=menu->firstDispRow()*linkColumns;
+			uint linksPerPage = linkColumns*linkRows;
+			uint i=menu->firstDispRow()*linkColumns;
 			while ( i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size()) {
 				if (menu->sectionLinks()->at(i)->isPressed())
 					menu->setLinkIndex(i);

@@ -45,8 +45,6 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	: gmenu2x(gmenu2x)
 	, ts(ts)
 {
-	iFirstDispSection = 0;
-
 	readSections(GMENU2X_SYSTEM_DIR "/sections");
 	readSections(GMenu2X::getHome() + "/sections");
 
@@ -131,6 +129,19 @@ void Menu::skinUpdated() {
 	}
 }
 
+void Menu::calcSectionRange(int &leftSection, int &rightSection) {
+	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
+	const int linkWidth = skinConfInt["linkWidth"];
+	const int screenWidth = gmenu2x->resX;
+	const int numSections = sections.size();
+	rightSection = min(
+			max(1, (screenWidth - 20 - linkWidth) / (2 * linkWidth)),
+			numSections / 2);
+	leftSection = max(
+			-rightSection,
+			rightSection - numSections + 1);
+}
+
 void Menu::paint(Surface &s) {
 	const uint width = s.width(), height = s.height();
 	Font &font = *gmenu2x->font;
@@ -143,34 +154,25 @@ void Menu::paint(Surface &s) {
 	const int linkHeight = skinConfInt["linkHeight"];
 	RGBAColor &selectionBgColor = gmenu2x->skinConfColors[COLOR_SELECTION_BG];
 
-	//Sections
+	// Paint section headers.
+	int leftSection, rightSection;
+	calcSectionRange(leftSection, rightSection);
+	s.box(width / 2  - linkWidth / 2, 0, linkWidth, topBarHeight, selectionBgColor);
 	const uint sectionLinkPadding = (topBarHeight - 32 - font.getHeight()) / 3;
-	const uint sectionsCoordX =
-			(width - constrain((uint)sections.size(), 0 , linkColumns) * linkWidth) / 2;
-	if (iFirstDispSection > 0) {
-		sc.skinRes("imgs/l_enabled.png")->blit(&s, 0, 0);
-	} else {
-		sc.skinRes("imgs/l_disabled.png")->blit(&s, 0, 0);
+	const uint numSections = sections.size();
+	for (int i = leftSection; i <= rightSection; i++) {
+		uint j = (iSection + numSections + i) % numSections;
+		string sectionIcon = "skin:sections/" + sections[j] + ".png";
+		Surface *icon = sc.exists(sectionIcon)
+				? sc[sectionIcon]
+				: sc.skinRes("icons/section.png");
+		const int x = width / 2 + i * linkWidth;
+		icon->blit(&s, x - 16, sectionLinkPadding, 32, 32);
+		s.write(&font, sections[j], x, topBarHeight - sectionLinkPadding,
+				Font::HAlignCenter, Font::VAlignBottom);
 	}
-	if (iFirstDispSection + linkColumns < sections.size()) {
-		sc.skinRes("imgs/r_enabled.png")->blit(&s, width - 10, 0);
-	} else {
-		sc.skinRes("imgs/r_disabled.png")->blit(&s, width - 10, 0);
-	}
-	for (uint i = iFirstDispSection; i < sections.size() && i < iFirstDispSection + linkColumns; i++) {
-		string sectionIcon = "skin:sections/" + sections[i] + ".png";
-		int x = (i - iFirstDispSection) * linkWidth + sectionsCoordX;
-		if (i == (uint)iSection) {
-			s.box(x, 0, linkWidth, topBarHeight, selectionBgColor);
-		}
-		x += linkWidth / 2;
-		if (sc.exists(sectionIcon)) {
-			sc[sectionIcon]->blit(&s, x - 16, sectionLinkPadding, 32, 32);
-		} else {
-			sc.skinRes("icons/section.png")->blit(&s, x - 16, sectionLinkPadding);
-		}
-		s.write(&font, sections[i], x, topBarHeight - sectionLinkPadding, Font::HAlignCenter, Font::VAlignBottom);
-	}
+	sc.skinRes("imgs/l_enabled.png")->blit(&s, 0, 0);
+	sc.skinRes("imgs/r_enabled.png")->blit(&s, width - 10, 0);
 
 	vector<Link*> &sectionLinks = links[iSection];
 	const uint numLinks = sectionLinks.size();
@@ -208,24 +210,21 @@ void Menu::paint(Surface &s) {
 void Menu::handleTS() {
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];
-	const int linkWidth = skinConfInt["linkWidth"];
 	const int screenWidth = gmenu2x->resX;
 
-	SDL_Rect re = {
-		0, 0,
-		static_cast<Uint16>(screenWidth), static_cast<Uint16>(topBarHeight)
-	};
-	if (ts.pressed() && ts.inRect(re)) {
-		re.w = linkWidth;
-		uint sectionsCoordX = (screenWidth - constrain((uint)sections.size(), 0, linkColumns) * linkWidth) / 2;
-		for (uint i = iFirstDispSection; !ts.handled() && i < sections.size() && i < iFirstDispSection + linkColumns; i++) {
-			re.x = (i - iFirstDispSection) * re.w + sectionsCoordX;
+	if (ts.pressed() && ts.getY() < topBarHeight) {
+		int leftSection, rightSection;
+		calcSectionRange(leftSection, rightSection);
 
-			if (ts.inRect(re)) {
-				setSectionIndex(i);
-				ts.setHandled();
-			}
-		}
+		const int linkWidth = skinConfInt["linkWidth"];
+		const int leftSectionX = screenWidth / 2 + leftSection * linkWidth;
+		const int i = min(
+				leftSection + max((ts.getX() - leftSectionX) / linkWidth, 0),
+				rightSection);
+		const uint numSections = sections.size();
+		setSectionIndex((iSection + numSections + i) % numSections);
+
+		ts.setHandled();
 	}
 
 	const uint linksPerPage = linkColumns * linkRows;
@@ -282,11 +281,6 @@ void Menu::setSectionIndex(int i) {
 	else if (i>=(int)sections.size())
 		i=0;
 	iSection = i;
-
-	if (i>(int)iFirstDispSection+2)
-		iFirstDispSection = i-2;
-	else if (i<(int)iFirstDispSection)
-		iFirstDispSection = i;
 
 	iLink = 0;
 	iFirstDispRow = 0;

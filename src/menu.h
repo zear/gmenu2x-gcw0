@@ -42,11 +42,17 @@ private:
 	GMenu2X *gmenu2x;
 	Touchscreen &ts;
 	int iSection, iLink;
-	uint iFirstDispSection, iFirstDispRow;
+	uint iFirstDispRow;
 	std::vector<std::string> sections;
 	std::vector< std::vector<Link*> > links;
 
 	uint linkColumns, linkRows;
+
+	/**
+	 * Determine which section headers are visible.
+	 * The output values are relative to the middle section at 0.
+	 */
+	void calcSectionRange(int &leftSection, int &rightSection);
 
 	std::vector<Link*> *sectionLinks(int i = -1);
 

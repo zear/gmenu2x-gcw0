@@ -12,7 +12,8 @@ gmenu2x_SOURCES = font.cpp button.cpp cpu.cpp dirdialog.cpp filedialog.cpp \
 	textdialog.cpp textmanualdialog.cpp touchscreen.cpp translator.cpp \
 	utilities.cpp wallpaperdialog.cpp \
 	browsedialog.cpp buttonbox.cpp dialog.cpp \
-	imageio.cpp powersaver.cpp monitor.cpp mediamonitor.cpp clock.cpp
+	imageio.cpp powersaver.cpp monitor.cpp mediamonitor.cpp clock.cpp \
+	helppopup.cpp
 
 noinst_HEADERS = font.h button.h cpu.h dirdialog.h \
 	filedialog.h filelister.h gmenu2x.h gp2x.h iconbutton.h imagedialog.h \
@@ -25,7 +26,8 @@ noinst_HEADERS = font.h button.h cpu.h dirdialog.h \
 	surfacecollection.h surface.h textdialog.h textmanualdialog.h \
 	touchscreen.h translator.h utilities.h wallpaperdialog.h \
 	browsedialog.h buttonbox.h dialog.h \
-	imageio.h powersaver.h monitor.h mediamonitor.h clock.h
+	imageio.h powersaver.h monitor.h mediamonitor.h clock.h \
+	layer.h helppopup.h
 
 AM_CFLAGS= @CFLAGS@ @SDL_CFLAGS@
 

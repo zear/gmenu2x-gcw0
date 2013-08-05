@@ -27,6 +27,7 @@
 #include "filelister.h"
 #include "font.h"
 #include "gmenu2x.h"
+#include "helppopup.h"
 #include "iconbutton.h"
 #include "inputdialog.h"
 #include "linkapp.h"
@@ -231,6 +232,7 @@ GMenu2X::GMenu2X()
 	bg = NULL;
 	font = NULL;
 	menu = NULL;
+	helpPopup = nullptr;
 	btnContextMenu = nullptr;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	initMenu();
@@ -278,6 +280,7 @@ GMenu2X::~GMenu2X() {
 	quit();
 
 	delete menu;
+	delete helpPopup;
 	delete btnContextMenu;
 	delete font;
 	delete monitor;
@@ -398,6 +401,8 @@ void GMenu2X::initMenu() {
 
 	//DEBUG
 	//menu->addLink( CARD_ROOT, "sample.pxml", "applications" );
+
+	layers.push_back(menu);
 }
 
 void GMenu2X::about() {
@@ -603,7 +608,9 @@ void GMenu2X::paint() {
 	//Background
 	sc["bgmain"]->blit(s,0,0);
 
-	menu->paint(*s);
+	for (Layer *layer : layers) {
+		layer->paint(*s);
+	}
 
 	LinkApp *linkApp = menu->selLinkApp();
 	if (linkApp) {
@@ -627,22 +634,6 @@ void GMenu2X::paint() {
 				Font::HAlignCenter, Font::VAlignMiddle);
 }
 
-void GMenu2X::paintHelp() {
-	//On Screen Help
-	int helpBoxHeight = 154;
-	s->box(10,50,300,helpBoxHeight+4, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-	s->rectangle( 12,52,296,helpBoxHeight,
-	skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-	s->write( font, tr["CONTROLS"], 20, 60 );
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-	s->write( font, tr["A: Launch link / Confirm action"], 20, 80 );
-	s->write( font, tr["B: Show this help menu"], 20, 95 );
-	s->write( font, tr["L, R: Change section"], 20, 110 );
-	s->write( font, tr["SELECT: Show contextual menu"], 20, 155 );
-	s->write( font, tr["START: Show options menu"], 20, 170 );
-#endif
-}
-
 void GMenu2X::main() {
 
 	batteryIcon = "imgs/battery/0.png";
@@ -650,8 +641,6 @@ void GMenu2X::main() {
 
 	if (!fileExists(CARD_ROOT))
 		CARD_ROOT = "";
-
-	bool helpDisplayed = false;
 
 	bool quit = false;
 	while (!quit) {
@@ -670,27 +659,28 @@ void GMenu2X::main() {
 		}
 
 		paint();
-		if (helpDisplayed) {
-			paintHelp();
-			s->flip();
-			while (input.waitForPressedButton() != InputManager::CANCEL) {}
-			helpDisplayed=false;
-			continue;
-		}
 		s->flip();
 
 		//touchscreen
 		if (ts.available()) {
 			ts.poll();
 			btnContextMenu->handleTS();
-			menu->handleTS();
+			bool handled = false;
+			for (auto it = layers.rbegin(); !handled && it != layers.rend(); ++it) {
+				handled = (*it)->handleTouchscreen(ts);
+			}
 		}
 
 		InputManager::Button button = input.waitForPressedButton();
-		if (!menu->handleButtonPress(button)) {
+		bool handled = false;
+		for (auto it = layers.rbegin(); !handled && it != layers.rend(); ++it) {
+			handled = (*it)->handleButtonPress(button);
+		}
+		if (!handled) {
 			switch (button) {
 				case InputManager::CANCEL:
-					helpDisplayed=true;
+					helpPopup = new HelpPopup(*this);
+					layers.push_back(helpPopup);
 					break;
 				case InputManager::SETTINGS:
 					options();
@@ -700,6 +690,19 @@ void GMenu2X::main() {
 					break;
 				default:
 					break;
+			}
+		}
+
+		for (auto it = layers.begin(); it != layers.end(); ) {
+			Layer *layer = *it;
+			if (layer->wasDismissed()) {
+				it = layers.erase(it);
+				if (layer == helpPopup) {
+					delete helpPopup;
+					helpPopup = nullptr;
+				}
+			} else {
+				++it;
 			}
 		}
 	}

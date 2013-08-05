@@ -235,7 +235,7 @@ bool Menu::handleButtonPress(InputManager::Button button) {
 	}
 }
 
-void Menu::handleTS() {
+bool Menu::handleTouchscreen(Touchscreen &ts) {
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];
 	const int screenWidth = gmenu2x->resX;
@@ -253,6 +253,7 @@ void Menu::handleTS() {
 		setSectionIndex((iSection + numSections + i) % numSections);
 
 		ts.setHandled();
+		return true;
 	}
 
 	const uint linksPerPage = linkColumns * linkRows;
@@ -266,6 +267,7 @@ void Menu::handleTS() {
 		}
 		i++;
 	}
+	return ts.handled();
 }
 
 /*====================================

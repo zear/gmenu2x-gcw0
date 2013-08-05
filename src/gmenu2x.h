@@ -34,7 +34,9 @@
 
 class Button;
 class Font;
+class HelpPopup;
 class IconButton;
+class Layer;
 class MediaMonitor;
 class Menu;
 class Surface;
@@ -66,8 +68,11 @@ class GMenu2X {
 private:
 	Touchscreen ts;
 	Menu *menu;
+	HelpPopup *helpPopup;
 	MediaMonitor *monitor;
 	std::string batteryIcon;
+
+	std::vector<Layer *> layers;
 
 	/*!
 	Retrieves the free disk space on the sd
@@ -123,7 +128,6 @@ private:
 	void initMenu();
 
 	void paint();
-	void paintHelp();
 
 	void showManual();
 

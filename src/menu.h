@@ -22,7 +22,7 @@
 #define MENU_H
 
 #include "delegate.h"
-#include "inputmanager.h"
+#include "layer.h"
 #include "link.h"
 
 #include <string>
@@ -31,14 +31,14 @@
 class LinkApp;
 class GMenu2X;
 class Monitor;
-class Surface;
+
 
 /**
 Handles the menu structure
 
 	@author Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 */
-class Menu {
+class Menu : public Layer {
 private:
 	GMenu2X *gmenu2x;
 	Touchscreen &ts;
@@ -84,7 +84,7 @@ private:
 
 public:
 	Menu(GMenu2X *gmenu2x, Touchscreen &ts);
-	~Menu();
+	virtual ~Menu();
 
 #ifdef HAVE_LIBOPK
 	void openPackage(std::string path, bool order = true);
@@ -107,15 +107,12 @@ public:
 	void deleteSelectedSection();
 
 	void skinUpdated();
-	void paint(Surface &s);
 
-	/**
-	 * Handles the pressing of the give button.
-	 * Returns true iff the event was consumed.
-	 */
-	bool handleButtonPress(InputManager::Button button);
+	// Layer implementation:
+	virtual void paint(Surface &s);
+	virtual bool handleButtonPress(InputManager::Button button);
+	virtual bool handleTouchscreen(Touchscreen &ts);
 
-	void handleTS();
 	bool linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSectionIndex);
 
 	int selLinkIndex();

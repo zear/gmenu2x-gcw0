@@ -21,8 +21,9 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "link.h"
 #include "delegate.h"
+#include "inputmanager.h"
+#include "link.h"
 
 #include <string>
 #include <vector>
@@ -74,6 +75,13 @@ private:
 	// Load all the links on the given section directory.
 	void readLinksOfSection(std::string path, std::vector<std::string> &linkfiles);
 
+	void decSectionIndex();
+	void incSectionIndex();
+	void linkLeft();
+	void linkRight();
+	void linkUp();
+	void linkDown();
+
 public:
 	Menu(GMenu2X *gmenu2x, Touchscreen &ts);
 	~Menu();
@@ -88,8 +96,6 @@ public:
 
 	int selSectionIndex();
 	const std::string &selSection();
-	void decSectionIndex();
-	void incSectionIndex();
 	void setSectionIndex(int i);
 
 	bool addActionLink(uint section, const std::string &title,
@@ -102,16 +108,19 @@ public:
 
 	void skinUpdated();
 	void paint(Surface &s);
+
+	/**
+	 * Handles the pressing of the give button.
+	 * Returns true iff the event was consumed.
+	 */
+	bool handleButtonPress(InputManager::Button button);
+
 	void handleTS();
 	bool linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSectionIndex);
 
 	int selLinkIndex();
 	Link *selLink();
 	LinkApp *selLinkApp();
-	void linkLeft();
-	void linkRight();
-	void linkUp();
-	void linkDown();
 	void setLinkIndex(int i);
 
 	const std::vector<std::string> &getSections() { return sections; }

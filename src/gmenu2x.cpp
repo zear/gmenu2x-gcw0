@@ -686,40 +686,22 @@ void GMenu2X::main() {
 			menu->handleTS();
 		}
 
-        switch (input.waitForPressedButton()) {
-            case InputManager::ACCEPT:
-                if (menu->selLink() != NULL) menu->selLink()->run();
-                break;
-            case InputManager::CANCEL:
-                helpDisplayed=true;
-                break;
-            case InputManager::SETTINGS:
-                options();
-                break;
-            case InputManager::MENU:
-                contextMenu();
-                break;
-            case InputManager::UP:
-                menu->linkUp();
-                break;
-            case InputManager::DOWN:
-                menu->linkDown();
-                break;
-            case InputManager::LEFT:
-                menu->linkLeft();
-                break;
-            case InputManager::RIGHT:
-                menu->linkRight();
-                break;
-            case InputManager::ALTLEFT:
-				menu->decSectionIndex();
-                break;
-            case InputManager::ALTRIGHT:
-				menu->incSectionIndex();
-                break;
-            default:
-                break;
-        }
+		InputManager::Button button = input.waitForPressedButton();
+		if (!menu->handleButtonPress(button)) {
+			switch (button) {
+				case InputManager::CANCEL:
+					helpDisplayed=true;
+					break;
+				case InputManager::SETTINGS:
+					options();
+					break;
+				case InputManager::MENU:
+					contextMenu();
+					break;
+				default:
+					break;
+			}
+		}
 	}
 }
 

@@ -207,6 +207,34 @@ void Menu::paint(Surface &s) {
 	}
 }
 
+bool Menu::handleButtonPress(InputManager::Button button) {
+	switch (button) {
+		case InputManager::ACCEPT:
+			if (selLink() != NULL) selLink()->run();
+			return true;
+		case InputManager::UP:
+			linkUp();
+			return true;
+		case InputManager::DOWN:
+			linkDown();
+			return true;
+		case InputManager::LEFT:
+			linkLeft();
+			return true;
+		case InputManager::RIGHT:
+			linkRight();
+			return true;
+		case InputManager::ALTLEFT:
+			decSectionIndex();
+			return true;
+		case InputManager::ALTRIGHT:
+			incSectionIndex();
+			return true;
+		default:
+			return false;
+	}
+}
+
 void Menu::handleTS() {
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];

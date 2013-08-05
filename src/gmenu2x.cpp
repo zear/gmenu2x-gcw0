@@ -1413,18 +1413,23 @@ void GMenu2X::setClock(unsigned mhz) {
 #endif
 
 string GMenu2X::getDiskFree(const char *path) {
-	stringstream ss;
 	string df = "";
 	struct statvfs b;
 
 	int ret = statvfs(path, &b);
-	if (ret==0) {
+	if (ret == 0) {
 		// Make sure that the multiplication happens in 64 bits.
-		unsigned long long free =
-			((unsigned long long)b.f_bfree * b.f_bsize) / 1048576;
-		unsigned long long total =
-			((unsigned long long)b.f_blocks * b.f_frsize) / 1048576;
-		ss << free << "/" << total << "MB";
+		unsigned long freeMiB =
+				((unsigned long long)b.f_bfree * b.f_bsize) / (1024 * 1024);
+		unsigned long totalMiB =
+				((unsigned long long)b.f_blocks * b.f_frsize) / (1024 * 1024);
+		stringstream ss;
+		if (totalMiB >= 10000) {
+			ss << (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
+			   << (totalMiB / 1024) << "." << ((totalMiB % 1024) * 10) / 1024 << "GiB";
+		} else {
+			ss << freeMiB << "/" << totalMiB << "MiB";
+		}
 		ss >> df;
 	} else WARNING("statvfs failed with error '%s'.\n", strerror(errno));
 	return df;

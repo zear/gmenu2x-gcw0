@@ -57,7 +57,6 @@ public:
 	void init(const std::string &conffile, Menu *menu);
 	bool waitForEvent(ButtonEvent *event);
 	Button waitForPressedButton();
-	Button waitForReleasedButton();
 	bool pollEvent(ButtonEvent *event);
 
 private:
@@ -71,7 +70,6 @@ private:
 
 	void readConfFile(const std::string &conffile);
 	bool getEvent(ButtonEvent *bevent, bool wait);
-	Button waitForButton(ButtonState state);
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED

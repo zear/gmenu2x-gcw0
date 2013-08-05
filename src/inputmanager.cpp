@@ -117,16 +117,8 @@ void InputManager::readConfFile(const string &conffile) {
 }
 
 InputManager::Button InputManager::waitForPressedButton() {
-	return waitForButton(PRESSED);
-}
-
-InputManager::Button InputManager::waitForReleasedButton() {
-	return waitForButton(RELEASED);
-}
-
-InputManager::Button InputManager::waitForButton(ButtonState state) {
 	ButtonEvent event;
-	while (!waitForEvent(&event) || event.state != state);
+	while (!waitForEvent(&event) || event.state != PRESSED);
 	return event.button;
 }
 

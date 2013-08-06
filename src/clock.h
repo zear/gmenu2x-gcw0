@@ -6,23 +6,23 @@
 
 class Clock {
 public:
-	static Clock *getInstance();
+	Clock();
 	~Clock();
 
-	std::string &getTime(bool is24 = true);
-	static bool isRunning();
-	void resetTimer();
+	std::string getTime(bool is24 = true);
+
+	class Forwarder;
+	friend Forwarder;
 
 private:
-	Clock();
 	void addTimer(int timeout);
+	void resetTimer();
 	int update();
+	unsigned int clockCallback(unsigned int timeout);
 
-	static Clock *instance;
 	SDL_TimerID timer;
 	unsigned int timeout_startms;
 	int minutes, hours;
-	std::string str;
 };
 
 #endif /* __CLOCK_H__ */

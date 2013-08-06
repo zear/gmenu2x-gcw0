@@ -1,13 +1,12 @@
-#include <string>
-#include <sys/time.h>
-
 #include "clock.h"
+
 #include "debug.h"
 #include "inputmanager.h"
 
-Clock *Clock::instance = NULL;
+#include <sys/time.h>
 
-static void notify(void)
+
+static void notify()
 {
 	SDL_UserEvent e = {
 		.type = SDL_USEREVENT,
@@ -21,23 +20,37 @@ static void notify(void)
 	SDL_PushEvent((SDL_Event *) &e);
 }
 
-static Uint32 clockCallback(Uint32 timeout, void *d)
-{
-	unsigned int *old_ticks = (unsigned int *) d;
-	unsigned int new_ticks = SDL_GetTicks();
+extern "C" Uint32 clockCallbackFunc(Uint32 timeout, void *d);
 
-	if (new_ticks > *old_ticks + timeout + 1000) {
+class Clock::Forwarder {
+	static unsigned int clockCallbackFunc(Clock *clock, unsigned int timeout)
+	{
+		return clock->clockCallback(timeout);
+	}
+	friend Uint32 clockCallbackFunc(Uint32 timeout, void *d);
+};
+
+extern "C" Uint32 clockCallbackFunc(Uint32 timeout, void *d)
+{
+	return Clock::Forwarder::clockCallbackFunc(static_cast<Clock *>(d), timeout);
+}
+
+unsigned int Clock::clockCallback(unsigned int timeout)
+{
+	unsigned int now_ticks = SDL_GetTicks();
+
+	if (now_ticks > timeout_startms + timeout + 1000) {
 		DEBUG("Suspend occured, restarting timer\n");
-		*old_ticks = new_ticks;
+		timeout_startms = now_ticks;
 		return timeout;
 	}
 
-	Clock::getInstance()->resetTimer();
+	resetTimer();
 	notify();
 	return 60000;
 }
 
-std::string &Clock::getTime(bool is24)
+std::string Clock::getTime(bool is24)
 {
 	char buf[9];
 	int h = hours;
@@ -47,11 +60,10 @@ std::string &Clock::getTime(bool is24)
 		h -= 12;
 
 	sprintf(buf, "%02i:%02i%s", h, minutes, is24 ? "" : (pm ? "pm" : "am"));
-	str = buf;
-	return str;
+	return std::string(buf);
 }
 
-int Clock::update(void)
+int Clock::update()
 {
 	struct timeval tv;
 	struct tm result;
@@ -63,7 +75,7 @@ int Clock::update(void)
 	return result.tm_sec;
 }
 
-void Clock::resetTimer(void)
+void Clock::resetTimer()
 {
 	SDL_RemoveTimer(timer);
 	timer = NULL;
@@ -78,12 +90,12 @@ void Clock::addTimer(int timeout)
 		timeout = 60000;
 
 	timeout_startms = SDL_GetTicks();
-	timer = SDL_AddTimer(timeout, clockCallback, &timeout_startms);
+	timer = SDL_AddTimer(timeout, clockCallbackFunc, this);
 	if (timer == NULL)
 		ERROR("Could not initialize SDLTimer: %s\n", SDL_GetError());
 }
 
-Clock::Clock(void)
+Clock::Clock()
 {
 	tzset();
 
@@ -94,17 +106,4 @@ Clock::Clock(void)
 Clock::~Clock()
 {
 	SDL_RemoveTimer(timer);
-	instance = NULL;
-}
-
-Clock *Clock::getInstance(void)
-{
-	if (!instance)
-		instance = new Clock();
-	return instance;
-}
-
-bool Clock::isRunning(void)
-{
-	return instance != NULL;
 }

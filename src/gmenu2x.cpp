@@ -227,6 +227,8 @@ GMenu2X::GMenu2X()
 		quit();
 	}
 
+	clock.reset(new Clock());
+
 	s = Surface::openOutputSurface(resX, resY, confInt["videoBpp"]);
 
 	bg = NULL;
@@ -273,8 +275,6 @@ GMenu2X::GMenu2X()
 GMenu2X::~GMenu2X() {
 	if (PowerSaver::isRunning())
 		delete PowerSaver::getInstance();
-	if (Clock::isRunning())
-		delete Clock::getInstance();
 	quit();
 
 	delete btnContextMenu;
@@ -625,7 +625,7 @@ void GMenu2X::paint() {
 	sc.skinRes(batteryIcon)->blit( s, resX-19, bottomBarIconY );
 	//s->write( font, tr[batstr.c_str()], 20, 170 );
 
-	s->write(font, Clock::getInstance()->getTime(),
+	s->write(font, clock->getTime(),
 				halfX, bottomBarTextY,
 				Font::HAlignCenter, Font::VAlignMiddle);
 }

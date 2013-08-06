@@ -34,6 +34,7 @@
 #include <vector>
 
 class Button;
+class Clock;
 class Font;
 class HelpPopup;
 class IconButton;
@@ -71,6 +72,7 @@ private:
 	std::shared_ptr<Menu> menu;
 	MediaMonitor *monitor;
 	std::string batteryIcon;
+	std::unique_ptr<Clock> clock;
 
 	std::vector<std::shared_ptr<Layer>> layers;
 

@@ -145,7 +145,7 @@ void Menu::calcSectionRange(int &leftSection, int &rightSection) {
 void Menu::paint(Surface &s) {
 	const uint width = s.width(), height = s.height();
 	Font &font = *gmenu2x->font;
-	SurfaceCollection sc = gmenu2x->sc;
+	SurfaceCollection &sc = gmenu2x->sc;
 
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];

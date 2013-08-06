@@ -231,8 +231,6 @@ GMenu2X::GMenu2X()
 
 	bg = NULL;
 	font = NULL;
-	menu = NULL;
-	helpPopup = nullptr;
 	btnContextMenu = nullptr;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	initMenu();
@@ -256,7 +254,7 @@ GMenu2X::GMenu2X()
 		DEBUG("Loading system input.conf file: %s.\n", input_file.c_str());
 	}
 
-	input.init(input_file, menu);
+	input.init(input_file, menu.get());
 
 	if (confInt["backlightTimeout"] > 0)
         PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );
@@ -279,8 +277,6 @@ GMenu2X::~GMenu2X() {
 		delete Clock::getInstance();
 	quit();
 
-	delete menu;
-	delete helpPopup;
 	delete btnContextMenu;
 	delete font;
 	delete monitor;
@@ -372,7 +368,7 @@ void GMenu2X::initFont() {
 
 void GMenu2X::initMenu() {
 	//Menu structure handler
-	menu = new Menu(this, ts);
+	menu.reset(new Menu(this, ts));
 	for (uint i=0; i<menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i]=="applications") {
@@ -608,7 +604,7 @@ void GMenu2X::paint() {
 	//Background
 	sc["bgmain"]->blit(s,0,0);
 
-	for (Layer *layer : layers) {
+	for (auto layer : layers) {
 		layer->paint(*s);
 	}
 
@@ -679,8 +675,7 @@ void GMenu2X::main() {
 		if (!handled) {
 			switch (button) {
 				case InputManager::CANCEL:
-					helpPopup = new HelpPopup(*this);
-					layers.push_back(helpPopup);
+					layers.push_back(make_shared<HelpPopup>(*this));
 					break;
 				case InputManager::SETTINGS:
 					options();
@@ -694,13 +689,9 @@ void GMenu2X::main() {
 		}
 
 		for (auto it = layers.begin(); it != layers.end(); ) {
-			Layer *layer = *it;
+			auto layer = *it;
 			if (layer->wasDismissed()) {
 				it = layers.erase(it);
-				if (layer == helpPopup) {
-					delete helpPopup;
-					helpPopup = nullptr;
-				}
 			} else {
 				++it;
 			}

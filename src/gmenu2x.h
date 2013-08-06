@@ -28,6 +28,7 @@
 #include "surface.h"
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -67,12 +68,11 @@ typedef std::unordered_map<std::string, int, std::hash<std::string> > ConfIntHas
 class GMenu2X {
 private:
 	Touchscreen ts;
-	Menu *menu;
-	HelpPopup *helpPopup;
+	std::shared_ptr<Menu> menu;
 	MediaMonitor *monitor;
 	std::string batteryIcon;
 
-	std::vector<Layer *> layers;
+	std::vector<std::shared_ptr<Layer>> layers;
 
 	/*!
 	Retrieves the free disk space on the sd

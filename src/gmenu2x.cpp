@@ -386,14 +386,14 @@ void GMenu2X::initMenu() {
 		}
 	}
 
+	menu->skinUpdated();
+
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
 
 	btnContextMenu = new IconButton(this, ts, "skin:imgs/menu.png");
 	btnContextMenu->setPosition(resX - 38, bottomBarIconY);
 	btnContextMenu->setAction(BIND(&GMenu2X::contextMenu));
-
-	menu->skinUpdated();
 
 	//DEBUG
 	//menu->addLink( CARD_ROOT, "sample.pxml", "applications" );

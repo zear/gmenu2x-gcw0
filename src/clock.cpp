@@ -23,31 +23,23 @@ static void notify()
 extern "C" Uint32 clockCallbackFunc(Uint32 timeout, void *d);
 
 class Clock::Forwarder {
-	static unsigned int clockCallbackFunc(Clock *clock, unsigned int timeout)
+	static unsigned int clockCallbackFunc(Clock *clock)
 	{
-		return clock->clockCallback(timeout);
+		return clock->clockCallback();
 	}
 	friend Uint32 clockCallbackFunc(Uint32 timeout, void *d);
 };
 
 extern "C" Uint32 clockCallbackFunc(Uint32 timeout, void *d)
 {
-	return Clock::Forwarder::clockCallbackFunc(static_cast<Clock *>(d), timeout);
+	return Clock::Forwarder::clockCallbackFunc(static_cast<Clock *>(d));
 }
 
-unsigned int Clock::clockCallback(unsigned int timeout)
+unsigned int Clock::clockCallback()
 {
-	unsigned int now_ticks = SDL_GetTicks();
-
-	if (now_ticks > timeout_startms + timeout + 1000) {
-		DEBUG("Suspend occured, restarting timer\n");
-		timeout_startms = now_ticks;
-		return timeout;
-	}
-
-	resetTimer();
+	unsigned int ms = update();
 	notify();
-	return 60000;
+	return ms;
 }
 
 std::string Clock::getTime(bool is24)
@@ -63,7 +55,7 @@ std::string Clock::getTime(bool is24)
 	return std::string(buf);
 }
 
-int Clock::update()
+unsigned int Clock::update()
 {
 	struct timeval tv;
 	struct tm result;
@@ -71,25 +63,20 @@ int Clock::update()
 	localtime_r(&tv.tv_sec, &result);
 	minutes = result.tm_min;
 	hours = result.tm_hour;
-	DEBUG("Time updated: %02i:%02i\n", hours, minutes);
-	return result.tm_sec;
-}
+	DEBUG("Time updated: %02i:%02i:%02i\n", hours, minutes, result.tm_sec);
 
-void Clock::resetTimer()
-{
-	SDL_RemoveTimer(timer);
-	timer = NULL;
-
-	int secs = update();
-	addTimer((60 - secs) * 1000);
+	// Compute number of milliseconds to next minute boundary.
+	// We don't need high precision, but it is important that any deviation is
+	// past the minute mark, so the fetched hour and minute number belong to
+	// the freshly started minute.
+	// Clamping it at 1 sec both avoids overloading the system in case our
+	// computation goes haywire and avoids passing 0 to SDL, which would stop
+	// the recurring timer.
+	return std::max(1, (60 - result.tm_sec)) * 1000;
 }
 
 void Clock::addTimer(int timeout)
 {
-	if (timeout < 1000 || timeout > 60000)
-		timeout = 60000;
-
-	timeout_startms = SDL_GetTicks();
 	timer = SDL_AddTimer(timeout, clockCallbackFunc, this);
 	if (timer == NULL)
 		ERROR("Could not initialize SDLTimer: %s\n", SDL_GetError());
@@ -99,8 +86,8 @@ Clock::Clock()
 {
 	tzset();
 
-	int sec = update();
-	addTimer((60 - sec) * 1000);
+	unsigned int ms = update();
+	addTimer(ms);
 }
 
 Clock::~Clock()

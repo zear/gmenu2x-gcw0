@@ -16,12 +16,10 @@ public:
 
 private:
 	void addTimer(int timeout);
-	void resetTimer();
-	int update();
-	unsigned int clockCallback(unsigned int timeout);
+	unsigned int update();
+	unsigned int clockCallback();
 
 	SDL_TimerID timer;
-	unsigned int timeout_startms;
 	int minutes, hours;
 };
 

@@ -1306,7 +1306,7 @@ typedef struct {
 } MMSP2ADC;
 
 void GMenu2X::setInputSpeed() {
-	SDL_EnableKeyRepeat(1,150);
+	SDL_EnableKeyRepeat(250, 150);
 }
 
 #ifdef ENABLE_CPUFREQ

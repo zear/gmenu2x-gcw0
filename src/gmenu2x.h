@@ -78,8 +78,6 @@ private:
 	@return String containing a human readable representation of the free disk space
 	*/
 	std::string getDiskFree(const char *path);
-	unsigned short cpuX; //!< Offset for displaying cpu clock information
-	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
 #ifdef ENABLE_CPUFREQ
 	unsigned cpuFreqMin; //!< Minimum CPU frequency
 	unsigned cpuFreqMax; //!< Maximum theoretical CPU frequency
@@ -121,8 +119,6 @@ private:
 	void initFont();
 	void initMenu();
 
-	void paint();
-
 	void showManual();
 
 public:
@@ -139,6 +135,8 @@ public:
 	 */
 	uint resX, resY, halfX, halfY;
 	uint bottomBarIconY, bottomBarTextY;
+	unsigned short cpuX; //!< Offset for displaying cpu clock information
+	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
 
 	InputManager input;
 
@@ -155,7 +153,6 @@ public:
 	Translator tr;
 	Surface *s, *bg;
 	Font *font;
-	IconButton *btnContextMenu;
 
 	//Status functions
 	void main();

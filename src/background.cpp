@@ -33,9 +33,6 @@ bool Background::handleButtonPress(InputManager::Button button) {
 		case InputManager::SETTINGS:
 			gmenu2x.showSettings();
 			return true;
-		case InputManager::MENU:
-			gmenu2x.contextMenu();
-			return true;
 		default:
 			return false;
 	}

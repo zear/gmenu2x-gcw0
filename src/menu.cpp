@@ -38,12 +38,15 @@
 #include "filelister.h"
 #include "utilities.h"
 #include "debug.h"
+#include "iconbutton.h"
 
 using namespace std;
+
 
 Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	: gmenu2x(gmenu2x)
 	, ts(ts)
+	, btnContextMenu(new IconButton(gmenu2x, ts, "skin:imgs/menu.png"))
 {
 	readSections(GMENU2X_SYSTEM_DIR "/sections");
 	readSections(GMenu2X::getHome() + "/sections");
@@ -73,6 +76,9 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 #endif
 
 	orderLinks();
+
+	btnContextMenu->setPosition(gmenu2x->resX - 38, gmenu2x->bottomBarIconY);
+	btnContextMenu->setAction(std::bind(&GMenu2X::contextMenu, gmenu2x));
 }
 
 Menu::~Menu() {
@@ -205,6 +211,23 @@ void Menu::paint(Surface &s) {
 				width / 2, height - bottomBarHeight + 2,
 				Font::HAlignCenter, Font::VAlignBottom);
 	}
+
+	LinkApp *linkApp = selLinkApp();
+	if (linkApp) {
+#ifdef ENABLE_CPUFREQ
+		s.write(&font, linkApp->clockStr(gmenu2x->confInt["maxClock"]),
+				gmenu2x->cpuX, gmenu2x->bottomBarTextY,
+				Font::HAlignLeft, Font::VAlignMiddle);
+#endif
+		//Manual indicator
+		if (!linkApp->getManual().empty())
+			sc.skinRes("imgs/manual.png")->blit(
+					&s, gmenu2x->manualX, gmenu2x->bottomBarIconY);
+	}
+
+	if (ts.available()) {
+		btnContextMenu->paint();
+	}
 }
 
 bool Menu::handleButtonPress(InputManager::Button button) {
@@ -230,12 +253,17 @@ bool Menu::handleButtonPress(InputManager::Button button) {
 		case InputManager::ALTRIGHT:
 			incSectionIndex();
 			return true;
+		case InputManager::MENU:
+			gmenu2x->contextMenu();
+			return true;
 		default:
 			return false;
 	}
 }
 
 bool Menu::handleTouchscreen(Touchscreen &ts) {
+	btnContextMenu->handleTS();
+
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];
 	const int screenWidth = gmenu2x->resX;

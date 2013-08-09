@@ -231,7 +231,6 @@ GMenu2X::GMenu2X()
 
 	bg = NULL;
 	font = NULL;
-	btnContextMenu = nullptr;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	layers.insert(layers.begin(), make_shared<Background>(*this));
 	initMenu();
@@ -276,7 +275,6 @@ GMenu2X::~GMenu2X() {
 		delete PowerSaver::getInstance();
 	quit();
 
-	delete btnContextMenu;
 	delete font;
 	delete monitor;
 }
@@ -389,13 +387,6 @@ void GMenu2X::initMenu() {
 
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
-
-	btnContextMenu = new IconButton(this, ts, "skin:imgs/menu.png");
-	btnContextMenu->setPosition(resX - 38, bottomBarIconY);
-	btnContextMenu->setAction(BIND(&GMenu2X::contextMenu));
-
-	//DEBUG
-	//menu->addLink( CARD_ROOT, "sample.pxml", "applications" );
 
 	layers.push_back(menu);
 }
@@ -599,40 +590,21 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	}
 }
 
-void GMenu2X::paint() {
-	for (auto layer : layers) {
-		layer->paint(*s);
-	}
-
-	LinkApp *linkApp = menu->selLinkApp();
-	if (linkApp) {
-#ifdef ENABLE_CPUFREQ
-		s->write(font, linkApp->clockStr(confInt["maxClock"]), cpuX, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle);
-#endif
-		//Manual indicator
-		if (!linkApp->getManual().empty())
-			sc.skinRes("imgs/manual.png")->blit(s, manualX, bottomBarIconY);
-	}
-
-	if (ts.available()) {
-		btnContextMenu->paint();
-	}
-}
-
 void GMenu2X::main() {
 	if (!fileExists(CARD_ROOT))
 		CARD_ROOT = "";
 
 	bool quit = false;
 	while (!quit) {
-
-		paint();
+		// Paint layers.
+		for (auto layer : layers) {
+			layer->paint(*s);
+		}
 		s->flip();
 
-		//touchscreen
+		// Handle touchscreen events.
 		if (ts.available()) {
 			ts.poll();
-			btnContextMenu->handleTS();
 			for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
 				if ((*it)->handleTouchscreen(ts)) {
 					break;
@@ -640,6 +612,7 @@ void GMenu2X::main() {
 			}
 		}
 
+		// Handle other input events.
 		InputManager::Button button = input.waitForPressedButton();
 		for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
 			if ((*it)->handleButtonPress(button)) {
@@ -647,6 +620,7 @@ void GMenu2X::main() {
 			}
 		}
 
+		// Remove dismissed layers from the stack.
 		for (auto it = layers.begin(); it != layers.end(); ) {
 			auto layer = *it;
 			if (layer->wasDismissed()) {

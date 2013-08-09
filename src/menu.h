@@ -25,11 +25,13 @@
 #include "layer.h"
 #include "link.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
-class LinkApp;
 class GMenu2X;
+class IconButton;
+class LinkApp;
 class Monitor;
 
 
@@ -42,6 +44,7 @@ class Menu : public Layer {
 private:
 	GMenu2X *gmenu2x;
 	Touchscreen &ts;
+	std::unique_ptr<IconButton> btnContextMenu;
 	int iSection, iLink;
 	uint iFirstDispRow;
 	std::vector<std::string> sections;

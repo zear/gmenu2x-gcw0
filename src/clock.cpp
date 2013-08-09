@@ -4,6 +4,7 @@
 #include "inputmanager.h"
 
 #include <SDL.h>
+#include <atomic>
 #include <sys/time.h>
 
 
@@ -19,7 +20,8 @@ private:
 	unsigned int update();
 
 	SDL_TimerID timerID;
-	int minutes, hours;
+	struct Timestamp { unsigned char hours, minutes; };
+	std::atomic<Timestamp> timestamp;
 };
 
 static std::weak_ptr<Clock::Timer> globalTimer;
@@ -91,8 +93,9 @@ void Clock::Timer::start()
 
 void Clock::Timer::getTime(unsigned int &hours, unsigned int &minutes)
 {
-	hours = this->hours;
-	minutes = this->minutes;
+	struct Timestamp ts = timestamp.load();
+	hours = ts.hours;
+	minutes = ts.minutes;
 }
 
 unsigned int Clock::Timer::update()
@@ -101,10 +104,12 @@ unsigned int Clock::Timer::update()
 	struct tm result;
 	gettimeofday(&tv, NULL);
 	localtime_r(&tv.tv_sec, &result);
-	// TODO: Store both in a single 32-bit write?
-	minutes = result.tm_min;
-	hours = result.tm_hour;
-	DEBUG("Time updated: %02i:%02i:%02i\n", hours, minutes, result.tm_sec);
+	timestamp.store({
+		static_cast<unsigned char>(result.tm_hour),
+		static_cast<unsigned char>(result.tm_min)
+		});
+	DEBUG("Time updated: %02i:%02i:%02i\n",
+			result.tm_hour, result.tm_min, result.tm_sec);
 
 	// Compute number of milliseconds to next minute boundary.
 	// We don't need high precision, but it is important that any deviation is

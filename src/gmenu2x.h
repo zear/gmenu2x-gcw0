@@ -34,7 +34,6 @@
 #include <vector>
 
 class Button;
-class Clock;
 class Font;
 class HelpPopup;
 class IconButton;
@@ -71,8 +70,6 @@ private:
 	Touchscreen ts;
 	std::shared_ptr<Menu> menu;
 	MediaMonitor *monitor;
-	std::string batteryIcon;
-	std::unique_ptr<Clock> clock;
 
 	std::vector<std::shared_ptr<Layer>> layers;
 
@@ -93,11 +90,6 @@ private:
 
 	void initCPULimits();
 #endif
-	/*!
-	Reads the current battery state and returns a number representing it's level of charge
-	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
-	*/
-	unsigned short getBatteryLevel();
 	void browsePath(const std::string &path, std::vector<std::string>* directories, std::vector<std::string>* files);
 	/*!
 	Starts the scanning of the nand and sd filesystems, searching for dge and gpu files and creating the links in 2 dedicated sections.
@@ -167,7 +159,8 @@ public:
 
 	//Status functions
 	void main();
-	void options();
+	void showHelpPopup();
+	void showSettings();
 	void skinMenu();
 	void about();
 	void viewLog();

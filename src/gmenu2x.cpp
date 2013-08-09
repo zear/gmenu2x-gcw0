@@ -20,7 +20,7 @@
 
 #include "gp2x.h"
 
-#include "clock.h"
+#include "background.h"
 #include "cpu.h"
 #include "debug.h"
 #include "filedialog.h"
@@ -227,14 +227,13 @@ GMenu2X::GMenu2X()
 		quit();
 	}
 
-	clock.reset(new Clock());
-
 	s = Surface::openOutputSurface(resX, resY, confInt["videoBpp"]);
 
 	bg = NULL;
 	font = NULL;
 	btnContextMenu = nullptr;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
+	layers.insert(layers.begin(), make_shared<Background>(*this));
 	initMenu();
 
 	monitor = new MediaMonitor(CARD_ROOT);
@@ -377,7 +376,7 @@ void GMenu2X::initMenu() {
 
 		//Add virtual links in the setting section
 		else if (menu->getSections()[i]=="settings") {
-			menu->addActionLink(i,"GMenu2X",BIND(&GMenu2X::options),tr["Configure GMenu2X's options"],"skin:icons/configure.png");
+			menu->addActionLink(i,"GMenu2X",BIND(&GMenu2X::showSettings),tr["Configure GMenu2X's options"],"skin:icons/configure.png");
 			menu->addActionLink(i,tr["Skin"],BIND(&GMenu2X::skinMenu),tr["Configure skin"],"skin:icons/skin.png");
 			menu->addActionLink(i,tr["Wallpaper"],BIND(&GMenu2X::changeWallpaper),tr["Change GMenu2X wallpaper"],"skin:icons/wallpaper.png");
 			if (fileExists(getHome()+"/log.txt"))
@@ -601,9 +600,6 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 }
 
 void GMenu2X::paint() {
-	//Background
-	sc["bgmain"]->blit(s,0,0);
-
 	for (auto layer : layers) {
 		layer->paint(*s);
 	}
@@ -621,38 +617,14 @@ void GMenu2X::paint() {
 	if (ts.available()) {
 		btnContextMenu->paint();
 	}
-
-	sc.skinRes(batteryIcon)->blit( s, resX-19, bottomBarIconY );
-	//s->write( font, tr[batstr.c_str()], 20, 170 );
-
-	s->write(font, clock->getTime(),
-				halfX, bottomBarTextY,
-				Font::HAlignCenter, Font::VAlignMiddle);
 }
 
 void GMenu2X::main() {
-
-	batteryIcon = "imgs/battery/0.png";
-	long tickBattery = -60000;
-
 	if (!fileExists(CARD_ROOT))
 		CARD_ROOT = "";
 
 	bool quit = false;
 	while (!quit) {
-		//check battery status every 60 seconds
-		long tickNow = SDL_GetTicks();
-		if (tickNow - tickBattery >= 60000) {
-			tickBattery = tickNow;
-			unsigned short battlevel = getBatteryLevel();
-			if (battlevel>5) {
-				batteryIcon = "imgs/battery/ac.png";
-			} else {
-				stringstream ss;
-				ss << "imgs/battery/" << battlevel << ".png";
-				ss >> batteryIcon;
-			}
-		}
 
 		paint();
 		s->flip();
@@ -661,30 +633,17 @@ void GMenu2X::main() {
 		if (ts.available()) {
 			ts.poll();
 			btnContextMenu->handleTS();
-			bool handled = false;
-			for (auto it = layers.rbegin(); !handled && it != layers.rend(); ++it) {
-				handled = (*it)->handleTouchscreen(ts);
+			for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+				if ((*it)->handleTouchscreen(ts)) {
+					break;
+				}
 			}
 		}
 
 		InputManager::Button button = input.waitForPressedButton();
-		bool handled = false;
-		for (auto it = layers.rbegin(); !handled && it != layers.rend(); ++it) {
-			handled = (*it)->handleButtonPress(button);
-		}
-		if (!handled) {
-			switch (button) {
-				case InputManager::CANCEL:
-					layers.push_back(make_shared<HelpPopup>(*this));
-					break;
-				case InputManager::SETTINGS:
-					options();
-					break;
-				case InputManager::MENU:
-					contextMenu();
-					break;
-				default:
-					break;
+		for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+			if ((*it)->handleButtonPress(button)) {
+				break;
 			}
 		}
 
@@ -720,7 +679,11 @@ void GMenu2X::explorer() {
 	}
 }
 
-void GMenu2X::options() {
+void GMenu2X::showHelpPopup() {
+	layers.push_back(make_shared<HelpPopup>(*this));
+}
+
+void GMenu2X::showSettings() {
 #ifdef ENABLE_CPUFREQ
 	int curMenuClock = confInt["menuClock"];
 #endif
@@ -1341,39 +1304,6 @@ typedef struct {
 	unsigned short batt;
 	unsigned short remocon;
 } MMSP2ADC;
-
-unsigned short GMenu2X::getBatteryLevel() {
-	FILE *batteryHandle = NULL,
-		 *usbHandle = NULL;
-
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
-	usbHandle = fopen("/sys/class/power_supply/usb/online", "r");
-#endif
-	if (usbHandle) {
-		int usbval = 0;
-		fscanf(usbHandle, "%d", &usbval);
-		fclose(usbHandle);
-		if (usbval == 1)
-			return 6;
-	}
-
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0) || defined(PLATFORM_NANONOTE)
-	batteryHandle = fopen("/sys/class/power_supply/battery/capacity", "r");
-#endif
-	if (batteryHandle) {
-		int battval = 0;
-		fscanf(batteryHandle, "%d", &battval);
-		fclose(batteryHandle);
-
-		if (battval>90) return 5;
-		if (battval>70) return 4;
-		if (battval>50) return 3;
-		if (battval>30) return 2;
-		if (battval>10) return 1;
-	}
-
-	return 0;
-}
 
 void GMenu2X::setInputSpeed() {
 	SDL_EnableKeyRepeat(1,150);

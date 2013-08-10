@@ -596,6 +596,24 @@ void GMenu2X::main() {
 
 	bool quit = false;
 	while (!quit) {
+		// Check whether any layers are animating and remove dismissed layers
+		// from the stack.
+		bool animating = false;
+		for (auto it = layers.begin(); it != layers.end(); ) {
+			auto layer = *it;
+			switch (layer->getStatus()) {
+				case Layer::Status::DISMISSED:
+					it = layers.erase(it);
+					break;
+				case Layer::Status::ANIMATING:
+					animating = true;
+					// fall through
+				case Layer::Status::PASSIVE:
+					++it;
+					break;
+			}
+		}
+
 		// Paint layers.
 		for (auto layer : layers) {
 			layer->paint(*s);
@@ -613,20 +631,19 @@ void GMenu2X::main() {
 		}
 
 		// Handle other input events.
-		InputManager::Button button = input.waitForPressedButton();
-		for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
-			if ((*it)->handleButtonPress(button)) {
-				break;
-			}
-		}
-
-		// Remove dismissed layers from the stack.
-		for (auto it = layers.begin(); it != layers.end(); ) {
-			auto layer = *it;
-			if (layer->wasDismissed()) {
-				it = layers.erase(it);
-			} else {
-				++it;
+		InputManager::ButtonEvent event;
+		bool gotEvent;
+		const bool wait = !animating;
+		do {
+			do {
+				gotEvent = input.getEvent(&event, wait);
+			} while (gotEvent && event.state != InputManager::PRESSED);
+		} while (wait && !gotEvent);
+		if (gotEvent) {
+			for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+				if ((*it)->handleButtonPress(event.button)) {
+					break;
+				}
 			}
 		}
 	}

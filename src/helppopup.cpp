@@ -32,14 +32,14 @@ void HelpPopup::paint(Surface &s) {
 
 bool HelpPopup::handleButtonPress(InputManager::Button button) {
 	if (button == InputManager::CANCEL) {
-		dismissed = true;
+		dismiss();
 	}
 	return true;
 }
 
 bool HelpPopup::handleTouchscreen(Touchscreen &ts) {
 	if (ts.pressed()) {
-		dismissed = true;
+		dismiss();
 		ts.setHandled();
 	}
 	return true;

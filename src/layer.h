@@ -16,6 +16,8 @@ class Touchscreen;
  */
 class Layer {
 public:
+	enum class Status { PASSIVE, ANIMATING, DISMISSED };
+
 	virtual ~Layer() {}
 
 	/**
@@ -36,13 +38,34 @@ public:
 	 */
 	virtual bool handleTouchscreen(Touchscreen &ts) = 0;
 
-	bool wasDismissed() { return dismissed; }
+	Status getStatus() { return status; }
 
 protected:
 	/**
-	 * Set this to true to request the layer to be removed from the stack.
+	 * Request the Layer to be removed from the stack.
+	 * There could be a few more calls to the Layer before it is actually
+	 * removed, so be prepared to handle those.
 	 */
-	bool dismissed = false;
+	void dismiss() {
+		status = Status::DISMISSED;
+	}
+
+	/**
+	 * Request that this layer be repainted every frame.
+	 */
+	void startAnimating() {
+		if (status == Status::PASSIVE) status = Status::ANIMATING;
+	}
+
+	/**
+	 * Request that this layer be repainted only after an event.
+	 */
+	void stopAnimating() {
+		if (status == Status::ANIMATING) status = Status::PASSIVE;
+	}
+
+private:
+	Status status = Status::PASSIVE;
 };
 
 #endif // LAYER_H

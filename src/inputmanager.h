@@ -58,6 +58,7 @@ public:
 	bool waitForEvent(ButtonEvent *event);
 	Button waitForPressedButton();
 	bool pollEvent(ButtonEvent *event);
+	bool getEvent(ButtonEvent *bevent, bool wait);
 
 private:
 	enum ButtonSource { UNMAPPED, KEYBOARD, JOYSTICK };
@@ -69,7 +70,6 @@ private:
 	Menu *menu;
 
 	void readConfFile(const std::string &conffile);
-	bool getEvent(ButtonEvent *bevent, bool wait);
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED

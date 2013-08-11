@@ -82,6 +82,8 @@
 #include <sys/mman.h>
 
 struct MenuOption {
+	MenuOption(std::string text, function_t action)
+		: text(text), action(action) {}
 	std::string text;
 	function_t action;
 };
@@ -839,75 +841,64 @@ void GMenu2X::showManual() {
 }
 
 void GMenu2X::contextMenu() {
-	vector<MenuOption> voices;
-	{
-	MenuOption opt = {tr.translate("Add link in $1",menu->selSection().c_str(),NULL), BIND(&GMenu2X::addLink)};
-	voices.push_back(opt);
+	vector<shared_ptr<MenuOption>> options;
+	LinkApp* app = menu->selLinkApp();
+
+	options.push_back(make_shared<MenuOption>(
+			tr.translate("Add link in $1", menu->selSection().c_str(), NULL),
+			BIND(&GMenu2X::addLink)));
+
+	if (app && !app->getManual().empty()) {
+		options.push_back(make_shared<MenuOption>(
+				tr.translate("Show manual of $1", app->getTitle().c_str(), NULL),
+				BIND(&GMenu2X::showManual)));
 	}
 
-	{
-		LinkApp* app = menu->selLinkApp();
-		if (app && !app->getManual().empty()) {
-			MenuOption opt = {tr.translate("Show manual of $1",menu->selLink()->getTitle().c_str(),NULL),
-				BIND(&GMenu2X::showManual),
-			};
-			voices.push_back(opt);
-		}
-	}
+	if (app && app->isEditable()) {
 
-	if (menu->selLinkApp()!=NULL && menu->selLinkApp()->isEditable()) {
-
-/* FIXME(percuei): this permits to mask the "Edit link" entry
- * on the contextual menu in case CPUFREQ support is
- * not compiled in and the link corresponds to an OPK.
- * This is not a good idea as it'll break things if
- * a new config option is added to the contextual menu. */
+		/* FIXME(percuei): This permits to mask the "Edit link" entry
+		 *                 on the contextual menu in case CPUFREQ support is
+		 *                 not compiled in and the link corresponds to an OPK.
+		 *                 This is not a good idea as it'll break things if
+		 *                 a new config option is added to the contextual menu.
+		 */
 #if defined(HAVE_LIBOPK) && !defined(ENABLE_CPUFREQ)
-		if (!menu->selLinkApp()->isOpk() ||
-					!menu->selLinkApp()->getSelectorDir().empty())
+		if (!app->isOpk() || !app->getSelectorDir().empty())
 #endif
 		{
-		MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), BIND(&GMenu2X::editLink)};
-		voices.push_back(opt);
+			options.push_back(make_shared<MenuOption>(
+					tr.translate("Edit $1", app->getTitle().c_str(), NULL),
+					BIND(&GMenu2X::editLink)));
 		}
 #ifdef HAVE_LIBOPK
-		if (!menu->selLinkApp()->isOpk())
+		if (!app->isOpk())
 #endif
 		{
-		MenuOption opt = {tr.translate("Delete $1 link",menu->selLink()->getTitle().c_str(),NULL), BIND(&GMenu2X::deleteLink)};
-		voices.push_back(opt);
+			options.push_back(make_shared<MenuOption>(
+					tr.translate("Delete $1 link", app->getTitle().c_str(), NULL),
+					BIND(&GMenu2X::deleteLink)));
 		}
 	}
 
-	{
-	MenuOption opt = {tr["Add section"], BIND(&GMenu2X::addSection)};
-	voices.push_back(opt);
-	}{
-	MenuOption opt = {tr["Rename section"], BIND(&GMenu2X::renameSection)};
-	voices.push_back(opt);
-	}{
-	MenuOption opt = {tr["Delete section"], BIND(&GMenu2X::deleteSection)};
-	voices.push_back(opt);
-	}{
-	MenuOption opt = {tr["Scan for applications and games"], BIND(&GMenu2X::scanner)};
-	voices.push_back(opt);
-	}
+	options.push_back(make_shared<MenuOption>(
+			tr["Add section"], BIND(&GMenu2X::addSection)));
+	options.push_back(make_shared<MenuOption>(
+			tr["Rename section"], BIND(&GMenu2X::renameSection)));
+	options.push_back(make_shared<MenuOption>(
+			tr["Delete section"], BIND(&GMenu2X::deleteSection)));
+	options.push_back(make_shared<MenuOption>(
+			tr["Scan for applications and games"], BIND(&GMenu2X::scanner)));
 
-	bool close = false;
-	uint i, fadeAlpha=0;
-	int sel = 0;
-
-	int h = font->getHeight();
+	const int h = font->getHeight();
 	SDL_Rect box;
-	box.h = (h+2)*voices.size()+8;
+	box.h = (h + 2) * options.size() + 8;
 	box.w = 0;
-	for (i=0; i<voices.size(); i++) {
-		int w = font->getTextWidth(voices[i].text);
-		if (w>box.w) box.w = w;
+	for (auto option : options) {
+		box.w = max(box.w, static_cast<Uint16>(font->getTextWidth(option->text)));
 	}
 	box.w += 23;
-	box.x = halfX - box.w/2;
-	box.y = halfY - box.h/2;
+	box.x = halfX - box.w / 2;
+	box.y = halfY - box.h / 2;
 
 	SDL_Rect selbox = {
 		static_cast<Sint16>(box.x + 4),
@@ -915,7 +906,7 @@ void GMenu2X::contextMenu() {
 		static_cast<Uint16>(box.w - 8),
 		static_cast<Uint16>(h + 2)
 	};
-	long tickNow, tickStart = SDL_GetTicks();
+	const long tickStart = SDL_GetTicks();
 
 	Surface bg(s);
 	/*//Darken background
@@ -923,23 +914,27 @@ void GMenu2X::contextMenu() {
 	bg.box(box.x, box.y, box.w, box.h, skinConfColors["messageBoxBg"]);
 	bg.rectangle( box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors["messageBoxBorder"] );*/
 
-    InputManager::ButtonEvent event;
+	uint fadeAlpha = 0;
+	int sel = 0;
+	bool close = false;
 	while (!close) {
-		tickNow = SDL_GetTicks();
+		const long tickNow = SDL_GetTicks();
 
-		selbox.y = box.y+4+(h+2)*sel;
-		bg.blit(s,0,0);
+		selbox.y = box.y + 4 + (h + 2) * sel;
+		bg.blit(s, 0, 0);
 
-		if (fadeAlpha<200) fadeAlpha = intTransition(0,200,tickStart,500,tickNow);
-		s->box(0, 0, resX, resY, 0,0,0,fadeAlpha);
+		if (fadeAlpha < 200)
+			fadeAlpha = intTransition(0, 200, tickStart, 500, tickNow);
+		s->box(0, 0, resX, resY, 0, 0, 0, fadeAlpha);
 		s->box(box.x, box.y, box.w, box.h, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-		s->rectangle( box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-
+		s->rectangle(box.x + 2, box.y + 2, box.w - 4, box.h - 4,
+				skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 		//draw selection rect
-		s->box( selbox.x, selbox.y, selbox.w, selbox.h, skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
-		for (i=0; i<voices.size(); i++)
-			s->write( font, voices[i].text, box.x+12, box.y+5+(h+2)*i, Font::HAlignLeft, Font::VAlignTop );
+		s->box(selbox, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
+		for (uint i = 0; i < options.size(); i++)
+			s->write(font, options[i]->text, box.x + 12, box.y + 5 + (h + 2) * i,
+					Font::HAlignLeft, Font::VAlignTop);
 		s->flip();
 
 		//touchscreen
@@ -950,51 +945,51 @@ void GMenu2X::contextMenu() {
 					close = true;
 				else if (ts.getX() >= selbox.x
 					  && ts.getX() <= selbox.x + selbox.w)
-					for (i=0; i<voices.size(); i++) {
-						selbox.y = box.y+4+(h+2)*i;
+					for (uint i = 0; i < options.size(); i++) {
+						selbox.y = box.y + 4 + (h + 2) * i;
 						if (ts.getY() >= selbox.y
 						 && ts.getY() <= selbox.y + selbox.h) {
-							voices[i].action();
+							options[i]->action();
 							close = true;
-							i = voices.size();
+							i = options.size();
 						}
 					}
 			} else if (ts.pressed() && ts.inRect(box)) {
-				for (i=0; i<voices.size(); i++) {
-					selbox.y = box.y+4+(h+2)*i;
+				for (uint i = 0; i < options.size(); i++) {
+					selbox.y = box.y + 4 + (h + 2) * i;
 					if (ts.getY() >= selbox.y
 					 && ts.getY() <= selbox.y + selbox.h) {
 						sel = i;
-						i = voices.size();
+						i = options.size();
 					}
 				}
 			}
 		}
 
+		InputManager::ButtonEvent event;
+		if (fadeAlpha < 200) {
+			if (!input.pollEvent(&event) || event.state != InputManager::PRESSED) continue;
+		} else {
+			event.button = input.waitForPressedButton();
+		}
 
-        if (fadeAlpha < 200) {
-            if (!input.pollEvent(&event) || event.state != InputManager::PRESSED) continue;
-        } else {
-            event.button = input.waitForPressedButton();
-        }
-
-        switch(event.button) {
-            case InputManager::MENU:
-                close = true;
-                break;
-            case InputManager::UP:
-                sel = std::max(0, sel-1);
-                break;
-            case InputManager::DOWN:
-                sel = std::min((int)voices.size()-1, sel+1);
-                break;
-            case InputManager::ACCEPT:
-                voices[sel].action();
-                close = true;
-                break;
-            default:
-                break;
-        }
+		switch(event.button) {
+			case InputManager::MENU:
+				close = true;
+				break;
+			case InputManager::UP:
+				sel = std::max(0, sel - 1);
+				break;
+			case InputManager::DOWN:
+				sel = std::min((int)options.size() - 1, sel + 1);
+				break;
+			case InputManager::ACCEPT:
+				options[sel]->action();
+				close = true;
+				break;
+			default:
+				break;
+		}
 	}
 }
 

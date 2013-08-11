@@ -21,6 +21,7 @@
 #ifndef GMENU2X_H
 #define GMENU2X_H
 
+#include "contextmenu.h"
 #include "surfacecollection.h"
 #include "translator.h"
 #include "touchscreen.h"
@@ -90,10 +91,6 @@ private:
 #endif
 	void browsePath(const std::string &path, std::vector<std::string>* directories, std::vector<std::string>* files);
 	/*!
-	Starts the scanning of the nand and sd filesystems, searching for dge and gpu files and creating the links in 2 dedicated sections.
-	*/
-	void scanner();
-	/*!
 	Performs the actual scan in the given path and populates the files vector with the results. The creation of the links is not performed here.
 	@see scanner
 	*/
@@ -118,8 +115,6 @@ private:
 	void initServices();
 	void initFont();
 	void initMenu();
-
-	void showManual();
 
 public:
 	GMenu2X();
@@ -156,12 +151,18 @@ public:
 
 	//Status functions
 	void main();
+	/**
+	 * Starts the scanning of the nand and sd filesystems, searching for dge
+	 * and gpu files and creating the links in 2 dedicated sections.
+	 */
+	void scanner();
+	void showContextMenu();
 	void showHelpPopup();
+	void showManual();
 	void showSettings();
 	void skinMenu();
 	void about();
 	void viewLog();
-	void contextMenu();
 	void changeWallpaper();
 
 #ifdef ENABLE_CPUFREQ

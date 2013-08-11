@@ -101,7 +101,7 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	orderLinks();
 
 	btnContextMenu->setPosition(gmenu2x->resX - 38, gmenu2x->bottomBarIconY);
-	btnContextMenu->setAction(std::bind(&GMenu2X::contextMenu, gmenu2x));
+	btnContextMenu->setAction(std::bind(&GMenu2X::showContextMenu, gmenu2x));
 }
 
 Menu::~Menu() {
@@ -306,7 +306,7 @@ bool Menu::handleButtonPress(InputManager::Button button) {
 			incSectionIndex();
 			return true;
 		case InputManager::MENU:
-			gmenu2x->contextMenu();
+			gmenu2x->showContextMenu();
 			return true;
 		default:
 			return false;

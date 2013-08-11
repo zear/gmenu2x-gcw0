@@ -42,6 +42,17 @@ Handles the menu structure
 */
 class Menu : public Layer {
 private:
+	class Animation {
+	public:
+		Animation();
+		bool isRunning() { return curr != 0; }
+		int currentValue() { return curr; }
+		void adjust(int delta);
+		void step();
+	private:
+		int curr;
+	};
+
 	GMenu2X *gmenu2x;
 	Touchscreen &ts;
 	std::unique_ptr<IconButton> btnContextMenu;
@@ -51,6 +62,10 @@ private:
 	std::vector< std::vector<Link*> > links;
 
 	uint linkColumns, linkRows;
+
+	Animation sectionAnimation;
+
+	void runAnimations();
 
 	/**
 	 * Determine which section headers are visible.

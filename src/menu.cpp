@@ -43,6 +43,29 @@
 using namespace std;
 
 
+Menu::Animation::Animation()
+	: curr(0)
+{
+}
+
+void Menu::Animation::adjust(int delta)
+{
+	curr += delta;
+}
+
+void Menu::Animation::step()
+{
+	if (curr == 0) {
+		ERROR("Computing step past animation end\n");
+	} else if (curr < 0) {
+		const int v = ((1 << 16) - curr) / 32;
+		curr = std::min(0, curr + v);
+	} else {
+		const int v = ((1 << 16) + curr) / 32;
+		curr = std::max(0, curr - v);
+	}
+}
+
 Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	: gmenu2x(gmenu2x)
 	, ts(ts)
@@ -148,7 +171,18 @@ void Menu::calcSectionRange(int &leftSection, int &rightSection) {
 			rightSection - numSections + 1);
 }
 
+void Menu::runAnimations() {
+	if (sectionAnimation.isRunning()) {
+		sectionAnimation.step();
+		if (!sectionAnimation.isRunning()) {
+			stopAnimating();
+		}
+	}
+}
+
 void Menu::paint(Surface &s) {
+	runAnimations();
+
 	const uint width = s.width(), height = s.height();
 	Font &font = *gmenu2x->font;
 	SurfaceCollection &sc = gmenu2x->sc;
@@ -160,19 +194,37 @@ void Menu::paint(Surface &s) {
 	const int linkHeight = skinConfInt["linkHeight"];
 	RGBAColor &selectionBgColor = gmenu2x->skinConfColors[COLOR_SELECTION_BG];
 
-	// Paint section headers.
+	// Apply section header animation.
 	int leftSection, rightSection;
 	calcSectionRange(leftSection, rightSection);
+	int sectionFP = sectionAnimation.currentValue();
+	int sectionDelta = (sectionFP * linkWidth + (1 << 15)) >> 16;
+	int centerSection = iSection - sectionDelta / linkWidth;
+	sectionDelta %= linkWidth;
+	if (sectionDelta < 0) {
+		rightSection++;
+	} else if (sectionDelta > 0) {
+		leftSection--;
+	}
+
+	// Paint section headers.
 	s.box(width / 2  - linkWidth / 2, 0, linkWidth, topBarHeight, selectionBgColor);
 	const uint sectionLinkPadding = (topBarHeight - 32 - font.getHeight()) / 3;
 	const uint numSections = sections.size();
 	for (int i = leftSection; i <= rightSection; i++) {
-		uint j = (iSection + numSections + i) % numSections;
+		uint j = (centerSection + numSections + i) % numSections;
 		string sectionIcon = "skin:sections/" + sections[j] + ".png";
 		Surface *icon = sc.exists(sectionIcon)
 				? sc[sectionIcon]
 				: sc.skinRes("icons/section.png");
-		const int x = width / 2 + i * linkWidth;
+		int x = width / 2 + i * linkWidth + sectionDelta;
+		if (i == leftSection) {
+			int t = sectionDelta > 0 ? linkWidth - sectionDelta : -sectionDelta;
+			x -= (((t * t) / linkWidth) * t) / linkWidth;
+		} else if (i == rightSection) {
+			int t = sectionDelta < 0 ? sectionDelta + linkWidth : sectionDelta;
+			x += (((t * t) / linkWidth) * t) / linkWidth;
+		}
 		icon->blit(&s, x - 16, sectionLinkPadding, 32, 32);
 		s.write(&font, sections[j], x, topBarHeight - sectionLinkPadding,
 				Font::HAlignCenter, Font::VAlignBottom);
@@ -318,11 +370,15 @@ vector<Link*> *Menu::sectionLinks(int i) {
 }
 
 void Menu::decSectionIndex() {
-	setSectionIndex(iSection-1);
+	sectionAnimation.adjust(-1 << 16);
+	startAnimating();
+	setSectionIndex(iSection - 1);
 }
 
 void Menu::incSectionIndex() {
-	setSectionIndex(iSection+1);
+	sectionAnimation.adjust(1 << 16);
+	startAnimating();
+	setSectionIndex(iSection + 1);
 }
 
 int Menu::selSectionIndex() {

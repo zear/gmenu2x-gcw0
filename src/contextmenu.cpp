@@ -147,10 +147,12 @@ bool ContextMenu::handleButtonPress(InputManager::Button button) {
 			dismiss();
 			break;
 		case InputManager::UP:
-			selected = std::max(0, selected - 1);
+			selected--;
+			if (selected < 0) selected = options.size() - 1;
 			break;
 		case InputManager::DOWN:
-			selected = std::min((int)options.size() - 1, selected + 1);
+			selected++;
+			if (selected >= static_cast<int>(options.size())) selected = 0;
 			break;
 		case InputManager::ACCEPT:
 			options[selected]->action();

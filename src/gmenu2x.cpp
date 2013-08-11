@@ -855,32 +855,33 @@ void GMenu2X::addLink() {
 }
 
 void GMenu2X::editLink() {
-	if (menu->selLinkApp()==NULL) return;
+	LinkApp *linkApp = menu->selLinkApp();
+	if (!linkApp) return;
 
 	vector<string> pathV;
-	split(pathV,menu->selLinkApp()->getFile(),"/");
+	split(pathV,linkApp->getFile(),"/");
 	string oldSection = "";
 	if (pathV.size()>1)
 		oldSection = pathV[pathV.size()-2];
 	string newSection = oldSection;
 
-	string linkTitle = menu->selLinkApp()->getTitle();
-	string linkDescription = menu->selLinkApp()->getDescription();
-	string linkIcon = menu->selLinkApp()->getIcon();
-	string linkManual = menu->selLinkApp()->getManual();
-	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
-	string linkSelDir = menu->selLinkApp()->getSelectorDir();
-	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
-	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
-	string linkSelAliases = menu->selLinkApp()->getAliasFile();
-	int linkClock = menu->selLinkApp()->clock();
+	string linkTitle = linkApp->getTitle();
+	string linkDescription = linkApp->getDescription();
+	string linkIcon = linkApp->getIcon();
+	string linkManual = linkApp->getManual();
+	string linkSelFilter = linkApp->getSelectorFilter();
+	string linkSelDir = linkApp->getSelectorDir();
+	bool linkSelBrowser = linkApp->getSelectorBrowser();
+	string linkSelScreens = linkApp->getSelectorScreens();
+	string linkSelAliases = linkApp->getAliasFile();
+	int linkClock = linkApp->clock();
 
 	string diagTitle = tr.translate("Edit link: $1",linkTitle.c_str(),NULL);
-	string diagIcon = menu->selLinkApp()->getIconPath();
+	string diagIcon = linkApp->getIconPath();
 
 	SettingsDialog sd(this, input, ts, diagTitle, diagIcon);
 #ifdef HAVE_LIBOPK
-	if (!menu->selLinkApp()->isOpk()) {
+	if (!linkApp->isOpk()) {
 #endif
 	sd.addSetting(new MenuSettingString(this, ts, tr["Title"], tr["Link title"], &linkTitle, diagTitle, diagIcon));
 	sd.addSetting(new MenuSettingString(this, ts, tr["Description"], tr["Link description"], &linkDescription, diagTitle, diagIcon));
@@ -893,8 +894,7 @@ void GMenu2X::editLink() {
 					&linkManual, "man.png,txt"));
 #ifdef HAVE_LIBOPK
 	}
-	if (!menu->selLinkApp()->isOpk() ||
-				!menu->selLinkApp()->getSelectorDir().empty()) {
+	if (!linkApp->isOpk() || !linkApp->getSelectorDir().empty()) {
 #endif
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
@@ -905,30 +905,30 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock frequency"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
 #endif
 #ifdef HAVE_LIBOPK
-	if (!menu->selLinkApp()->isOpk()) {
+	if (!linkApp->isOpk()) {
 #endif
 	sd.addSetting(new MenuSettingString(this, ts, tr["Selector Filter"], tr["Selector filter (Separate values with a comma)"], &linkSelFilter, diagTitle, diagIcon));
 	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens));
 	sd.addSetting(new MenuSettingFile(this, ts, tr["Selector Aliases"], tr["File containing a list of aliases for the selector"], &linkSelAliases));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Don't Leave"], tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef()));
+	sd.addSetting(new MenuSettingBool(this, ts, tr["Don't Leave"], tr["Don't quit GMenu2X when launching this link"], &linkApp->runsInBackgroundRef()));
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Display Console"], tr["Must be enabled for console-based applications"], &menu->selLinkApp()->consoleApp));
+	sd.addSetting(new MenuSettingBool(this, ts, tr["Display Console"], tr["Must be enabled for console-based applications"], &linkApp->consoleApp));
 #endif
 #ifdef HAVE_LIBOPK
 	}
 #endif
 
 	if (sd.exec() && sd.edited()) {
-		menu->selLinkApp()->setTitle(linkTitle);
-		menu->selLinkApp()->setDescription(linkDescription);
-		menu->selLinkApp()->setIcon(linkIcon);
-		menu->selLinkApp()->setManual(linkManual);
-		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
-		menu->selLinkApp()->setSelectorDir(linkSelDir);
-		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
-		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
-		menu->selLinkApp()->setAliasFile(linkSelAliases);
-		menu->selLinkApp()->setClock(linkClock);
+		linkApp->setTitle(linkTitle);
+		linkApp->setDescription(linkDescription);
+		linkApp->setIcon(linkIcon);
+		linkApp->setManual(linkManual);
+		linkApp->setSelectorFilter(linkSelFilter);
+		linkApp->setSelectorDir(linkSelDir);
+		linkApp->setSelectorBrowser(linkSelBrowser);
+		linkApp->setSelectorScreens(linkSelScreens);
+		linkApp->setAliasFile(linkSelAliases);
+		linkApp->setClock(linkClock);
 
 		INFO("New Section: '%s'\n", newSection.c_str());
 
@@ -944,14 +944,14 @@ void GMenu2X::editLink() {
 				newFileName = "sections/"+newSection+"/"+linkTitle+id;
 				x++;
 			}
-			rename(menu->selLinkApp()->getFile().c_str(),newFileName.c_str());
-			menu->selLinkApp()->renameFile(newFileName);
+			rename(linkApp->getFile().c_str(),newFileName.c_str());
+			linkApp->renameFile(newFileName);
 
 			INFO("New section index: %i.\n", newSectionIndex - menu->getSections().begin());
 
 			menu->linkChangeSection(menu->selLinkIndex(), menu->selSectionIndex(), newSectionIndex - menu->getSections().begin());
 		}
-		menu->selLinkApp()->save();
+		linkApp->save();
 		sync();
 	}
 }

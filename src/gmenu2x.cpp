@@ -880,43 +880,33 @@ void GMenu2X::editLink() {
 	string diagIcon = linkApp->getIconPath();
 
 	SettingsDialog sd(this, input, ts, diagTitle, diagIcon);
-#ifdef HAVE_LIBOPK
 	if (!linkApp->isOpk()) {
-#endif
-	sd.addSetting(new MenuSettingString(this, ts, tr["Title"], tr["Link title"], &linkTitle, diagTitle, diagIcon));
-	sd.addSetting(new MenuSettingString(this, ts, tr["Description"], tr["Link description"], &linkDescription, diagTitle, diagIcon));
-	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Section"], tr["The section this link belongs to"], &newSection, &menu->getSections()));
-	sd.addSetting(new MenuSettingImage(this, ts, tr["Icon"],
-					tr.translate("Select an icon for the link: $1",
-						linkTitle.c_str(), NULL), &linkIcon, "png"));
-	sd.addSetting(new MenuSettingFile(this, ts, tr["Manual"],
-					tr["Select a graphic/textual manual or a readme"],
-					&linkManual, "man.png,txt"));
-#ifdef HAVE_LIBOPK
+		sd.addSetting(new MenuSettingString(this, ts, tr["Title"], tr["Link title"], &linkTitle, diagTitle, diagIcon));
+		sd.addSetting(new MenuSettingString(this, ts, tr["Description"], tr["Link description"], &linkDescription, diagTitle, diagIcon));
+		sd.addSetting(new MenuSettingMultiString(this, ts, tr["Section"], tr["The section this link belongs to"], &newSection, &menu->getSections()));
+		sd.addSetting(new MenuSettingImage(this, ts, tr["Icon"],
+						tr.translate("Select an icon for the link: $1",
+							linkTitle.c_str(), NULL), &linkIcon, "png"));
+		sd.addSetting(new MenuSettingFile(this, ts, tr["Manual"],
+						tr["Select a graphic/textual manual or a readme"],
+						&linkManual, "man.png,txt"));
 	}
 	if (!linkApp->isOpk() || !linkApp->getSelectorDir().empty()) {
-#endif
-	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
-#ifdef HAVE_LIBOPK
+		sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Directory"], tr["Directory to scan for the selector"], &linkSelDir));
+		sd.addSetting(new MenuSettingBool(this, ts, tr["Selector Browser"], tr["Allow the selector to change directory"], &linkSelBrowser));
 	}
-#endif
 #ifdef ENABLE_CPUFREQ
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Clock frequency"], tr["Cpu clock frequency to set when launching this link"], &linkClock, cpuFreqMin, confInt["maxClock"], cpuFreqMultiple));
 #endif
-#ifdef HAVE_LIBOPK
 	if (!linkApp->isOpk()) {
-#endif
-	sd.addSetting(new MenuSettingString(this, ts, tr["Selector Filter"], tr["Selector filter (Separate values with a comma)"], &linkSelFilter, diagTitle, diagIcon));
-	sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens));
-	sd.addSetting(new MenuSettingFile(this, ts, tr["Selector Aliases"], tr["File containing a list of aliases for the selector"], &linkSelAliases));
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Don't Leave"], tr["Don't quit GMenu2X when launching this link"], &linkApp->runsInBackgroundRef()));
+		sd.addSetting(new MenuSettingString(this, ts, tr["Selector Filter"], tr["Selector filter (Separate values with a comma)"], &linkSelFilter, diagTitle, diagIcon));
+		sd.addSetting(new MenuSettingDir(this, ts, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens));
+		sd.addSetting(new MenuSettingFile(this, ts, tr["Selector Aliases"], tr["File containing a list of aliases for the selector"], &linkSelAliases));
+		sd.addSetting(new MenuSettingBool(this, ts, tr["Don't Leave"], tr["Don't quit GMenu2X when launching this link"], &linkApp->runsInBackgroundRef()));
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-	sd.addSetting(new MenuSettingBool(this, ts, tr["Display Console"], tr["Must be enabled for console-based applications"], &linkApp->consoleApp));
+		sd.addSetting(new MenuSettingBool(this, ts, tr["Display Console"], tr["Must be enabled for console-based applications"], &linkApp->consoleApp));
 #endif
-#ifdef HAVE_LIBOPK
 	}
-#endif
 
 	if (sd.exec() && sd.edited()) {
 		linkApp->setTitle(linkTitle);

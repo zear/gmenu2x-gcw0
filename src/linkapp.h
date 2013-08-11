@@ -68,6 +68,7 @@ public:
 #else
 	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
 			const char* linkfile);
+	bool isOpk() { return false; }
 #endif
 
 	virtual void loadIcon();

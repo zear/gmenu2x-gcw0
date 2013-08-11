@@ -49,18 +49,17 @@ ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 		 *                 This is not a good idea as it'll break things if
 		 *                 a new config option is added to the contextual menu.
 		 */
-#if defined(HAVE_LIBOPK) && !defined(ENABLE_CPUFREQ)
-		if (!app->isOpk() || !app->getSelectorDir().empty())
+		if (!app->isOpk()
+#if defined(ENABLE_CPUFREQ)
+				|| true
 #endif
-		{
+				|| !app->getSelectorDir().empty()
+				) {
 			options.push_back(std::make_shared<MenuOption>(
 					tr.translate("Edit $1", app->getTitle().c_str(), NULL),
 					std::bind(&GMenu2X::editLink, &gmenu2x)));
 		}
-#ifdef HAVE_LIBOPK
-		if (!app->isOpk())
-#endif
-		{
+		if (!app->isOpk()) {
 			options.push_back(std::make_shared<MenuOption>(
 					tr.translate("Delete $1 link", app->getTitle().c_str(), NULL),
 					std::bind(&GMenu2X::deleteLink, &gmenu2x)));

@@ -229,8 +229,8 @@ void Menu::paint(Surface &s) {
 		s.write(&font, sections[j], x, topBarHeight - sectionLinkPadding,
 				Font::HAlignCenter, Font::VAlignBottom);
 	}
-	sc.skinRes("imgs/l_enabled.png")->blit(&s, 0, 0);
-	sc.skinRes("imgs/r_enabled.png")->blit(&s, width - 10, 0);
+	sc.skinRes("imgs/section-l.png")->blit(&s, 0, 0);
+	sc.skinRes("imgs/section-r.png")->blit(&s, width - 10, 0);
 
 	vector<Link*> &sectionLinks = links[iSection];
 	const uint numLinks = sectionLinks.size();

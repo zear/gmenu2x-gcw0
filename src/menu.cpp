@@ -605,24 +605,24 @@ void Menu::linkRight() {
 
 void Menu::linkUp() {
 	int l = iLink - linkColumns;
-	if (l<0) {
-		unsigned int rows;
-		rows = DIV_ROUND_UP(sectionLinks()->size(), linkColumns);
+	if (l < 0) {
+		const auto numLinks = sectionLinks()->size();
+		unsigned int rows = DIV_ROUND_UP(numLinks, linkColumns);
 		l = (rows * linkColumns) + l;
-		if (l >= (int)sectionLinks()->size())
+		if (l >= static_cast<int>(numLinks))
 			l -= linkColumns;
 	}
 	setLinkIndex(l);
 }
 
 void Menu::linkDown() {
-	uint l = iLink + linkColumns;
-	if (l >= sectionLinks()->size()) {
-		unsigned int rows, curCol;
-		rows = DIV_ROUND_UP(sectionLinks()->size(), linkColumns);
-		curCol = DIV_ROUND_UP(iLink + 1, linkColumns);
+	int l = iLink + linkColumns;
+	const auto numLinks = sectionLinks()->size();
+	if (l >= static_cast<int>(numLinks)) {
+		unsigned int rows = DIV_ROUND_UP(numLinks, linkColumns);
+		unsigned int curCol = DIV_ROUND_UP(iLink + 1, linkColumns);
 		if (rows > curCol)
-			l = sectionLinks()->size() - 1;
+			l = numLinks - 1;
 		else
 			l %= linkColumns;
 	}
@@ -643,17 +643,18 @@ LinkApp *Menu::selLinkApp() {
 }
 
 void Menu::setLinkIndex(int i) {
-	if (i<0)
-		i=sectionLinks()->size()-1;
-	else if (i>=(int)sectionLinks()->size())
-		i=0;
-
-	if (i >= (int)(iFirstDispRow * linkColumns + linkColumns * linkRows))
-		iFirstDispRow = i / linkColumns - linkRows + 1;
-	else if (i<(int)(iFirstDispRow * linkColumns))
-		iFirstDispRow = i / linkColumns;
-
+	const int numLinks = static_cast<int>(sectionLinks()->size());
+	if (i < 0)
+		i = numLinks - 1;
+	else if (i >= numLinks)
+		i = 0;
 	iLink = i;
+
+	int row = i / linkColumns;
+	if (row >= (int)(iFirstDispRow + linkRows))
+		iFirstDispRow = row - linkRows + 1;
+	else if (row < (int)iFirstDispRow)
+		iFirstDispRow = row;
 }
 
 #ifdef HAVE_LIBOPK

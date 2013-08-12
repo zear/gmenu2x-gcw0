@@ -1,8 +1,7 @@
-
-#include "button.h"
-#include "gmenu2x.h"
-
 #include "buttonbox.h"
+
+#include "gmenu2x.h"
+#include "iconbutton.h"
 
 ButtonBox::ButtonBox(GMenu2X *gmenu2x) : gmenu2x(gmenu2x)
 {
@@ -13,7 +12,7 @@ ButtonBox::~ButtonBox()
 	clear();
 }
 
-void ButtonBox::add(Button *button)
+void ButtonBox::add(IconButton *button)
 {
 	buttons.push_back(button);
 }
@@ -25,12 +24,12 @@ void ButtonBox::clear()
 
 void ButtonBox::paint(unsigned int posX)
 {
-	for (ButtonList::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
-		posX = gmenu2x->drawButton(*it, posX);
+	for (auto button : buttons)
+		posX = gmenu2x->drawButton(button, posX);
 }
 
 void ButtonBox::handleTS()
 {
-	for (ButtonList::iterator it = buttons.begin(); it != buttons.end(); ++it)
-		(*it)->handleTS();
+	for (auto button : buttons)
+		button->handleTS();
 }

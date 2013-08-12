@@ -187,7 +187,7 @@ public:
 	void deleteSection();
 
 	void initBG();
-	int drawButton(Button *btn, int x=5, int y=-10);
+	int drawButton(IconButton *btn, int x=5, int y=-10);
 	int drawButton(Surface *s, const std::string &btn, const std::string &text, int x=5, int y=-10);
 	int drawButtonRight(Surface *s, const std::string &btn, const std::string &text, int x=5, int y=-10);
 	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, uint top, uint height);

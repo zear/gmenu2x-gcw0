@@ -651,10 +651,11 @@ void Menu::setLinkIndex(int i) {
 	iLink = i;
 
 	int row = i / linkColumns;
-	if (row >= (int)(iFirstDispRow + linkRows))
-		iFirstDispRow = row - linkRows + 1;
-	else if (row < (int)iFirstDispRow)
-		iFirstDispRow = row;
+	if (row >= (int)(iFirstDispRow + linkRows - 1))
+		iFirstDispRow = min(row + 1, (int)DIV_ROUND_UP(numLinks, linkColumns) - 1)
+						- linkRows + 1;
+	else if (row <= (int)iFirstDispRow)
+		iFirstDispRow = max(row - 1, 0);
 }
 
 #ifdef HAVE_LIBOPK

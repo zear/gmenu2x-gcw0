@@ -171,18 +171,14 @@ void Menu::calcSectionRange(int &leftSection, int &rightSection) {
 			rightSection - numSections + 1);
 }
 
-void Menu::runAnimations() {
+bool Menu::runAnimations() {
 	if (sectionAnimation.isRunning()) {
 		sectionAnimation.step();
-		if (!sectionAnimation.isRunning()) {
-			stopAnimating();
-		}
 	}
+	return sectionAnimation.isRunning();
 }
 
 void Menu::paint(Surface &s) {
-	runAnimations();
-
 	const uint width = s.width(), height = s.height();
 	Font &font = *gmenu2x->font;
 	SurfaceCollection &sc = gmenu2x->sc;
@@ -371,13 +367,11 @@ vector<Link*> *Menu::sectionLinks(int i) {
 
 void Menu::decSectionIndex() {
 	sectionAnimation.adjust(-1 << 16);
-	startAnimating();
 	setSectionIndex(iSection - 1);
 }
 
 void Menu::incSectionIndex() {
 	sectionAnimation.adjust(1 << 16);
-	startAnimating();
 	setSectionIndex(iSection + 1);
 }
 

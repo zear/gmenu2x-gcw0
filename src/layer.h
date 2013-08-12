@@ -16,9 +16,15 @@ class Touchscreen;
  */
 class Layer {
 public:
-	enum class Status { PASSIVE, ANIMATING, DISMISSED };
+	enum class Status { DISMISSED, NORMAL };
 
 	virtual ~Layer() {}
+
+	/**
+	 * Perform one frame worth of animation.
+	 * Returns true iff there are any animations in progress.
+	 */
+	virtual bool runAnimations() { return false; }
 
 	/**
 	 * Paints this layer on the given surface.
@@ -50,22 +56,8 @@ protected:
 		status = Status::DISMISSED;
 	}
 
-	/**
-	 * Request that this layer be repainted every frame.
-	 */
-	void startAnimating() {
-		if (status == Status::PASSIVE) status = Status::ANIMATING;
-	}
-
-	/**
-	 * Request that this layer be repainted only after an event.
-	 */
-	void stopAnimating() {
-		if (status == Status::ANIMATING) status = Status::PASSIVE;
-	}
-
 private:
-	Status status = Status::PASSIVE;
+	Status status = Status::NORMAL;
 };
 
 #endif // LAYER_H

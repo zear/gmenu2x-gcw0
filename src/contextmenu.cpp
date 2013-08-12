@@ -22,7 +22,6 @@ struct ContextMenu::MenuOption {
 ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 	: gmenu2x(gmenu2x)
 	, menu(menu)
-	, fadeAlpha(0)
 	, selected(0)
 {
 	Translator &tr = gmenu2x.tr;
@@ -95,24 +94,20 @@ ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 
 	// Init background fade animation.
 	tickStart = SDL_GetTicks();
-	startAnimating();
+	fadeAlpha = 0;
 }
 
-void ContextMenu::runAnimations()
+bool ContextMenu::runAnimations()
 {
 	if (fadeAlpha < 200) {
 		const long tickNow = SDL_GetTicks();
 		fadeAlpha = intTransition(0, 200, tickStart, 500, tickNow);
-		if (fadeAlpha == 200) {
-			stopAnimating();
-		}
 	}
+	return fadeAlpha < 200;
 }
 
 void ContextMenu::paint(Surface &s)
 {
-	runAnimations();
-
 	Font *font = gmenu2x.font;
 
 	// Darken background.

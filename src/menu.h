@@ -65,8 +65,6 @@ private:
 
 	Animation sectionAnimation;
 
-	void runAnimations();
-
 	/**
 	 * Determine which section headers are visible.
 	 * The output values are relative to the middle section at 0.
@@ -127,6 +125,7 @@ public:
 	void skinUpdated();
 
 	// Layer implementation:
+	virtual bool runAnimations();
 	virtual void paint(Surface &s);
 	virtual bool handleButtonPress(InputManager::Button button);
 	virtual bool handleTouchscreen(Touchscreen &ts);

@@ -591,22 +591,19 @@ void GMenu2X::main() {
 
 	bool quit = false;
 	while (!quit) {
-		// Check whether any layers are animating and remove dismissed layers
-		// from the stack.
-		bool animating = false;
+		// Remove dismissed layers from the stack.
 		for (auto it = layers.begin(); it != layers.end(); ) {
-			auto layer = *it;
-			switch (layer->getStatus()) {
-				case Layer::Status::DISMISSED:
-					it = layers.erase(it);
-					break;
-				case Layer::Status::ANIMATING:
-					animating = true;
-					// fall through
-				case Layer::Status::PASSIVE:
-					++it;
-					break;
+			if ((*it)->getStatus() == Layer::Status::DISMISSED) {
+				it = layers.erase(it);
+			} else {
+				++it;
 			}
+		}
+
+		// Run animations.
+		bool animating = false;
+		for (auto layer : layers) {
+			animating |= layer->runAnimations();
 		}
 
 		// Paint layers.

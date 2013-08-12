@@ -21,14 +21,13 @@ public:
 	ContextMenu(GMenu2X &gmenu2x, Menu &menu);
 
 	// Layer implementation:
+	virtual bool runAnimations();
 	virtual void paint(Surface &s);
 	virtual bool handleButtonPress(InputManager::Button button);
 	virtual bool handleTouchscreen(Touchscreen &ts);
 
 private:
 	struct MenuOption;
-
-	void runAnimations();
 
 	GMenu2X &gmenu2x;
 	Menu &menu;

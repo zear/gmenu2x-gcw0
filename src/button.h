@@ -28,31 +28,29 @@
 class Touchscreen;
 
 class Button {
-protected:
-	Touchscreen &ts;
-	function_t action;
-	SDL_Rect rect;
-	bool doubleClick;
-	int lastTick;
-
 public:
+	SDL_Rect getRect();
+	virtual void setPosition(int x, int y);
+
+	bool isPressed();
+	bool handleTS();
+
+protected:
 	Button(Touchscreen &ts, bool doubleClick = false);
 	virtual ~Button() {};
 
-	SDL_Rect getRect();
 	void setSize(int w, int h);
-	virtual void setPosition(int x, int y);
 
-	virtual void paint();
-	virtual bool paintHover();
+	function_t action;
+	SDL_Rect rect;
 
-	bool isPressed();
+private:
 	bool isReleased();
-	bool handleTS();
-
-	void exec();
 	void voidAction() {};
-	void setAction(function_t action);
+
+	Touchscreen &ts;
+	bool doubleClick;
+	int lastTick;
 };
 
 #endif // BUTTON_H

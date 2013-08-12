@@ -14,10 +14,6 @@ IconButton::IconButton(
 {
 	this->icon = icon;
 	this->label = label;
-	updateSurfaces();
-}
-
-void IconButton::updateSurfaces() {
 	iconSurface = gmenu2x->sc[icon];
 	recalcSize();
 }
@@ -37,10 +33,6 @@ void IconButton::paint() {
 		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y,
 				Font::HAlignLeft, Font::VAlignMiddle);
 	}
-}
-
-bool IconButton::paintHover() {
-	return true;
 }
 
 void IconButton::recalcSize() {

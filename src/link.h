@@ -35,7 +35,7 @@ Base class that represents a link on screen.
 
 	@author Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 */
-class Link : public Button {
+class Link : private Button {
 private:
 	void recalcCoordinates();
 
@@ -59,7 +59,7 @@ public:
 	virtual ~Link() {};
 
 	virtual void paint();
-	virtual bool paintHover();
+	void paintHover();
 
 	virtual void loadIcon();
 
@@ -75,6 +75,11 @@ public:
 	const std::string &getIconPath();
 
 	void run();
+
+	// Expose some Button functionality:
+	//SDL_Rect getRect() { return Button::getRect(); }
+	bool isPressed() { return Button::isPressed(); }
+	bool handleTS() { return Button::handleTS(); }
 };
 
 #endif

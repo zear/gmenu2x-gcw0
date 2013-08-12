@@ -5,21 +5,12 @@
 using namespace std;
 
 Button::Button(Touchscreen &ts_, bool doubleClick_)
-	: ts(ts_)
-	, action(BIND(&Button::voidAction))
+	: action(BIND(&Button::voidAction))
 	, rect((SDL_Rect) { 0, 0, 0, 0 })
+	, ts(ts_)
 	, doubleClick(doubleClick_)
 	, lastTick(0)
 {
-}
-
-void Button::paint() {
-	if (ts.inRect(rect))
-		if (!paintHover()) return;
-}
-
-bool Button::paintHover() {
-	return false;
 }
 
 bool Button::isPressed() {
@@ -34,20 +25,18 @@ bool Button::handleTS() {
 	if (isReleased()) {
 		if (doubleClick) {
 			int tickNow = SDL_GetTicks();
-			if (tickNow - lastTick < 400)
-				exec();
+			if (tickNow - lastTick < 400) {
+				ts.setHandled();
+				action();
+			}
 			lastTick = tickNow;
 		} else {
-			exec();
+			ts.setHandled();
+			action();
 		}
 		return true;
 	}
 	return false;
-}
-
-void Button::exec() {
-	ts.setHandled();
-	action();
 }
 
 SDL_Rect Button::getRect() {
@@ -62,8 +51,4 @@ void Button::setSize(int w, int h) {
 void Button::setPosition(int x, int y) {
 	rect.x = x;
 	rect.y = y;
-}
-
-void Button::setAction(function_t action) {
-	this->action = action;
 }

@@ -51,12 +51,11 @@ void Link::paint() {
 	gmenu2x->s->write(gmenu2x->font, getTitle(), iconX+16, rect.y + gmenu2x->skinConfInt["linkHeight"]-padding, Font::HAlignCenter, Font::VAlignBottom);
 }
 
-bool Link::paintHover() {
+void Link::paintHover() {
 	if (gmenu2x->useSelectionPng)
 		gmenu2x->sc["imgs/selection.png"]->blit(gmenu2x->s, rect, Font::HAlignCenter, Font::VAlignMiddle);
 	else
 		gmenu2x->s->box(rect.x, rect.y, rect.w, rect.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	return true;
 }
 
 void Link::updateSurfaces()

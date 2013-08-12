@@ -57,6 +57,9 @@ private:
 			const std::string &selectedFile = "",
 			const std::string &selectedDir = "");
 
+protected:
+	virtual const std::string &searchIcon();
+
 public:
 #ifdef HAVE_LIBOPK
 	const std::string &getCategory() { return category; }
@@ -72,7 +75,6 @@ public:
 #endif
 
 	virtual void loadIcon();
-	virtual const std::string &searchIcon();
 
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	bool consoleApp;

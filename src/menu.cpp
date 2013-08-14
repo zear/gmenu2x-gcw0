@@ -231,8 +231,7 @@ void Menu::paint(Surface &s) {
 	vector<Link*> &sectionLinks = links[iSection];
 	const uint numLinks = sectionLinks.size();
 	gmenu2x->drawScrollBar(
-			linkRows, (numLinks + linkColumns - 1) / linkColumns, iFirstDispRow,
-			topBarHeight + 1, height - topBarHeight - bottomBarHeight - 2);
+			linkRows, (numLinks + linkColumns - 1) / linkColumns, iFirstDispRow);
 
 	//Links
 	const uint linksPerPage = linkColumns * linkRows;

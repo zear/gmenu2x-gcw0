@@ -110,7 +110,7 @@ bool WallpaperDialog::exec()
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(10,wallpapers.size(),firstElement,44,170);
+		gmenu2x->drawScrollBar(10, wallpapers.size(), firstElement);
 		gmenu2x->s->flip();
 
         switch(gmenu2x->input.waitForPressedButton()) {

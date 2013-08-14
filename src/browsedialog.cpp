@@ -282,7 +282,6 @@ void BrowseDialog::paint()
 	}
 	gmenu2x->s->clearClipRect();
 
-	gmenu2x->drawScrollBar(
-			numRows,fl->size(), firstElement, clipRect.y, clipRect.h);
+	gmenu2x->drawScrollBar(numRows,fl->size(), firstElement);
 	gmenu2x->s->flip();
 }

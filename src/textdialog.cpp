@@ -94,7 +94,7 @@ void TextDialog::drawText(vector<string> *text, unsigned firstRow,
 	}
 
 	gmenu2x->s->clearClipRect();
-	gmenu2x->drawScrollBar(rowsPerPage,text->size(),firstRow,42,gmenu2x->resY-65);
+	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow);
 }
 
 void TextDialog::exec() {

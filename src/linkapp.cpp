@@ -429,8 +429,7 @@ void LinkApp::showManual() {
 		return;
 
 	// Png manuals
-	string ext8 = manual.substr(manual.size()-8,8);
-	if (ext8==".man.png" || ext8==".man.bmp" || ext8==".man.jpg" || manual.substr(manual.size()-9,9)==".man.jpeg") {
+	if (manual.substr(manual.size()-8,8)==".man.png") {
 #ifdef ENABLE_CPUFREQ
 		//Raise the clock to speed-up the loading of the manual
 		gmenu2x->setSafeMaxClock();

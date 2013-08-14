@@ -279,8 +279,6 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 
 		if (fileExists(screendir+noext+".png"))
 			screens->at(i) = screendir+noext+".png";
-		else if (fileExists(screendir+noext+".jpg"))
-			screens->at(i) = screendir+noext+".jpg";
 		else
 			screens->at(i) = "";
 	}

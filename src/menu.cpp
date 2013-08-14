@@ -185,7 +185,7 @@ void Menu::paint(Surface &s) {
 
 	ConfIntHash &skinConfInt = gmenu2x->skinConfInt;
 	const int topBarHeight = skinConfInt["topBarHeight"];
-	const int bottomBarHeight = 21;
+	const int bottomBarHeight = skinConfInt["bottomBarHeight"];
 	const int linkWidth = skinConfInt["linkWidth"];
 	const int linkHeight = skinConfInt["linkHeight"];
 	RGBAColor &selectionBgColor = gmenu2x->skinConfColors[COLOR_SELECTION_BG];

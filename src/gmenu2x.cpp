@@ -813,9 +813,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 		}
 	}
 
-	evalIntConf( &skinConfInt["topBarHeight"], 40, 32,120 );
-	evalIntConf( &skinConfInt["linkHeight"], 40, 32,120 );
-	evalIntConf( &skinConfInt["linkWidth"], 60, 32,120 );
+	evalIntConf(&skinConfInt["topBarHeight"], 40, 32, 120);
+	evalIntConf(&skinConfInt["bottomBarHeight"], 20, 20, 120);
+	evalIntConf(&skinConfInt["linkHeight"], 40, 32, 120);
+	evalIntConf(&skinConfInt["linkWidth"], 60, 32, 120);
 
 	if (menu != NULL) menu->skinUpdated();
 
@@ -1195,8 +1196,8 @@ void GMenu2X::drawScrollBar(uint pageSize, uint totalSize, uint pagePos) {
 	}
 
 	const uint top = skinConfInt["topBarHeight"] + 1;
-	const uint bottomBarHeight = 21;
-	const uint height = resY - top - (bottomBarHeight + 1);
+	const uint bottom = skinConfInt["bottomBarHeight"] + 1;
+	const uint height = resY - top - bottom;
 
 	s->rectangle(resX - 8, top, 7, height, skinConfColors[COLOR_SELECTION_BG]);
 
@@ -1209,17 +1210,20 @@ void GMenu2X::drawScrollBar(uint pageSize, uint totalSize, uint pagePos) {
 
 void GMenu2X::drawTopBar(Surface *s) {
 	Surface *bar = sc.skinRes("imgs/topbar.png", false);
-	if (bar != NULL)
+	if (bar) {
 		bar->blit(s, 0, 0);
-	else
-		s->box(0, 0, resX, skinConfInt["topBarHeight"],
-		skinConfColors[COLOR_TOP_BAR_BG]);
+	} else {
+		const int h = skinConfInt["topBarHeight"];
+		s->box(0, 0, resX, h, skinConfColors[COLOR_TOP_BAR_BG]);
+	}
 }
 
 void GMenu2X::drawBottomBar(Surface *s) {
 	Surface *bar = sc.skinRes("imgs/bottombar.png", false);
-	if (bar != NULL)
+	if (bar) {
 		bar->blit(s, 0, resY-bar->height());
-	else
-		s->box(0, resY-20, resX, 20, skinConfColors[COLOR_BOTTOM_BAR_BG]);
+	} else {
+		const int h = skinConfInt["bottomBarHeight"];
+		s->box(0, resY - h, resX, h, skinConfColors[COLOR_BOTTOM_BAR_BG]);
+	}
 }

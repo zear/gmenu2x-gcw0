@@ -1195,16 +1195,19 @@ void GMenu2X::drawScrollBar(uint pageSize, uint totalSize, uint pagePos) {
 		return;
 	}
 
-	const uint top = skinConfInt["topBarHeight"] + 1;
-	const uint bottom = skinConfInt["bottomBarHeight"] + 1;
-	const uint height = resY - top - bottom;
+	unsigned int top, height;
+	tie(top, height) = getContentArea();
+	top += 1;
+	height -= 2;
 
 	s->rectangle(resX - 8, top, 7, height, skinConfColors[COLOR_SELECTION_BG]);
+	top += 2;
+	height -= 4;
 
-	const uint barSize = (height - 4) * pageSize / totalSize;
-	const uint barPos = (height - 4 - barSize) * pagePos / (totalSize - pageSize);
+	const uint barSize = height * pageSize / totalSize;
+	const uint barPos = (height - barSize) * pagePos / (totalSize - pageSize);
 
-	s->box(resX - 6, top + 2 + barPos, 3, barSize,
+	s->box(resX - 6, top + barPos, 3, barSize,
 			skinConfColors[COLOR_SELECTION_BG]);
 }
 

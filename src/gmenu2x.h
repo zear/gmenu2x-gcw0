@@ -134,6 +134,15 @@ public:
 	unsigned short cpuX; //!< Offset for displaying cpu clock information
 	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
 
+	/**
+	 * Gets the position and height of the area between the top and bottom bars.
+	 */
+	std::pair<unsigned int, unsigned int> getContentArea() {
+		const unsigned int top = skinConfInt["topBarHeight"];
+		const unsigned int bottom = skinConfInt["bottomBarHeight"];
+		return std::make_pair(top, resY - top - bottom);
+	}
+
 	InputManager input;
 
 	//Configuration hashes

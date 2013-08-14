@@ -737,12 +737,12 @@ void GMenu2X::skinMenu() {
 
 	SettingsDialog sd(this, input, ts, tr["Skin"]);
 	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories()));
-	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Top Bar Color"], tr["Color of the top bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Bottom Bar Color"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Selection Color"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Message Box Color"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Message Box Border Color"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
-	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Message Box Selection Color"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
+	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Top Bar"], tr["Color of the top bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Selection"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Message Box"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Message Box Border"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
+	sd.addSetting(new MenuSettingRGBA(this, ts, tr["Message Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
 
 	if (sd.exec() && sd.edited()) {
 		if (curSkin != confStr["skin"]) {

@@ -109,7 +109,6 @@ public:
 
 	const std::string &getFile() { return file; }
 	void renameFile(const std::string &name);
-	bool &runsInBackgroundRef() { return dontleave; }
 };
 
 #endif

@@ -68,7 +68,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 {
 	manual = "";
 	file = linkfile;
-	dontleave = false;
 #ifdef ENABLE_CPUFREQ
 	setClock(gmenu2x->getDefaultAppClock());
 #endif
@@ -132,9 +131,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 
 			} else if (!strncmp(key, "X-OD-Manual", lkey)) {
 				manual = buf;
-
-			} else if (!strncmp(key, "X-OD-Daemon", lkey)) {
-				dontleave = !strncmp(val, "true", lval);
 
 			} else if (!strncmp(key, "Icon", lkey)) {
 				/* Read the icon from the OPK only
@@ -239,8 +235,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 				params = value;
 			} else if (name == "manual") {
 				manual = value;
-			} else if (name == "dontleave") {
-				if (value=="true") dontleave = true;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			} else if (name == "consoleapp") {
 				if (value == "true") consoleApp = true;
@@ -339,7 +333,6 @@ bool LinkApp::save() {
 			if (exec!=""           ) f << "exec="            << exec            << endl;
 			if (params!=""         ) f << "params="          << params          << endl;
 			if (manual!=""         ) f << "manual="          << manual          << endl;
-			if (dontleave          ) f << "dontleave=true"                      << endl;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			if (consoleApp         ) f << "consoleapp=true"                     << endl;
 #endif
@@ -656,68 +649,65 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (isOPK)
 		command += " ; umount -l " + opkMount;
 #endif
-	if (dontleave) {
-		system(command.c_str());
-	} else {
-		gmenu2x->saveSelection();
 
-		if (selectedFile == "") {
-			gmenu2x->writeTmp();
-		}
+	gmenu2x->saveSelection();
+
+	if (selectedFile == "") {
+		gmenu2x->writeTmp();
+	}
 #ifdef ENABLE_CPUFREQ
-		if (clock() != gmenu2x->confInt["menuClock"]) {
-			gmenu2x->setClock(clock());
-		}
+	if (clock() != gmenu2x->confInt["menuClock"]) {
+		gmenu2x->setClock(clock());
+	}
 #endif
-		gmenu2x->quit();
+	gmenu2x->quit();
 
-		/* Make the terminal we're connected to (via stdin/stdout) our
-		   controlling terminal again.  Else many console programs are
-		   not going to work correctly.  Actually this would not be
-		   necessary, if SDL correctly restored terminal state after
-		   SDL_Quit(). */
-		(void) setsid();
+	/* Make the terminal we're connected to (via stdin/stdout) our
+		controlling terminal again.  Else many console programs are
+		not going to work correctly.  Actually this would not be
+		necessary, if SDL correctly restored terminal state after
+		SDL_Quit(). */
+	(void) setsid();
 
-		ioctl(1, TIOCSCTTY, STDOUT_FILENO);
-		(void) dup2(STDOUT_FILENO, 0);
-		(void) dup2(STDOUT_FILENO, 1);
-		(void) dup2(STDOUT_FILENO, 2);
+	ioctl(1, TIOCSCTTY, STDOUT_FILENO);
+	(void) dup2(STDOUT_FILENO, 0);
+	(void) dup2(STDOUT_FILENO, 1);
+	(void) dup2(STDOUT_FILENO, 2);
 
-		if (STDOUT_FILENO > 2)
-			close(STDOUT_FILENO);
+	if (STDOUT_FILENO > 2)
+		close(STDOUT_FILENO);
 
-		int pgid = tcgetpgrp(STDOUT_FILENO);
-		signal(SIGTTOU, SIG_IGN);
-		tcsetpgrp(STDOUT_FILENO, pgid);
+	int pgid = tcgetpgrp(STDOUT_FILENO);
+	signal(SIGTTOU, SIG_IGN);
+	tcsetpgrp(STDOUT_FILENO, pgid);
 
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-		if (consoleApp) {
-			/* Enable the framebuffer console */
-			char c = '1';
-			int fd = open("/sys/devices/virtual/vtconsole/vtcon1/bind", O_WRONLY);
-			if (fd < 0) {
-				WARNING("Unable to open fbcon handle\n");
-			} else {
-				write(fd, &c, 1);
-				close(fd);
-			}
-
-			fd = open("/dev/tty1", O_RDWR);
-			if (fd < 0) {
-				WARNING("Unable to open tty1 handle\n");
-			} else {
-				if (ioctl(fd, VT_ACTIVATE, 1) < 0)
-					WARNING("Unable to activate tty1\n");
-				close(fd);
-			}
+	if (consoleApp) {
+		/* Enable the framebuffer console */
+		char c = '1';
+		int fd = open("/sys/devices/virtual/vtconsole/vtcon1/bind", O_WRONLY);
+		if (fd < 0) {
+			WARNING("Unable to open fbcon handle\n");
+		} else {
+			write(fd, &c, 1);
+			close(fd);
 		}
+
+		fd = open("/dev/tty1", O_RDWR);
+		if (fd < 0) {
+			WARNING("Unable to open tty1 handle\n");
+		} else {
+			if (ioctl(fd, VT_ACTIVATE, 1) < 0)
+				WARNING("Unable to activate tty1\n");
+			close(fd);
+		}
+	}
 #endif
 
-		execlp("/bin/sh","/bin/sh", "-c", command.c_str(), NULL);
-		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-		//try relaunching gmenu2x
-		gmenu2x->main();
-	}
+	execlp("/bin/sh","/bin/sh", "-c", command.c_str(), NULL);
+	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
+	//try relaunching gmenu2x
+	gmenu2x->main();
 }
 
 const string &LinkApp::getExec() {

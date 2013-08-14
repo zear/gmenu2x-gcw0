@@ -6,48 +6,44 @@
 
 using namespace std;
 
+
 IconButton::IconButton(
-		GMenu2X *gmenu2x_, Touchscreen &ts_,
+		GMenu2X *gmenu2x, Touchscreen &ts,
 		const string &icon, const string &label)
-	: Button(ts_)
-	, gmenu2x(gmenu2x_)
+	: gmenu2x(gmenu2x)
+	, ts(ts)
+	, icon(icon)
+	, label(label)
+	, action([] {})
+	, rect({ 0, 0, 0, 0 })
 {
-	this->icon = icon;
-	this->label = label;
 	iconSurface = gmenu2x->sc[icon];
-	recalcSize();
+	recalcRects();
+}
+
+void IconButton::setAction(function_t action) {
+	this->action = action;
 }
 
 void IconButton::setPosition(int x, int y) {
 	if (rect.x != x || rect.y != y) {
-		Button::setPosition(x,y);
-		recalcSize();
+		rect.x = x;
+		rect.y = y;
+		recalcRects();
 	}
 }
 
-void IconButton::paint() {
-	if (iconSurface) {
-		iconSurface->blit(gmenu2x->s, iconRect);
-	}
-	if (label != "") {
-		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y,
-				Font::HAlignLeft, Font::VAlignMiddle);
-	}
-}
-
-void IconButton::recalcSize() {
+void IconButton::recalcRects() {
 	Uint16 h = 0, w = 0;
 	if (iconSurface) {
 		w += iconSurface->width();
 		h += iconSurface->height();
-		iconRect = (SDL_Rect) { rect.x, rect.y, w, h };
-	} else {
-		iconRect = (SDL_Rect) { 0, 0, 0, 0 };
 	}
+	iconRect = { rect.x, rect.y, w, h };
 
-	if (label != "") {
-		uint margin = iconSurface ? 2 : 0;
-		labelRect = (SDL_Rect) {
+	if (!label.empty()) {
+		Uint16 margin = iconSurface ? 2 : 0;
+		labelRect = {
 			static_cast<Sint16>(iconRect.x + iconRect.w + margin),
 			static_cast<Sint16>(rect.y + h / 2),
 			static_cast<Uint16>(gmenu2x->font->getTextWidth(label)),
@@ -56,9 +52,25 @@ void IconButton::recalcSize() {
 		w += margin + labelRect.w;
 	}
 
-	setSize(w, h);
+	rect.w = w;
+	rect.h = h;
 }
 
-void IconButton::setAction(function_t action) {
-	this->action = action;
+bool IconButton::handleTS() {
+	if (ts.released() && ts.inRect(rect)) {
+		ts.setHandled();
+		action();
+		return true;
+	}
+	return false;
+}
+
+void IconButton::paint() {
+	if (iconSurface) {
+		iconSurface->blit(gmenu2x->s, iconRect);
+	}
+	if (!label.empty()) {
+		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y,
+				Font::HAlignLeft, Font::VAlignMiddle);
+	}
 }

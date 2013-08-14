@@ -1,36 +1,39 @@
 #ifndef ICONBUTTON_H
 #define ICONBUTTON_H
 
-#include "button.h"
+#include "delegate.h"
 
+#include <SDL.h>
 #include <string>
 
 class GMenu2X;
 class Surface;
+class Touchscreen;
 
-class IconButton : private Button {
+
+class IconButton {
 public:
 	IconButton(GMenu2X *gmenu2x, Touchscreen &ts,
 			const std::string &icon, const std::string &label = "");
-	virtual ~IconButton() {};
-
-	virtual void paint();
-
-	virtual void setPosition(int x, int y);
 
 	void setAction(function_t action);
 
-	// Expose some Button functionality:
-	SDL_Rect getRect() { return Button::getRect(); }
-	bool handleTS() { return Button::handleTS(); }
+	SDL_Rect getRect() { return rect; }
+	void setPosition(int x, int y);
+
+	bool handleTS();
+
+	void paint();
 
 private:
-	void recalcSize();
+	void recalcRects();
 
 	GMenu2X *gmenu2x;
+	Touchscreen &ts;
 	std::string icon, label;
-	SDL_Rect iconRect, labelRect;
+	function_t action;
 
+	SDL_Rect rect, iconRect, labelRect;
 	Surface *iconSurface;
 };
 

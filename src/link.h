@@ -21,13 +21,14 @@
 #ifndef LINK_H
 #define LINK_H
 
-#include "button.h"
 #include "delegate.h"
 
+#include <SDL.h>
 #include <string>
 
 class GMenu2X;
 class Surface;
+class Touchscreen;
 
 
 /**
@@ -35,28 +36,13 @@ Base class that represents a link on screen.
 
 	@author Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 */
-class Link : private Button {
-private:
-	void recalcCoordinates();
-
-	function_t action;
-	uint iconX, padding;
-
-protected:
-	GMenu2X *gmenu2x;
-	bool edited;
-	std::string title, description, icon, iconPath;
-
-	Surface *iconSurface;
-	Surface *icon_hover;
-
-	virtual const std::string &searchIcon();
-	void setIconPath(const std::string &icon);
-	void updateSurfaces();
-
+class Link {
 public:
 	Link(GMenu2X *gmenu2x, Touchscreen &ts, function_t action);
 	virtual ~Link() {};
+
+	bool isPressed();
+	bool handleTS();
 
 	virtual void paint();
 	void paintHover();
@@ -76,10 +62,27 @@ public:
 
 	void run();
 
-	// Expose some Button functionality:
-	//SDL_Rect getRect() { return Button::getRect(); }
-	bool isPressed() { return Button::isPressed(); }
-	bool handleTS() { return Button::handleTS(); }
+protected:
+	GMenu2X *gmenu2x;
+	bool edited;
+	std::string title, description, icon, iconPath;
+
+	Surface *iconSurface;
+	Surface *icon_hover;
+
+	virtual const std::string &searchIcon();
+	void setIconPath(const std::string &icon);
+	void updateSurfaces();
+
+private:
+	void recalcCoordinates();
+
+	Touchscreen &ts;
+	function_t action;
+
+	SDL_Rect rect;
+	uint iconX, padding;
+	int lastTick;
 };
 
 #endif

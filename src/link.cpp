@@ -31,10 +31,13 @@
 
 using namespace std;
 
-Link::Link(GMenu2X *gmenu2x_, Touchscreen &ts, function_t action_)
-	: Button(ts, true)
-	, action(action_)
-	, gmenu2x(gmenu2x_)
+
+Link::Link(GMenu2X *gmenu2x, Touchscreen &ts, function_t action)
+	: gmenu2x(gmenu2x)
+	, ts(ts)
+	, action(action)
+	, rect((SDL_Rect) { 0, 0, 0, 0 })
+	, lastTick(0)
 {
 	edited = false;
 	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
@@ -42,6 +45,23 @@ Link::Link(GMenu2X *gmenu2x_, Touchscreen &ts, function_t action_)
 	padding = 0;
 
 	updateSurfaces();
+}
+
+bool Link::isPressed() {
+	return ts.pressed() && ts.inRect(rect);
+}
+
+bool Link::handleTS() {
+	if (ts.released() && ts.inRect(rect)) {
+		int tickNow = SDL_GetTicks();
+		if (tickNow - lastTick < 400) {
+			ts.setHandled();
+			action();
+		}
+		lastTick = tickNow;
+		return true;
+	}
+	return false;
 }
 
 void Link::paint() {
@@ -123,12 +143,14 @@ void Link::setIconPath(const string &icon) {
 }
 
 void Link::setSize(int w, int h) {
-	Button::setSize(w,h);
+	rect.w = w;
+	rect.h = h;
 	recalcCoordinates();
 }
 
 void Link::setPosition(int x, int y) {
-	Button::setPosition(x,y);
+	rect.x = x;
+	rect.y = y;
 	recalcCoordinates();
 }
 

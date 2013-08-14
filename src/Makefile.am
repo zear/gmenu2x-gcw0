@@ -1,6 +1,6 @@
 bin_PROGRAMS = gmenu2x
 
-gmenu2x_SOURCES = font.cpp button.cpp cpu.cpp dirdialog.cpp filedialog.cpp \
+gmenu2x_SOURCES = font.cpp cpu.cpp dirdialog.cpp filedialog.cpp \
 	filelister.cpp gmenu2x.cpp iconbutton.cpp imagedialog.cpp inputdialog.cpp \
 	inputmanager.cpp linkapp.cpp link.cpp \
 	menu.cpp menusettingbool.cpp menusetting.cpp menusettingdir.cpp \
@@ -15,7 +15,7 @@ gmenu2x_SOURCES = font.cpp button.cpp cpu.cpp dirdialog.cpp filedialog.cpp \
 	imageio.cpp powersaver.cpp monitor.cpp mediamonitor.cpp clock.cpp \
 	helppopup.cpp contextmenu.cpp background.cpp battery.cpp
 
-noinst_HEADERS = font.h button.h cpu.h dirdialog.h \
+noinst_HEADERS = font.h cpu.h dirdialog.h \
 	filedialog.h filelister.h gmenu2x.h gp2x.h iconbutton.h imagedialog.h \
 	inputdialog.h inputmanager.h linkapp.h link.h \
 	menu.h menusettingbool.h menusettingdir.h \

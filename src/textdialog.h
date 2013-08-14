@@ -32,8 +32,8 @@ protected:
 	std::string title, description, icon;
 
 	void preProcess();
-	void drawText(std::vector<std::string> *text, unsigned firstRow,
-			unsigned rowsPerPage);
+	void drawText(std::vector<std::string> *text, unsigned int y,
+			unsigned int firstRow, unsigned int rowsPerPage);
 
 public:
 	TextDialog(GMenu2X *gmenu2x, const std::string &title,

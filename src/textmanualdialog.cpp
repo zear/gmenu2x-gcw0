@@ -99,7 +99,7 @@ void TextManualDialog::exec() {
 	while (!close) {
 		bg.blit(gmenu2x->s,0,0);
 		writeSubTitle(pages[page].title);
-		drawText(&pages[page].text, firstRow, rowsPerPage);
+		drawText(&pages[page].text, 42 /* TODO */, firstRow, rowsPerPage);
 
 		ss.clear();
 		ss << page+1;

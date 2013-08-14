@@ -219,10 +219,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			setSelectorScreens( value );
 		} else if (name == "selectoraliases") {
 			setAliasFile( value );
-		} else
-#ifdef HAVE_LIBOPK
-		if (!isOPK) {
-#endif
+		} else if (!isOpk()) {
 			if (name == "title") {
 				title = value;
 			} else if (name == "description") {
@@ -244,10 +241,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 			} else if (name == "editable") {
 				if (value == "false")
 					editable = false;
-#ifdef HAVE_LIBOPK
 			} else
 				WARNING("Unrecognized option: '%s'\n", name.c_str());
-#endif
 		} else
 			WARNING("Unrecognized option: '%s'\n", name.c_str());
 	}
@@ -324,9 +319,7 @@ bool LinkApp::save() {
 
 	ofstream f(file.c_str());
 	if (f.is_open()) {
-#ifdef HAVE_LIBOPK
-		if (!isOPK) {
-#endif
+		if (!isOpk()) {
 			if (title!=""          ) f << "title="           << title           << endl;
 			if (description!=""    ) f << "description="     << description     << endl;
 			if (icon!=""           ) f << "icon="            << icon            << endl;
@@ -337,9 +330,7 @@ bool LinkApp::save() {
 			if (consoleApp         ) f << "consoleapp=true"                     << endl;
 #endif
 			if (selectorfilter!="*" ) f << "selectorfilter="  << selectorfilter  << endl;
-#ifdef HAVE_LIBOPK
 		}
-#endif
 		if (iclock!=0          ) f << "clock="           << iclock          << endl;
 		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
 		if (!selectorbrowser   ) f << "selectorbrowser=false"               << endl;
@@ -566,8 +557,8 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		selectordir = selectedDir;
 	save();
 
+	if (isOpk()) {
 #ifdef HAVE_LIBOPK
-	if (isOPK) {
 		int err;
 
 		/* To be sure... */
@@ -589,21 +580,17 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 			if (fileExists(tmp))
 				exec = opkMount + exec;
 		}
-	}
-
-	else {
 #endif
-	//Set correct working directory
-	string::size_type pos = exec.rfind("/");
-	if (pos != string::npos) {
-		string wd = exec.substr(0, pos + 1);
-		chdir(wd.c_str());
-		exec = wd + exec.substr(pos + 1);
-		DEBUG("Changed working directory to %s\n", wd.c_str());
+	} else {
+		//Set correct working directory
+		string::size_type pos = exec.rfind("/");
+		if (pos != string::npos) {
+			string wd = exec.substr(0, pos + 1);
+			chdir(wd.c_str());
+			exec = wd + exec.substr(pos + 1);
+			DEBUG("Changed working directory to %s\n", wd.c_str());
+		}
 	}
-#ifdef HAVE_LIBOPK
-	}
-#endif
 
 	if (selectedFile != "") {
 		string path = cmdclean(selectordir + selectedFile);

@@ -192,8 +192,8 @@ public:
 	int drawButtonRight(Surface *s, const std::string &btn, const std::string &text, int x=5, int y=-10);
 	void drawScrollBar(uint pageSize, uint totalSize, uint pagePos);
 
-	void drawTopBar(Surface *s=NULL);
-	void drawBottomBar(Surface *s=NULL);
+	void drawTopBar(Surface *s);
+	void drawBottomBar(Surface *s);
 };
 
 #endif // GMENU2X_H

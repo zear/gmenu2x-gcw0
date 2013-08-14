@@ -466,7 +466,7 @@ void LinkApp::showManual() {
 				bg->blit(gmenu2x->s, 0, 0);
 				pngman->blit(gmenu2x->s, -page*320, 0);
 
-				gmenu2x->drawBottomBar();
+				gmenu2x->drawBottomBar(gmenu2x->s);
 				gmenu2x->drawButton(gmenu2x->s, "start", gmenu2x->tr["Exit"],
 				gmenu2x->drawButton(gmenu2x->s, "cancel", "",
 				gmenu2x->drawButton(gmenu2x->s, "right", gmenu2x->tr["Change page"],

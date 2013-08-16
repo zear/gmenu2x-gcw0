@@ -547,7 +547,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 			selectordir = selectedDir;
 		}
 		gmenu2x->writeTmp(selection, selectedDir);
-		launch(sel.getFile());
+		launch(selectedDir + sel.getFile());
 	}
 }
 
@@ -592,7 +592,7 @@ void LinkApp::launch(const string &selectedFile) {
 	}
 
 	if (!selectedFile.empty()) {
-		string path = cmdclean(selectordir + selectedFile);
+		string path = cmdclean(selectedFile);
 
 		if (params.empty()) {
 			params = path;

@@ -542,18 +542,18 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	Selector sel(gmenu2x, this, selectorDir);
 	int selection = sel.exec(startSelection);
 	if (selection!=-1) {
-		gmenu2x->writeTmp(selection, sel.getDir());
-		launch(sel.getFile(), sel.getDir());
+		const string &selectedDir = sel.getDir();
+		if (!selectedDir.empty()) {
+			selectordir = selectedDir;
+		}
+		gmenu2x->writeTmp(selection, selectedDir);
+		launch(sel.getFile());
 	}
 }
 
-void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
+void LinkApp::launch(const string &selectedFile) {
 	drawRun();
 
-	if (selectedDir.empty())
-		selectordir = getSelectorDir();
-	else
-		selectordir = selectedDir;
 	save();
 
 	if (isOpk()) {

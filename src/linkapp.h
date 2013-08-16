@@ -53,9 +53,7 @@ private:
 #endif
 
 	void start();
-	void launch(
-			const std::string &selectedFile = "",
-			const std::string &selectedDir = "");
+	void launch(const std::string &selectedFile = "");
 
 protected:
 	virtual const std::string &searchIcon();

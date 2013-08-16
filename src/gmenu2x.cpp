@@ -194,6 +194,7 @@ void GMenu2X::initCPULimits() {
 #endif
 
 GMenu2X::GMenu2X()
+	: appToLaunch(nullptr)
 {
 	usbnet = samba = inet = web = false;
 	useSelectionPng = false;
@@ -589,8 +590,9 @@ void GMenu2X::main() {
 	if (!fileExists(CARD_ROOT))
 		CARD_ROOT = "";
 
-	bool quit = false;
-	while (!quit) {
+	appToLaunch = nullptr;
+
+	while (true) {
 		// Remove dismissed layers from the stack.
 		for (auto it = layers.begin(); it != layers.end(); ) {
 			if ((*it)->getStatus() == Layer::Status::DISMISSED) {
@@ -609,6 +611,9 @@ void GMenu2X::main() {
 		// Paint layers.
 		for (auto layer : layers) {
 			layer->paint(*s);
+		}
+		if (appToLaunch) {
+			break;
 		}
 		s->flip();
 
@@ -639,6 +644,11 @@ void GMenu2X::main() {
 			}
 		}
 	}
+
+	if (appToLaunch) {
+		appToLaunch->drawRun();
+		appToLaunch->launch(fileToLaunch);
+	}
 }
 
 void GMenu2X::explorer() {
@@ -660,6 +670,11 @@ void GMenu2X::explorer() {
 		ERROR("Error executing selected application, re-launching gmenu2x\n");
 		main();
 	}
+}
+
+void GMenu2X::queueLaunch(LinkApp *app, const std::string &file) {
+	appToLaunch = app;
+	fileToLaunch = file;
 }
 
 void GMenu2X::showHelpPopup() {

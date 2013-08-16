@@ -41,7 +41,6 @@ private:
 	int iclock;
 	std::string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens;
 	bool selectorbrowser, editable;
-	void drawRun();
 
 	std::string aliasfile;
 	std::string file;
@@ -53,7 +52,6 @@ private:
 #endif
 
 	void start();
-	void launch(const std::string &selectedFile = "");
 
 protected:
 	virtual const std::string &searchIcon();
@@ -107,6 +105,9 @@ public:
 
 	const std::string &getFile() { return file; }
 	void renameFile(const std::string &name);
+
+	void drawRun();
+	void launch(const std::string &selectedFile);
 };
 
 #endif

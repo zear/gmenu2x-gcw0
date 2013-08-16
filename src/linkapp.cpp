@@ -372,7 +372,7 @@ void LinkApp::start() {
 	if (!selectordir.empty())
 		selector();
 	else
-		launch();
+		gmenu2x->queueLaunch(this, "");
 }
 
 void LinkApp::showManual() {
@@ -547,13 +547,11 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 			selectordir = selectedDir;
 		}
 		gmenu2x->writeTmp(selection, selectedDir);
-		launch(selectedDir + sel.getFile());
+		gmenu2x->queueLaunch(this, selectedDir + sel.getFile());
 	}
 }
 
 void LinkApp::launch(const string &selectedFile) {
-	drawRun();
-
 	save();
 
 	if (isOpk()) {

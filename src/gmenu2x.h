@@ -39,6 +39,7 @@ class Font;
 class HelpPopup;
 class IconButton;
 class Layer;
+class LinkApp;
 class MediaMonitor;
 class Menu;
 class Surface;
@@ -71,6 +72,9 @@ private:
 	Touchscreen ts;
 	std::shared_ptr<Menu> menu;
 	MediaMonitor *monitor;
+
+	LinkApp *appToLaunch;
+	std::string fileToLaunch;
 
 	std::vector<std::shared_ptr<Layer>> layers;
 
@@ -184,6 +188,12 @@ public:
 
 	void setInputSpeed();
 
+	/**
+	 * Requests that the given application be launched.
+	 * The launch won't happen immediately; it will happen after control
+	 * returns to the main loop.
+	 */
+	void queueLaunch(LinkApp *app, const std::string &file);
 	void saveSelection();
 	void writeConfig();
 	void writeSkinConfig();

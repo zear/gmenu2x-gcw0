@@ -411,9 +411,9 @@ bool Menu::addActionLink(uint section, const string &title, function_t action, c
 }
 
 bool Menu::addLink(string path, string file, string section) {
-	if (section=="")
+	if (section.empty()) {
 		section = selSection();
-	else if (find(sections.begin(),sections.end(),section)==sections.end()) {
+	} else if (find(sections.begin(),sections.end(),section)==sections.end()) {
 		//section directory doesn't exists
 		if (!addSection(section))
 			return false;

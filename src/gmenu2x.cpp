@@ -578,7 +578,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		inf << "link=" << menu->selLinkIndex() << endl;
 		if (selelem>-1)
 			inf << "selectorelem=" << selelem << endl;
-		if (selectordir!="")
+		if (!selectordir.empty())
 			inf << "selectordir=" << selectordir << endl;
 		inf.close();
 		sync();

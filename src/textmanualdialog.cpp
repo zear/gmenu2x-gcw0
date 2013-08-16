@@ -58,10 +58,10 @@ TextManualDialog::TextManualDialog(GMenu2X *gmenu2x, const string &title, const 
 	for (uint page=0; page<pages.size(); page++) {
 		if (pages[page].text.size() > 0) {
 			//first lines
-			while (trim(pages[page].text[0])=="")
+			while (trim(pages[page].text[0]).empty())
 				pages[page].text.erase(pages[page].text.begin());
 			//last lines
-			while (trim(pages[page].text[pages[page].text.size()-1])=="")
+			while (trim(pages[page].text[pages[page].text.size()-1]).empty())
 				pages[page].text.erase(pages[page].text.end());
 		}
 	}

@@ -202,7 +202,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, Touchscreen &ts, InputManager &inputMgr_,
 	ifstream infile (file.c_str(), ios_base::in);
 	while (getline(infile, line, '\n')) {
 		line = trim(line);
-		if (line=="") continue;
+		if (line.empty()) continue;
 		if (line[0]=='#') continue;
 
 		string::size_type position = line.find("=");
@@ -320,22 +320,22 @@ bool LinkApp::save() {
 	ofstream f(file.c_str());
 	if (f.is_open()) {
 		if (!isOpk()) {
-			if (title!=""          ) f << "title="           << title           << endl;
-			if (description!=""    ) f << "description="     << description     << endl;
-			if (icon!=""           ) f << "icon="            << icon            << endl;
-			if (exec!=""           ) f << "exec="            << exec            << endl;
-			if (params!=""         ) f << "params="          << params          << endl;
-			if (manual!=""         ) f << "manual="          << manual          << endl;
+			if (!title.empty()       ) f << "title="           << title           << endl;
+			if (!description.empty() ) f << "description="     << description     << endl;
+			if (!icon.empty()        ) f << "icon="            << icon            << endl;
+			if (!exec.empty()        ) f << "exec="            << exec            << endl;
+			if (!params.empty()      ) f << "params="          << params          << endl;
+			if (!manual.empty()      ) f << "manual="          << manual          << endl;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-			if (consoleApp         ) f << "consoleapp=true"                     << endl;
+			if (consoleApp           ) f << "consoleapp=true"                     << endl;
 #endif
-			if (selectorfilter!="*" ) f << "selectorfilter="  << selectorfilter  << endl;
+			if (selectorfilter != "*") f << "selectorfilter="  << selectorfilter  << endl;
 		}
-		if (iclock!=0          ) f << "clock="           << iclock          << endl;
-		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
-		if (!selectorbrowser   ) f << "selectorbrowser=false"               << endl;
-		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
-		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
+		if (iclock != 0              ) f << "clock="           << iclock          << endl;
+		if (!selectordir.empty()     ) f << "selectordir="     << selectordir     << endl;
+		if (!selectorbrowser         ) f << "selectorbrowser=false"               << endl;
+		if (!selectorscreens.empty() ) f << "selectorscreens=" << selectorscreens << endl;
+		if (!aliasfile.empty()       ) f << "selectoraliases=" << aliasfile       << endl;
 		f.close();
 		sync();
 		return true;
@@ -359,7 +359,7 @@ void LinkApp::drawRun() {
 	gmenu2x->s->rectangle(gmenu2x->halfX-halfBoxW, gmenu2x->halfY-21, boxW, 42, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 	int x = gmenu2x->halfX+10-halfBoxW;
-	/*if (getIcon()!="")
+	/*if (!getIcon().empty())
 		gmenu2x->sc[getIcon()]->blit(gmenu2x->s,x,104);
 	else
 		gmenu2x->sc["icons/generic.png"]->blit(gmenu2x->s,x,104);*/
@@ -369,7 +369,7 @@ void LinkApp::drawRun() {
 }
 
 void LinkApp::start() {
-	if (selectordir!="")
+	if (!selectordir.empty())
 		selector();
 	else
 		launch();
@@ -550,7 +550,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	drawRun();
 
-	if (selectedDir == "")
+	if (selectedDir.empty())
 		selectordir = getSelectorDir();
 	else
 		selectordir = selectedDir;
@@ -591,10 +591,10 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		}
 	}
 
-	if (selectedFile != "") {
+	if (!selectedFile.empty()) {
 		string path = cmdclean(selectordir + selectedFile);
 
-		if (params == "") {
+		if (params.empty()) {
 			params = path;
 		} else {
 			unsigned int i;
@@ -623,7 +623,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 			chmod( command.c_str(), newstat.st_mode );
 	} // else, well.. we are no worse off :)
 
-	if (params!="") command += " " + params;
+	if (!params.empty()) command += " " + params;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
 		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
@@ -638,7 +638,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 
 	gmenu2x->saveSelection();
 
-	if (selectedFile == "") {
+	if (selectedFile.empty()) {
 		gmenu2x->writeTmp();
 	}
 #ifdef ENABLE_CPUFREQ
@@ -729,7 +729,9 @@ const string &LinkApp::getSelectorDir() {
 
 void LinkApp::setSelectorDir(const string &selectordir) {
 	this->selectordir = selectordir;
-	if (this->selectordir!="" && this->selectordir[this->selectordir.length()-1]!='/') this->selectordir += "/";
+	if (!selectordir.empty() && selectordir[selectordir.length() - 1] != '/') {
+		this->selectordir += "/";
+	}
 	edited = true;
 }
 

@@ -82,7 +82,7 @@ int MessageBox::exec() {
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
 	for (uint i = 0; i < BUTTON_TYPE_SIZE; i++) {
-		if (buttons[i] != "") {
+		if (!buttons[i].empty()) {
 			buttonPositions[i].y = box.y+box.h-4;
 			buttonPositions[i].w = btnX;
 
@@ -101,8 +101,8 @@ int MessageBox::exec() {
 	while (result < 0) {
 		InputManager::ButtonEvent event;
 		if (gmenu2x->input.pollEvent(&event)
-				&& (event.state == InputManager::PRESSED)
-				&& (buttons[event.button] != "")) {
+				&& event.state == InputManager::PRESSED
+				&& !buttons[event.button].empty()) {
 			result = event.button;
 		}
 

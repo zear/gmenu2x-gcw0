@@ -36,7 +36,7 @@ SettingsDialog::SettingsDialog(
 	, ts(ts_)
 	, text(text_)
 {
-	if (icon != "" && gmenu2x->sc[icon] != NULL) {
+	if (!icon.empty() && gmenu2x->sc[icon] != NULL) {
 		this->icon = icon;
 	} else {
 		this->icon = "icons/generic.png";

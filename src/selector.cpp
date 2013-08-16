@@ -48,7 +48,7 @@ Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
 	this->link = link;
 	loadAliases();
 	selRow = 0;
-	if (selectorDir=="")
+	if (selectorDir.empty())
 		dir = link->getSelectorDir();
 	else
 		dir = selectorDir;
@@ -103,7 +103,8 @@ int Selector::exec(int startSelection) {
 			gmenu2x->s->box(1, iY, 309, 14, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Screenshot
-		if (selected-fl.dirCount()<screens.size() && screens[selected-fl.dirCount()]!="") {
+		if (selected-fl.dirCount()<screens.size()
+				&& !screens[selected-fl.dirCount()].empty()) {
 			curTick = SDL_GetTicks();
 			if (curTick - selTick > 200) {
 				gmenu2x->sc[screens[selected-fl.dirCount()]]->blitRight(
@@ -262,7 +263,9 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	titles->resize(fl->getFiles().size());
 
 	string screendir = link->getSelectorScreens();
-	if (screendir != "" && screendir[screendir.length()-1]!='/') screendir += "/";
+	if (!screendir.empty() && screendir[screendir.length() - 1] != '/') {
+		screendir += "/";
+	}
 
 	string noext;
 	string::size_type pos;
@@ -272,7 +275,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 		if (pos!=string::npos && pos>0)
 			noext = noext.substr(0, pos);
 		titles->at(i) = getAlias(noext);
-		if (titles->at(i)=="")
+		if (titles->at(i).empty())
 			titles->at(i) = noext;
 
 		DEBUG("Searching for screen '%s%s.png'\n", screendir.c_str(), noext.c_str());
@@ -286,7 +289,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 
 void Selector::freeScreenshots(vector<string> *screens) {
 	for (uint i=0; i<screens->size(); i++) {
-		if (screens->at(i) != "")
+		if (!screens->at(i).empty())
 			gmenu2x->sc.del(screens->at(i));
 	}
 }

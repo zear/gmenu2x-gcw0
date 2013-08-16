@@ -47,7 +47,7 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 	, inputMgr(inputMgr_)
 	, ts(ts_)
 {
-	if (title == "") {
+	if (title.empty()) {
 		this->title = text;
 		this->text = "";
 	} else {
@@ -55,7 +55,7 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 		this->text = text;
 	}
 	this->icon = "";
-	if (icon != "" && gmenu2x->sc[icon] != NULL) {
+	if (!icon.empty() && gmenu2x->sc[icon] != NULL) {
 		this->icon = icon;
 	}
 

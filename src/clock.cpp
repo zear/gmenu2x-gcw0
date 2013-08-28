@@ -2,6 +2,7 @@
 
 #include "debug.h"
 #include "inputmanager.h"
+#include "utilities.h"
 
 #include <SDL.h>
 #include <atomic>
@@ -43,20 +44,6 @@ static std::shared_ptr<Clock::Timer> globalTimerInstance()
 		timer->start();
 		return timer;
 	}
-}
-
-static void notify()
-{
-	SDL_UserEvent e = {
-		.type = SDL_USEREVENT,
-		.code = REPAINT_MENU,
-		.data1 = NULL,
-		.data2 = NULL,
-	};
-
-	/* Inject an user event, that will be handled as a "repaint"
-	 * event by the InputManager */
-	SDL_PushEvent((SDL_Event *) &e);
 }
 
 extern "C" Uint32 callbackFunc(Uint32 /*timeout*/, void */*d*/)
@@ -126,7 +113,8 @@ unsigned int Clock::Timer::update()
 unsigned int Clock::Timer::callback()
 {
 	unsigned int ms = update();
-	notify();
+	inject_user_event();
+
 	// TODO: SDL timer forgets adjusted interval if a timer was inserted or
 	//       removed during the callback. So we should either fix that bug
 	//       in SDL or ensure we don't insert/remove timers at runtime.

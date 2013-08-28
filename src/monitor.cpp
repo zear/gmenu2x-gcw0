@@ -10,19 +10,14 @@
 
 #include "inputmanager.h"
 #include "monitor.h"
+#include "utilities.h"
 
 void Monitor::inject_event(bool is_add, const char *path)
 {
-	SDL_UserEvent e = {
-		.type = SDL_USEREVENT,
-		.code = is_add ? OPEN_PACKAGE : REMOVE_LINKS,
-		.data1 = strdup(path),
-		.data2 = NULL,
-	};
-
-	/* Inject an user event, that will be handled as a "repaint"
-	 * event by the InputManager */
-	SDL_PushEvent((SDL_Event *) &e);
+	if (is_add)
+		inject_user_event(OPEN_PACKAGE, strdup(path));
+	else
+		inject_user_event(REMOVE_LINKS, strdup(path));
 }
 
 bool Monitor::event_accepted(struct inotify_event &event)
@@ -70,8 +65,7 @@ int Monitor::run(void)
 		if (!event_accepted(event))
 			continue;
 
-		inject_event(event.mask & (IN_MOVED_TO | IN_CLOSE_WRITE |
-						IN_CREATE), buf);
+		inject_event(event.mask & (IN_MOVED_TO | IN_CLOSE_WRITE | IN_CREATE), buf);
 	}
 
 	return 0;

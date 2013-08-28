@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <math.h>
 #include <fstream>
+#include <thread>
 #include <unistd.h>
 
 #ifdef HAVE_LIBOPK
@@ -79,23 +80,8 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	readLinks();
 
 #ifdef HAVE_LIBOPK
-	{
-		struct dirent *dptr;
-		DIR *dirp = opendir(CARD_ROOT);
-		if (dirp) {
-			while ((dptr = readdir(dirp))) {
-				if (dptr->d_type != DT_DIR)
-					continue;
-
-				if (!strcmp(dptr->d_name, ".") || !strcmp(dptr->d_name, ".."))
-					continue;
-
-				openPackagesFromDir((string) CARD_ROOT + "/" +
-							dptr->d_name + "/apps");
-			}
-			closedir(dirp);
-		}
-	}
+	std::thread t(&Menu::openAllPackages, this);
+	t.detach();
 #endif
 
 	orderLinks();
@@ -111,6 +97,27 @@ Menu::~Menu() {
 				it < monitors.end(); it++)
 		delete *it;
 }
+
+#ifdef HAVE_LIBOPK
+void Menu::openAllPackages(void)
+{
+	struct dirent *dptr;
+	DIR *dirp = opendir(CARD_ROOT);
+	if (dirp) {
+		while ((dptr = readdir(dirp))) {
+			if (dptr->d_type != DT_DIR)
+				continue;
+
+			if (!strcmp(dptr->d_name, ".") || !strcmp(dptr->d_name, ".."))
+				continue;
+
+			openPackagesFromDir((string) CARD_ROOT + "/" +
+						dptr->d_name + "/apps");
+		}
+		closedir(dirp);
+	}
+}
+#endif
 
 void Menu::readSections(std::string parentDir)
 {
@@ -751,6 +758,7 @@ void Menu::readPackages(std::string parentDir)
 		}
 
 		openPackage(parentDir + '/' + dptr->d_name, false);
+		inject_user_event(); // Notify the InputManager for a repaint
 	}
 
 	closedir(dirp);

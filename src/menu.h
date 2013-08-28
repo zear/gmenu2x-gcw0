@@ -105,7 +105,6 @@ public:
 #ifdef HAVE_LIBOPK
 	void openPackage(std::string path, bool order = true);
 	void openPackagesFromDir(std::string path);
-	void openAllPackages(void);
 #ifdef ENABLE_INOTIFY
 	void removePackageLink(std::string path);
 #endif

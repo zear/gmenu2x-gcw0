@@ -75,7 +75,8 @@ int Selector::exec(int startSelection) {
 		gmenu2x->drawButton(&bg, "left", "", 5)-10)));
 	} else {
 		gmenu2x->drawButton(&bg, "start", gmenu2x->tr["Exit"],
-		gmenu2x->drawButton(&bg, "accept", gmenu2x->tr["Select a file"], 5));
+		gmenu2x->drawButton(&bg, "cancel", "",
+		gmenu2x->drawButton(&bg, "accept", gmenu2x->tr["Select a file"], 5)) - 10);
 	}
 
 	bg.convertToDisplayFormat();
@@ -128,128 +129,75 @@ int Selector::exec(int startSelection) {
 		gmenu2x->drawScrollBar(SELECTOR_ELEMENTS, fl.size(), firstElement);
 		gmenu2x->s->flip();
 
-        switch (gmenu2x->input.waitForPressedButton()) {
-            case InputManager::SETTINGS:
-                close = true;
-                result = false;
-                break;
-            case InputManager::UP:
-                if (selected == 0) selected = fl.size() -1;
-                else selected -= 1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::ALTLEFT:
-                if ((int)(selected-SELECTOR_ELEMENTS+1)<0) selected = 0;
-                else selected -= SELECTOR_ELEMENTS-1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::DOWN:
-                if (selected+1>=fl.size()) selected = 0;
-                else selected += 1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::ALTRIGHT:
-                if (selected+SELECTOR_ELEMENTS-1>=fl.size()) selected = fl.size()-1;
-                else selected += SELECTOR_ELEMENTS-1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::CANCEL:
-            case InputManager::LEFT:
-                if (link->getSelectorBrowser()) {
-                    string::size_type p = dir.rfind("/", dir.size()-2);
-                    if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
-                        close = true;
-                        result = false;
-                    } else {
-                        dir = dir.substr(0,p+1);
-                        INFO("%s\n", dir.c_str());
-                        selected = 0;
-                        firstElement = 0;
-                        prepare(&fl,&screens,&titles);
-                    }
-                }
-                break;
-            case InputManager::ACCEPT:
-                if (fl.isFile(selected)) {
-                    file = fl[selected];
-                    close = true;
-                } else {
-                    dir = dir+fl[selected]+"/";
-                    selected = 0;
-                    firstElement = 0;
-                    prepare(&fl,&screens,&titles);
-                }
-                break;
-            default:
-                break;
-        }
+		switch (gmenu2x->input.waitForPressedButton()) {
+			case InputManager::SETTINGS:
+				close = true;
+				result = false;
+				break;
 
-        /*
-		gmenu2x->input.update();
-		if ( gmenu2x->input[ACTION_START] ) { close = true; result = false; }
-		if ( gmenu2x->input[ACTION_UP] ) {
-			if (selected==0) {
-				selected = fl.size()-1;
-			} else {
-				selected -= 1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_L] ) {
-			if ((int)(selected-SELECTOR_ELEMENTS+1)<0) {
-				selected = 0;
-			} else {
-				selected -= SELECTOR_ELEMENTS-1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_DOWN] ) {
-			if (selected+1>=fl.size()) {
-				selected = 0;
-			} else {
-				selected += 1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_R] ) {
-			if (selected+SELECTOR_ELEMENTS-1>=fl.size()) {
-				selected = fl.size()-1;
-			} else {
-				selected += SELECTOR_ELEMENTS-1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_X] ) {
-			if (link->getSelectorBrowser()) {
-				string::size_type p = dir.rfind("/", dir.size()-2);
-				if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
+			case InputManager::UP:
+				if (selected == 0) selected = fl.size() -1;
+				else selected -= 1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::ALTLEFT:
+				if ((int)(selected-SELECTOR_ELEMENTS+1)<0) selected = 0;
+				else selected -= SELECTOR_ELEMENTS-1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::DOWN:
+				if (selected+1>=fl.size()) selected = 0;
+				else selected += 1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::ALTRIGHT:
+				if (selected+SELECTOR_ELEMENTS-1>=fl.size()) selected = fl.size()-1;
+				else selected += SELECTOR_ELEMENTS-1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::CANCEL:
+				if (!link->getSelectorBrowser()) {
 					close = true;
 					result = false;
+					break;
+				}
+
+			case InputManager::LEFT:
+				if (link->getSelectorBrowser()) {
+					string::size_type p = dir.rfind("/", dir.size()-2);
+					if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
+						close = true;
+						result = false;
+					} else {
+						dir = dir.substr(0,p+1);
+						selected = 0;
+						firstElement = 0;
+						prepare(&fl,&screens,&titles);
+					}
+				}
+				break;
+
+			case InputManager::ACCEPT:
+				if (fl.isFile(selected)) {
+					file = fl[selected];
+					close = true;
 				} else {
-					dir = dir.substr(0,p+1);
-					INFO("%s\n", dir.c_str());
+					dir = dir+fl[selected]+"/";
 					selected = 0;
 					firstElement = 0;
 					prepare(&fl,&screens,&titles);
 				}
-			} else {
-				close = true;
-				result = false;
-			}
+				break;
+
+			default:
+				break;
 		}
-		if ( gmenu2x->input[ACTION_B] ) {
-			if (fl.isFile(selected)) {
-				file = fl[selected];
-				close = true;
-			} else {
-				dir = dir+fl[selected]+"/";
-				selected = 0;
-				firstElement = 0;
-				prepare(&fl,&screens,&titles);
-			}
-		}
-        */
 	}
+
 	gmenu2x->sc.defaultAlpha = true;
 	freeScreenshots(&screens);
 

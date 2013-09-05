@@ -213,6 +213,8 @@ public:
 
 	void drawTopBar(Surface *s);
 	void drawBottomBar(Surface *s);
+
+	Touchscreen &getTouchscreen() { return ts; }
 };
 
 #endif // GMENU2X_H

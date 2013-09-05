@@ -38,7 +38,7 @@ Base class that represents a link on screen.
 */
 class Link {
 public:
-	Link(GMenu2X *gmenu2x, Touchscreen &ts, function_t action);
+	Link(GMenu2X *gmenu2x, function_t action);
 	virtual ~Link() {};
 
 	bool isPressed();

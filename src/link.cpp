@@ -32,13 +32,15 @@
 using namespace std;
 
 
-Link::Link(GMenu2X *gmenu2x, Touchscreen &ts, function_t action)
+Link::Link(GMenu2X *gmenu2x, function_t action)
 	: gmenu2x(gmenu2x)
-	, ts(ts)
+	, ts(gmenu2x->getTouchscreen())
 	, action(action)
-	, rect((SDL_Rect) { 0, 0, 0, 0 })
 	, lastTick(0)
 {
+//	ts = gmenu2x->getTouchscreen();
+	rect.w = gmenu2x->skinConfInt["linkWidth"];
+	rect.h = gmenu2x->skinConfInt["linkHeight"];
 	edited = false;
 	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 	iconX = 0;

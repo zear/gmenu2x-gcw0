@@ -27,7 +27,6 @@
 
 class GMenu2X;
 class InputManager;
-class Touchscreen;
 
 /**
 Parses links files.
@@ -62,10 +61,10 @@ public:
 	bool isOpk() { return isOPK; }
 	const std::string &getOpkFile() { return opkFile; }
 
-	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
+	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr,
 				const char* linkfile, struct OPK *opk = NULL);
 #else
-	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
+	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr,
 			const char* linkfile);
 	bool isOpk() { return false; }
 #endif

@@ -57,14 +57,11 @@ using namespace std;
 static const char *tokens[] = { "%f", "%F", "%u", "%U", };
 
 #ifdef HAVE_LIBOPK
-LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
-				 const char* linkfile, struct OPK *opk)
+LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile, struct OPK *opk)
 #else
-LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
-				 const char* linkfile)
+LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 #endif
 	: Link(gmenu2x_, BIND(&LinkApp::start))
-	, inputMgr(inputMgr_)
 {
 	manual = "";
 	file = linkfile;
@@ -481,7 +478,7 @@ void LinkApp::showManual() {
 				repaint = false;
 			}
 
-            switch(inputMgr.waitForPressedButton()) {
+            switch(gmenu2x->input.waitForPressedButton()) {
 				case InputManager::SETTINGS:
                 case InputManager::CANCEL:
                     close = true;

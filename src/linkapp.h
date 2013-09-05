@@ -26,7 +26,6 @@
 #include <string>
 
 class GMenu2X;
-class InputManager;
 
 /**
 Parses links files.
@@ -35,7 +34,6 @@ Parses links files.
 */
 class LinkApp : public Link {
 private:
-	InputManager &inputMgr;
 	std::string sclock;
 	int iclock;
 	std::string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens;
@@ -61,11 +59,9 @@ public:
 	bool isOpk() { return isOPK; }
 	const std::string &getOpkFile() { return opkFile; }
 
-	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr,
-				const char* linkfile, struct OPK *opk = NULL);
+	LinkApp(GMenu2X *gmenu2x, const char* linkfile, struct OPK *opk = NULL);
 #else
-	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr,
-			const char* linkfile);
+	LinkApp(GMenu2X *gmenu2x, const char* linkfile);
 	bool isOpk() { return false; }
 #endif
 

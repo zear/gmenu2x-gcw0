@@ -48,8 +48,13 @@ InputManager::InputManager()
 		return;
 	}
 
-	for (i = 0; i < SDL_NumJoysticks(); i++)
-		joysticks.push_back(SDL_JoystickOpen(i));
+	for (i = 0; i < SDL_NumJoysticks(); i++) {
+		struct Joystick joystick = {
+			SDL_JoystickOpen(i), false, false, false, false,
+		};
+		joysticks.push_back(joystick);
+	}
+
 	DEBUG("Opening %i joysticks\n", i);
 #endif
 }
@@ -57,9 +62,8 @@ InputManager::InputManager()
 InputManager::~InputManager()
 {
 #ifndef SDL_JOYSTICK_DISABLED
-	for (std::vector<SDL_Joystick *>::iterator it = joysticks.begin();
-				it < joysticks.end(); it++)
-		SDL_JoystickClose(*it);
+	for (auto it : joysticks)
+		SDL_JoystickClose(it.joystick);
 #endif
 }
 
@@ -130,8 +134,6 @@ bool InputManager::getButton(Button *button, bool wait) {
 	//TODO: when an event is processed, program a new event
 	//in some time, and when it occurs, do a key repeat
 
-	int i;
-
 #ifndef SDL_JOYSTICK_DISABLED
 	if (joysticks.size() > 0)
 		SDL_JoystickUpdate();
@@ -152,6 +154,34 @@ bool InputManager::getButton(Button *button, bool wait) {
 		case SDL_JOYBUTTONDOWN:
 			source = JOYSTICK;
 			break;
+		case SDL_JOYAXISMOTION: {
+				source = JOYSTICK;
+
+				unsigned int axis = event.jaxis.axis;
+				/* We only handle the first joystick */
+				if (axis > 1)
+					return false;
+
+				bool *axisState = joysticks[event.jaxis.which].axisState[axis];
+
+				if (event.jaxis.value < -20000) {
+					if (axisState[AXIS_STATE_NEGATIVE])
+						return false;
+					axisState[AXIS_STATE_NEGATIVE] = true;
+					axisState[AXIS_STATE_POSITIVE] = false;
+					*button = axis ? UP : LEFT;
+				} else if (event.jaxis.value > 20000) {
+					if (axisState[AXIS_STATE_POSITIVE])
+						return false;
+					axisState[AXIS_STATE_NEGATIVE] = false;
+					axisState[AXIS_STATE_POSITIVE] = true;
+					*button = axis ? DOWN : RIGHT;
+				} else {
+					axisState[0] = axisState[1] = false;
+					return false;
+				}
+				break;
+			}
 #endif
 		case SDL_USEREVENT:
 			switch ((enum EventCode) event.user.code) {
@@ -180,6 +210,7 @@ bool InputManager::getButton(Button *button, bool wait) {
 			return false;
 	}
 
+	int i = 0;
 	if (source == KEYBOARD) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == KEYBOARD
@@ -189,7 +220,7 @@ bool InputManager::getButton(Button *button, bool wait) {
 			}
 		}
 #ifndef SDL_JOYSTICK_DISABLED
-	} else if (source == JOYSTICK) {
+	} else if (source == JOYSTICK && event.type != SDL_JOYAXISMOTION) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == JOYSTICK
 					&& (unsigned int)event.jbutton.button == buttonMap[i].code) {

@@ -66,7 +66,14 @@ private:
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED
-	std::vector<SDL_Joystick *> joysticks;
+#define AXIS_STATE_POSITIVE 0
+#define AXIS_STATE_NEGATIVE 1
+	struct Joystick {
+		SDL_Joystick *joystick;
+		bool axisState[2][2];
+	};
+
+	std::vector<Joystick> joysticks;
 #endif
 };
 

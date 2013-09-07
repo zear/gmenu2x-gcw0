@@ -185,14 +185,10 @@ int Selector::exec(int startSelection) {
 				if (fl.isFile(selected)) {
 					file = fl[selected];
 					close = true;
-
-					char *buf = realpath(file.c_str(), NULL);
-					file = buf;
-					free(buf);
 				} else {
-					dir = dir+fl[selected]+"/";
+					dir = dir+fl[selected];
 					char *buf = realpath(dir.c_str(), NULL);
-					dir = buf;
+					dir = (string) buf + '/';
 					free(buf);
 
 					selected = 0;

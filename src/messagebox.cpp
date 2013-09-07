@@ -99,11 +99,10 @@ int MessageBox::exec() {
 
 	int result = -1;
 	while (result < 0) {
-		InputManager::ButtonEvent event;
-		if (gmenu2x->input.pollEvent(&event)
-				&& event.state == InputManager::PRESSED
-				&& !buttons[event.button].empty()) {
-			result = event.button;
+		InputManager::Button button;
+		if (gmenu2x->input.pollButton(&button)
+				&& !buttons[button].empty()) {
+			result = button;
 		}
 
 		usleep(LOOP_DELAY);

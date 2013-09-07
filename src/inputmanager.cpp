@@ -117,20 +117,16 @@ void InputManager::readConfFile(const string &conffile) {
 }
 
 InputManager::Button InputManager::waitForPressedButton() {
-	ButtonEvent event;
-	while (!waitForEvent(&event) || event.state != PRESSED);
-	return event.button;
+	Button button;
+	while (!getButton(&button, true));
+	return button;
 }
 
-bool InputManager::waitForEvent(ButtonEvent *event) {
-	return getEvent(event, true);
+bool InputManager::pollButton(Button *button) {
+	return getButton(button, false);
 }
 
-bool InputManager::pollEvent(ButtonEvent *event) {
-	return getEvent(event, false);
-}
-
-bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
+bool InputManager::getButton(Button *button, bool wait) {
 	//TODO: when an event is processed, program a new event
 	//in some time, and when it occurs, do a key repeat
 
@@ -142,32 +138,18 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 #endif
 
 	SDL_Event event;
-	if (wait) {
+	if (wait)
 		SDL_WaitEvent(&event);
-	} else {
-		bevent->state = RELEASED;
-		if (!SDL_PollEvent(&event)) {
-			return false;
-		}
-	}
+	else if (!SDL_PollEvent(&event))
+		return false;
 
 	ButtonSource source;
 	switch(event.type) {
 		case SDL_KEYDOWN:
-			bevent->state = PRESSED;
-			source = KEYBOARD;
-			break;
-		case SDL_KEYUP:
-			bevent->state = RELEASED;
 			source = KEYBOARD;
 			break;
 #ifndef SDL_JOYSTICK_DISABLED
 		case SDL_JOYBUTTONDOWN:
-			bevent->state = PRESSED;
-			source = JOYSTICK;
-			break;
-		case SDL_JOYBUTTONUP:
-			bevent->state = RELEASED;
 			source = JOYSTICK;
 			break;
 #endif
@@ -191,8 +173,7 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 
 			if (event.user.data1)
 				free(event.user.data1);
-			bevent->state = PRESSED;
-			bevent->button = REPAINT;
+			*button = REPAINT;
 			return true;
 
 		default:
@@ -203,7 +184,7 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == KEYBOARD
 					&& (unsigned int)event.key.keysym.sym == buttonMap[i].code) {
-				bevent->button = static_cast<Button>(i);
+				*button = static_cast<Button>(i);
 				break;
 			}
 		}
@@ -212,7 +193,7 @@ bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == JOYSTICK
 					&& (unsigned int)event.jbutton.button == buttonMap[i].code) {
-				bevent->button = static_cast<Button>(i);
+				*button = static_cast<Button>(i);
 				break;
 			}
 		}

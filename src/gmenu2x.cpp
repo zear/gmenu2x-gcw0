@@ -628,17 +628,15 @@ void GMenu2X::main() {
 		}
 
 		// Handle other input events.
-		InputManager::ButtonEvent event;
+		InputManager::Button button;
 		bool gotEvent;
 		const bool wait = !animating;
 		do {
-			do {
-				gotEvent = input.getEvent(&event, wait);
-			} while (gotEvent && event.state != InputManager::PRESSED);
+			gotEvent = input.getButton(&button, wait);
 		} while (wait && !gotEvent);
 		if (gotEvent) {
 			for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
-				if ((*it)->handleButtonPress(event.button)) {
+				if ((*it)->handleButtonPress(button)) {
 					break;
 				}
 			}

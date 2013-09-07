@@ -45,22 +45,17 @@ public:
 	};
 	#define BUTTON_TYPE_SIZE 10
 
-	enum ButtonState { PRESSED, RELEASED };
-	struct ButtonEvent {
-		Button button;
-		ButtonState state;
-	};
-
 	InputManager();
 	~InputManager();
 
 	void init(const std::string &conffile, Menu *menu);
-	bool waitForEvent(ButtonEvent *event);
 	Button waitForPressedButton();
-	bool pollEvent(ButtonEvent *event);
-	bool getEvent(ButtonEvent *bevent, bool wait);
+	bool pollButton(Button *button);
+	bool getButton(Button *button, bool wait);
 
 private:
+	void readConfFile(const std::string &conffile);
+
 	enum ButtonSource { UNMAPPED, KEYBOARD, JOYSTICK };
 	struct ButtonMapEntry {
 		ButtonSource source;
@@ -68,8 +63,6 @@ private:
 	};
 
 	Menu *menu;
-
-	void readConfFile(const std::string &conffile);
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED

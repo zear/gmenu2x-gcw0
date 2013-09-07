@@ -259,11 +259,6 @@ GMenu2X::GMenu2X()
 #ifdef ENABLE_CPUFREQ
 	setClock(confInt["menuClock"]);
 #endif
-	//recover last session
-	readTmp();
-	if (lastSelectorElement>-1 && menu->selLinkApp()!=NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
-		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
-
 }
 
 GMenu2X::~GMenu2X() {
@@ -591,6 +586,13 @@ void GMenu2X::main() {
 		CARD_ROOT = "";
 
 	appToLaunch = nullptr;
+
+	// Recover last session
+	readTmp();
+	if (lastSelectorElement > -1 && menu->selLinkApp() &&
+				(!menu->selLinkApp()->getSelectorDir().empty()
+				 || !lastSelectorDir.empty()))
+		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
 
 	while (true) {
 		// Remove dismissed layers from the stack.

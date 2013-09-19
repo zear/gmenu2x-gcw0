@@ -107,9 +107,10 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 Menu::~Menu() {
 	freeLinks();
 
-	for (vector<Monitor *>::iterator it = monitors.begin();
-				it < monitors.end(); it++)
-		delete *it;
+#ifdef ENABLE_INOTIFY
+	for (auto it : monitors)
+		delete it;
+#endif
 }
 
 void Menu::readSections(std::string parentDir)

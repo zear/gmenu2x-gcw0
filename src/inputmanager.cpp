@@ -185,6 +185,7 @@ bool InputManager::getButton(Button *button, bool wait) {
 #endif
 		case SDL_USEREVENT:
 			switch ((enum EventCode) event.user.code) {
+#ifdef HAVE_LIBOPK
 				case REMOVE_LINKS:
 					menu->removePackageLink((const char *) event.user.data1);
 					break;
@@ -196,6 +197,7 @@ bool InputManager::getButton(Button *button, bool wait) {
 								((string) (const char *) event.user.data1
 								 + "/apps").c_str());
 					break;
+#endif /* HAVE_LIBOPK */
 				case REPAINT_MENU:
 				default:
 					break;

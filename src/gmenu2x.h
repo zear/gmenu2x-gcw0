@@ -71,7 +71,9 @@ class GMenu2X {
 private:
 	Touchscreen ts;
 	std::shared_ptr<Menu> menu;
+#ifdef ENABLE_INOTIFY
 	MediaMonitor *monitor;
+#endif
 
 	LinkApp *appToLaunch;
 	std::string fileToLaunch;

@@ -231,7 +231,9 @@ GMenu2X::GMenu2X()
 	layers.insert(layers.begin(), make_shared<Background>(*this));
 	initMenu();
 
+#ifdef ENABLE_INOTIFY
 	monitor = new MediaMonitor(CARD_ROOT);
+#endif
 
 	if (!fileExists(confStr["wallpaper"])) {
 		DEBUG("No wallpaper defined; we will take the default one.\n");
@@ -267,7 +269,9 @@ GMenu2X::~GMenu2X() {
 	quit();
 
 	delete font;
+#ifdef ENABLE_INOTIFY
 	delete monitor;
+#endif
 }
 
 void GMenu2X::quit() {

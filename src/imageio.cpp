@@ -12,6 +12,17 @@
 #include <png.h>
 #include <cassert>
 
+#ifdef HAVE_LIBOPK
+#include <opk.h>
+
+static void __readFromOpk(png_structp png_ptr, png_bytep ptr, png_size_t length)
+{
+	char **buf = (char **) png_get_io_ptr(png_ptr);
+
+	memcpy(ptr, *buf, length);
+	*buf += length;
+}
+#endif
 
 SDL_Surface *loadPNG(const std::string &path) {
 	// Declare these with function scope and initialize them to NULL,
@@ -20,6 +31,11 @@ SDL_Surface *loadPNG(const std::string &path) {
 	FILE *fp = NULL;
 	png_structp png = NULL;
 	png_infop info = NULL;
+#ifdef HAVE_LIBOPK
+	std::string::size_type pos;
+	struct OPK *opk = NULL;
+	void *buffer = NULL, *param;
+#endif
 
 	// Create and initialize the top-level libpng struct.
 	png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -37,11 +53,40 @@ SDL_Surface *loadPNG(const std::string &path) {
 		goto cleanup;
 	}
 
-	// Open input file.
-	fp = fopen(path.c_str(), "rb");
-	if (!fp) goto cleanup;
-	// Set up the input control if you are using standard C streams.
-	png_init_io(png, fp);
+#ifdef HAVE_LIBOPK
+	pos = path.find('#');
+	if (pos != path.npos) {
+		int ret;
+		size_t length;
+
+		DEBUG("Registering specific callback for icon %s\n", path.c_str());
+
+		opk = opk_open(path.substr(0, pos).c_str());
+		if (!opk) {
+			ERROR("Unable to open OPK\n");
+			goto cleanup;
+		}
+
+		ret = opk_extract_file(opk, path.substr(pos + 1).c_str(),
+					&buffer, &length);
+		if (ret < 0) {
+			ERROR("Unable to extract icon from OPK\n");
+			goto cleanup;
+		}
+
+		param = buffer;
+
+		png_set_read_fn(png, &param, __readFromOpk);
+	} else {
+#else
+	if (1) {
+#endif /* HAVE_LIBOPK */
+		fp = fopen(path.c_str(), "rb");
+		if (!fp) goto cleanup;
+
+		// Set up the input control if you are using standard C streams.
+		png_init_io(png, fp);
+	}
 
 	// The call to png_read_info() gives us all of the information from the
 	// PNG file before the first IDAT (image data chunk).
@@ -117,6 +162,12 @@ cleanup:
 	// Clean up.
 	png_destroy_read_struct(&png, &info, NULL);
 	if (fp) fclose(fp);
+#ifdef HAVE_LIBOPK
+	if (buffer)
+		free(buffer);
+	if (opk)
+		opk_close(opk);
+#endif
 
 	return surface;
 }

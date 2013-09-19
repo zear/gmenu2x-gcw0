@@ -26,8 +26,6 @@
 #include <string>
 
 class GMenu2X;
-class InputManager;
-class Touchscreen;
 
 /**
 Parses links files.
@@ -36,29 +34,40 @@ Parses links files.
 */
 class LinkApp : public Link {
 private:
-	InputManager &inputMgr;
 	std::string sclock;
 	int iclock;
 	std::string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens;
-	bool selectorbrowser, useRamTimings;
-	void drawRun();
+	bool selectorbrowser, editable;
 
 	std::string aliasfile;
 	std::string file;
 
 	bool dontleave;
+#ifdef HAVE_LIBOPK
+	bool isOPK;
+	std::string opkMount, opkFile, category;
+#endif
 
 	void start();
-	void launch(
-			const std::string &selectedFile = "",
-			const std::string &selectedDir = "");
 
-public:
-	LinkApp(GMenu2X *gmenu2x, Touchscreen &ts, InputManager &inputMgr,
-			const char* linkfile);
+protected:
 	virtual const std::string &searchIcon();
 
-#ifdef PLATFORM_DINGUX
+public:
+#ifdef HAVE_LIBOPK
+	const std::string &getCategory() { return category; }
+	bool isOpk() { return isOPK; }
+	const std::string &getOpkFile() { return opkFile; }
+
+	LinkApp(GMenu2X *gmenu2x, const char* linkfile, struct OPK *opk = NULL);
+#else
+	LinkApp(GMenu2X *gmenu2x, const char* linkfile);
+	bool isOpk() { return false; }
+#endif
+
+	virtual void loadIcon();
+
+#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	bool consoleApp;
 #endif
 
@@ -87,10 +96,13 @@ public:
 	void showManual();
 	void selector(int startSelection=0, const std::string &selectorDir="");
 	bool targetExists();
+	bool isEditable() { return editable; }
 
 	const std::string &getFile() { return file; }
 	void renameFile(const std::string &name);
-	bool &runsInBackgroundRef() { return dontleave; }
+
+	void drawRun();
+	void launch(const std::string &selectedFile);
 };
 
 #endif

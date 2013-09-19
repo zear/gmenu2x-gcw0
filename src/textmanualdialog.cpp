@@ -21,6 +21,7 @@
 #include "textmanualdialog.h"
 
 #include "gmenu2x.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <algorithm>
@@ -57,10 +58,10 @@ TextManualDialog::TextManualDialog(GMenu2X *gmenu2x, const string &title, const 
 	for (uint page=0; page<pages.size(); page++) {
 		if (pages[page].text.size() > 0) {
 			//first lines
-			while (trim(pages[page].text[0])=="")
+			while (trim(pages[page].text[0]).empty())
 				pages[page].text.erase(pages[page].text.begin());
 			//last lines
-			while (trim(pages[page].text[pages[page].text.size()-1])=="")
+			while (trim(pages[page].text[pages[page].text.size()-1]).empty())
 				pages[page].text.erase(pages[page].text.end());
 		}
 	}
@@ -98,13 +99,13 @@ void TextManualDialog::exec() {
 	while (!close) {
 		bg.blit(gmenu2x->s,0,0);
 		writeSubTitle(pages[page].title);
-		drawText(&pages[page].text, firstRow, rowsPerPage);
+		drawText(&pages[page].text, 42 /* TODO */, firstRow, rowsPerPage);
 
 		ss.clear();
 		ss << page+1;
 		ss >> pageStatus;
 		pageStatus = gmenu2x->tr["Page"]+": "+pageStatus+"/"+spagecount;
-		gmenu2x->s->write(gmenu2x->font, pageStatus, 310, 230, ASFont::HAlignRight, ASFont::VAlignMiddle);
+		gmenu2x->s->write(gmenu2x->font, pageStatus, 310, 230, Font::HAlignRight, Font::VAlignMiddle);
 
 		gmenu2x->s->flip();
 
@@ -133,7 +134,7 @@ void TextManualDialog::exec() {
 				break;
 			case InputManager::ALTRIGHT:
 				if (firstRow + rowsPerPage*2 -1 < pages[page].text.size()) firstRow += rowsPerPage-1;
-				else firstRow = max(0u, pages[page].text.size() - rowsPerPage);
+				else firstRow = max(0ul, (unsigned long) (pages[page].text.size() - rowsPerPage));
 				break;
 			case InputManager::CANCEL:
 			case InputManager::SETTINGS:

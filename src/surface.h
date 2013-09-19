@@ -21,7 +21,7 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
-#include "asfont.h"
+#include "font.h"
 
 #include <SDL.h>
 #include <string>
@@ -52,8 +52,8 @@ public:
 	  */
 	void convertToDisplayFormat();
 
-	int width() { return raw->w; }
-	int height() { return raw->h; }
+	int width() const { return raw->w; }
+	int height() const { return raw->h; }
 
 	void flip();
 
@@ -61,14 +61,14 @@ public:
 	void setClipRect(int x, int y, int w, int h);
 	void setClipRect(SDL_Rect rect);
 
-	bool blit(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blit(Surface *destination, SDL_Rect container, ASFont::HAlign halign = ASFont::HAlignLeft, ASFont::VAlign valign = ASFont::VAlignTop);
-	bool blitCenter(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitRight(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	bool blit(Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+	bool blit(Surface *destination, SDL_Rect container, Font::HAlign halign = Font::HAlignLeft, Font::VAlign valign = Font::VAlignTop) const;
+	bool blitCenter(Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+	bool blitRight(Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
 
-	void write(ASFont *font, const std::string &text, int x, int y,
-			ASFont::HAlign halign = ASFont::HAlignLeft,
-			ASFont::VAlign valign = ASFont::VAlignTop) {
+	void write(Font *font, const std::string &text, int x, int y,
+			Font::HAlign halign = Font::HAlignLeft,
+			Font::VAlign valign = Font::VAlignTop) {
 		font->write(this, text, x, y, halign, valign);
 	}
 
@@ -83,16 +83,16 @@ public:
 
 private:
 	Surface(SDL_Surface *raw, bool freeWhenDone);
-	bool blit(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitCenter(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitRight(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	bool blit(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+	bool blitCenter(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
+	bool blitRight(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1) const;
 
 	SDL_Surface *raw;
 	bool freeWhenDone;
 	int halfW, halfH;
 
 	// For direct access to "raw".
-	friend class ASFont;
+	friend class Font;
 };
 
 #endif

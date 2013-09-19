@@ -23,6 +23,16 @@
 
 #include <SDL.h>
 #include <string>
+#include <vector>
+
+class Menu;
+
+enum EventCode {
+	REMOVE_LINKS,
+	OPEN_PACKAGE,
+	OPEN_PACKAGES_FROM_DIR,
+	REPAINT_MENU,
+};
 
 class InputManager {
 public:
@@ -31,40 +41,39 @@ public:
 		ACCEPT, CANCEL,
 		ALTLEFT, ALTRIGHT,
 		MENU, SETTINGS,
-		VOLUP, VOLDOWN,
-		POWER, LOCK
+		REPAINT,
 	};
-	#define BUTTON_TYPE_SIZE 14
-
-	enum ButtonState { PRESSED, RELEASED };
-	struct ButtonEvent {
-		Button button;
-		ButtonState state;
-	};
+	#define BUTTON_TYPE_SIZE 10
 
 	InputManager();
 	~InputManager();
 
-	void init(const std::string &conffile);
-	bool waitForEvent(ButtonEvent *event);
+	void init(const std::string &conffile, Menu *menu);
 	Button waitForPressedButton();
-	Button waitForReleasedButton();
-	bool pollEvent(ButtonEvent *event);
+	bool pollButton(Button *button);
+	bool getButton(Button *button, bool wait);
 
 private:
+	void readConfFile(const std::string &conffile);
+
 	enum ButtonSource { UNMAPPED, KEYBOARD, JOYSTICK };
 	struct ButtonMapEntry {
 		ButtonSource source;
 		unsigned int code;
 	};
 
-	void readConfFile(const std::string &conffile);
-	bool getEvent(ButtonEvent *bevent, bool wait);
-	Button waitForButton(ButtonState state);
+	Menu *menu;
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED
-	SDL_Joystick *joystick;
+#define AXIS_STATE_POSITIVE 0
+#define AXIS_STATE_NEGATIVE 1
+	struct Joystick {
+		SDL_Joystick *joystick;
+		bool axisState[2][2];
+	};
+
+	std::vector<Joystick> joysticks;
 #endif
 };
 

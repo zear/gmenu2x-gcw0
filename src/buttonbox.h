@@ -4,7 +4,7 @@
 #include <vector>
 
 class GMenu2X;
-class Button;
+class IconButton;
 
 class ButtonBox
 {
@@ -12,15 +12,14 @@ public:
 	ButtonBox(GMenu2X *gmenu2x);
 	~ButtonBox();
 
-	void add(Button *button);
+	void add(IconButton *button);
 	void clear();
 
 	void paint(unsigned int posX);
 	void handleTS();
-private:
-	typedef std::vector<Button*> ButtonList;
 
-	ButtonList buttons;
+private:
+	std::vector<IconButton*> buttons;
 	GMenu2X *gmenu2x;
 };
 

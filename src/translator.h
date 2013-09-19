@@ -22,7 +22,7 @@
 #define TRANSLATOR_H
 
 #include <string>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 /**
 Hash Map of translation strings.
@@ -32,7 +32,7 @@ Hash Map of translation strings.
 class Translator {
 private:
 	std::string _lang;
-	std::tr1::unordered_map<std::string, std::string> translations;
+	std::unordered_map<std::string, std::string> translations;
 
 public:
 	Translator(const std::string &lang="");

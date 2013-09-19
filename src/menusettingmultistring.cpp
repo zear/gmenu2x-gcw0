@@ -17,17 +17,17 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+#include "delegate.h"
 #include "menusettingmultistring.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
-#include "FastDelegate.h"
 
 #include <algorithm>
 
 using std::find;
 using std::string;
 using std::vector;
-using fastdelegate::MakeDelegate;
 
 MenuSettingMultiString::MenuSettingMultiString(
 		GMenu2X *gmenu2x, Touchscreen &ts,
@@ -41,11 +41,11 @@ MenuSettingMultiString::MenuSettingMultiString(
 	IconButton *btn;
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/left.png");
-	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::decSel));
+	btn->setAction(BIND(&MenuSettingMultiString::decSel));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
+	btn->setAction(BIND(&MenuSettingMultiString::incSel));
 	buttonBox.add(btn);
 }
 

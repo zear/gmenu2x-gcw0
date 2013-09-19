@@ -77,24 +77,24 @@ void TextDialog::preProcess() {
 	}
 }
 
-void TextDialog::drawText(vector<string> *text, unsigned firstRow,
-		unsigned rowsPerPage) {
-	gmenu2x->s->setClipRect(0,41,gmenu2x->resX-10,gmenu2x->resY-60);
+void TextDialog::drawText(vector<string> *text, unsigned int y,
+		unsigned int firstRow, unsigned int rowsPerPage)
+{
+	const int fontHeight = gmenu2x->font->getHeight();
 
-	for (unsigned i=firstRow; i<firstRow+rowsPerPage && i<text->size(); i++) {
-		int rowY;
-		if (text->at(i)=="----") { //draw a line
-			rowY = 42+(int)((i-firstRow+0.5)*gmenu2x->font->getHeight());
-			gmenu2x->s->hline(5,rowY,gmenu2x->resX-16,255,255,255,130);
-			gmenu2x->s->hline(5,rowY+1,gmenu2x->resX-16,0,0,0,130);
+	for (unsigned i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
+		const string &line = text->at(i);
+		int rowY = y + (i - firstRow) * fontHeight;
+		if (line == "----") { // horizontal ruler
+			rowY += fontHeight / 2;
+			gmenu2x->s->hline(5, rowY, gmenu2x->resX - 16, 255, 255, 255, 130);
+			gmenu2x->s->hline(5, rowY+1, gmenu2x->resX - 16, 0, 0, 0, 130);
 		} else {
-			rowY = 42+(i-firstRow)*gmenu2x->font->getHeight();
-			gmenu2x->font->write(gmenu2x->s, text->at(i), 5, rowY);
+			gmenu2x->font->write(gmenu2x->s, line, 5, rowY);
 		}
 	}
 
-	gmenu2x->s->clearClipRect();
-	gmenu2x->drawScrollBar(rowsPerPage,text->size(),firstRow,42,gmenu2x->resY-65);
+	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow);
 }
 
 void TextDialog::exec() {
@@ -117,11 +117,16 @@ void TextDialog::exec() {
 
 	bg.convertToDisplayFormat();
 
+	const int fontHeight = gmenu2x->font->getHeight();
+	unsigned int contentY, contentHeight;
+	tie(contentY, contentHeight) = gmenu2x->getContentArea();
+	const unsigned rowsPerPage = contentHeight / fontHeight;
+	contentY += (contentHeight % fontHeight) / 2;
+
 	unsigned firstRow = 0;
-	unsigned rowsPerPage = (gmenu2x->resY - 60) / gmenu2x->font->getHeight();
 	while (!close) {
 		bg.blit(gmenu2x->s, 0, 0);
-		drawText(text, firstRow, rowsPerPage);
+		drawText(text, contentY, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
 
 		switch(gmenu2x->input.waitForPressedButton()) {
@@ -139,7 +144,7 @@ void TextDialog::exec() {
 				if (firstRow + rowsPerPage*2 -1 < text->size()) {
 					firstRow += rowsPerPage-1;
 				} else {
-					firstRow = max(0u, text->size() - rowsPerPage);
+					firstRow = max(0ul, (unsigned long) (text->size() - rowsPerPage));
 				}
 				break;
 			case InputManager::SETTINGS:

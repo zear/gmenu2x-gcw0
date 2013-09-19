@@ -36,7 +36,7 @@ SettingsDialog::SettingsDialog(
 	, ts(ts_)
 	, text(text_)
 {
-	if (icon != "" && gmenu2x->sc[icon] != NULL) {
+	if (!icon.empty() && gmenu2x->sc[icon] != NULL) {
 		this->icon = icon;
 	} else {
 		this->icon = "icons/generic.png";
@@ -122,9 +122,7 @@ bool SettingsDialog::exec() {
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(
-			numRows, voices.size(), firstElement, clipRect.y + 1, clipRect.h
-		);
+		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement);
 
 		//description
 		writeSubTitle(voices[sel]->getDescription());

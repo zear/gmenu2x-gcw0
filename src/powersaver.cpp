@@ -36,14 +36,12 @@ bool PowerSaver::isRunning() {
 }
 
 PowerSaver::PowerSaver() {
-	SDL_InitSubSystem(SDL_INIT_TIMER);
 	setScreenTimeout(0);
 	screenTimer = NULL;
 }
 
 PowerSaver::~PowerSaver() {
 	SDL_RemoveTimer(screenTimer);
-	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	instance = NULL;
 }
 

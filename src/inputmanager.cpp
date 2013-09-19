@@ -22,13 +22,16 @@
 #include "inputmanager.h"
 #include "utilities.h"
 #include "powersaver.h"
+#include "menu.h"
 
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-void InputManager::init(const string &conffile) {
+void InputManager::init(const string &conffile, Menu *menu) {
+	this->menu = menu;
+
 	for (int i = 0; i < BUTTON_TYPE_SIZE; i++) {
 		buttonMap[i].source = UNMAPPED;
 	}
@@ -38,19 +41,29 @@ void InputManager::init(const string &conffile) {
 InputManager::InputManager()
 {
 #ifndef SDL_JOYSTICK_DISABLED
-	if (SDL_NumJoysticks() > 0) {
-		joystick = SDL_JoystickOpen(0);
-	} else {
-		joystick = NULL;
+	int i;
+
+	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0) {
+		ERROR("Unable to init joystick subsystem\n");
+		return;
 	}
+
+	for (i = 0; i < SDL_NumJoysticks(); i++) {
+		struct Joystick joystick = {
+			SDL_JoystickOpen(i), false, false, false, false,
+		};
+		joysticks.push_back(joystick);
+	}
+
+	DEBUG("Opening %i joysticks\n", i);
 #endif
 }
 
-InputManager::~InputManager() {
+InputManager::~InputManager()
+{
 #ifndef SDL_JOYSTICK_DISABLED
-	if (joystick) {
-		SDL_JoystickClose(joystick);
-	}
+	for (auto it : joysticks)
+		SDL_JoystickClose(it.joystick);
 #endif
 }
 
@@ -78,10 +91,6 @@ void InputManager::readConfFile(const string &conffile) {
 		else if (name == "altright") button = ALTRIGHT;
 		else if (name == "menu")     button = MENU;
 		else if (name == "settings") button = SETTINGS;
-		else if (name == "volup")    button = VOLUP;
-		else if (name == "voldown")  button = VOLDOWN;
-		else if (name == "power")    button = POWER;
-		else if (name == "lock")     button = LOCK;
 		else {
 			WARNING("InputManager: Ignoring unknown button name \"%s\"\n",
 					name.c_str());
@@ -112,86 +121,112 @@ void InputManager::readConfFile(const string &conffile) {
 }
 
 InputManager::Button InputManager::waitForPressedButton() {
-	return waitForButton(PRESSED);
+	Button button;
+	while (!getButton(&button, true));
+	return button;
 }
 
-InputManager::Button InputManager::waitForReleasedButton() {
-	return waitForButton(RELEASED);
+bool InputManager::pollButton(Button *button) {
+	return getButton(button, false);
 }
 
-InputManager::Button InputManager::waitForButton(ButtonState state) {
-	ButtonEvent event;
-	while (!waitForEvent(&event) || event.state != state);
-	return event.button;
-}
-
-bool InputManager::waitForEvent(ButtonEvent *event) {
-	return getEvent(event, true);
-}
-
-bool InputManager::pollEvent(ButtonEvent *event) {
-	return getEvent(event, false);
-}
-
-bool InputManager::getEvent(ButtonEvent *bevent, bool wait) {
+bool InputManager::getButton(Button *button, bool wait) {
 	//TODO: when an event is processed, program a new event
 	//in some time, and when it occurs, do a key repeat
 
-	int i;
-
 #ifndef SDL_JOYSTICK_DISABLED
-	if (joystick) {
+	if (joysticks.size() > 0)
 		SDL_JoystickUpdate();
-	}
 #endif
+
 	SDL_Event event;
-	if (wait) {
+	if (wait)
 		SDL_WaitEvent(&event);
-	} else {
-		bevent->state = RELEASED;
-		if (!SDL_PollEvent(&event)) {
-			return false;
-		}
-	}
+	else if (!SDL_PollEvent(&event))
+		return false;
 
 	ButtonSource source;
 	switch(event.type) {
 		case SDL_KEYDOWN:
-			bevent->state = PRESSED;
-			source = KEYBOARD;
-			break;
-		case SDL_KEYUP:
-			bevent->state = RELEASED;
 			source = KEYBOARD;
 			break;
 #ifndef SDL_JOYSTICK_DISABLED
 		case SDL_JOYBUTTONDOWN:
-			bevent->state = PRESSED;
 			source = JOYSTICK;
 			break;
-		case SDL_JOYBUTTONUP:
-			bevent->state = RELEASED;
-			source = JOYSTICK;
-			break;
+		case SDL_JOYAXISMOTION: {
+				source = JOYSTICK;
+
+				unsigned int axis = event.jaxis.axis;
+				/* We only handle the first joystick */
+				if (axis > 1)
+					return false;
+
+				bool *axisState = joysticks[event.jaxis.which].axisState[axis];
+
+				if (event.jaxis.value < -20000) {
+					if (axisState[AXIS_STATE_NEGATIVE])
+						return false;
+					axisState[AXIS_STATE_NEGATIVE] = true;
+					axisState[AXIS_STATE_POSITIVE] = false;
+					*button = axis ? UP : LEFT;
+				} else if (event.jaxis.value > 20000) {
+					if (axisState[AXIS_STATE_POSITIVE])
+						return false;
+					axisState[AXIS_STATE_NEGATIVE] = false;
+					axisState[AXIS_STATE_POSITIVE] = true;
+					*button = axis ? DOWN : RIGHT;
+				} else {
+					axisState[0] = axisState[1] = false;
+					return false;
+				}
+				break;
+			}
 #endif
+		case SDL_USEREVENT:
+			switch ((enum EventCode) event.user.code) {
+#ifdef HAVE_LIBOPK
+				case REMOVE_LINKS:
+					menu->removePackageLink((const char *) event.user.data1);
+					break;
+				case OPEN_PACKAGE:
+					menu->openPackage((const char *) event.user.data1);
+					break;
+				case OPEN_PACKAGES_FROM_DIR:
+					menu->openPackagesFromDir(
+								((string) (const char *) event.user.data1
+								 + "/apps").c_str());
+					break;
+#endif /* HAVE_LIBOPK */
+				case REPAINT_MENU:
+				default:
+					break;
+			}
+
+			if (event.user.data1)
+				free(event.user.data1);
+			*button = REPAINT;
+			return true;
+
 		default:
 			return false;
 	}
 
+	int i = 0;
 	if (source == KEYBOARD) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == KEYBOARD
 					&& (unsigned int)event.key.keysym.sym == buttonMap[i].code) {
-				bevent->button = static_cast<Button>(i);
+				*button = static_cast<Button>(i);
 				break;
 			}
 		}
 #ifndef SDL_JOYSTICK_DISABLED
-	} else if (source == JOYSTICK) {
+	} else if (source == JOYSTICK && event.type != SDL_JOYAXISMOTION) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == JOYSTICK
 					&& (unsigned int)event.jbutton.button == buttonMap[i].code) {
-				bevent->button = static_cast<Button>(i);
+				*button = static_cast<Button>(i);
 				break;
 			}
 		}

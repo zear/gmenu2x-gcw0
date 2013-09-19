@@ -25,6 +25,7 @@
 #include "filelister.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <iostream>
@@ -42,7 +43,7 @@ bool WallpaperDialog::exec()
 	bool close = false, result = true;
 
 	FileLister fl;
-	fl.setFilter(".png");
+	fl.setFilter("png");
 
 	string filepath = GMenu2X::getHome() + "/skins/"
 	  	+ gmenu2x->confStr["skin"] + "/wallpapers";
@@ -105,11 +106,11 @@ bool WallpaperDialog::exec()
 		gmenu2x->s->setClipRect(0,41,311,179);
 		for (i=firstElement; i<wallpapers.size() && i<firstElement+10; i++) {
 			iY = i-firstElement;
-			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, 52+(iY*17), ASFont::HAlignLeft, ASFont::VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, 52+(iY*17), Font::HAlignLeft, Font::VAlignMiddle);
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(10,wallpapers.size(),firstElement,44,170);
+		gmenu2x->drawScrollBar(10, wallpapers.size(), firstElement);
 		gmenu2x->s->flip();
 
         switch(gmenu2x->input.waitForPressedButton()) {

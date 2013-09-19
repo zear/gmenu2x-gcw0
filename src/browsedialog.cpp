@@ -1,12 +1,11 @@
 #include "browsedialog.h"
 
-#include "FastDelegate.h"
 #include "filelister.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
+#include "surface.h"
 #include "utilities.h"
 
-using namespace fastdelegate;
 using std::string;
 
 BrowseDialog::BrowseDialog(
@@ -23,19 +22,19 @@ BrowseDialog::BrowseDialog(
 
 	buttonBox.add(new IconButton(gmenu2x, ts, "skin:imgs/buttons/left.png"));
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/cancel.png", gmenu2x->tr["Up one folder"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryUp));
+	btn->setAction(BIND(&BrowseDialog::directoryUp));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/accept.png", gmenu2x->tr["Enter folder"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryEnter));
+	btn->setAction(BIND(&BrowseDialog::directoryEnter));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/start.png", gmenu2x->tr["Confirm"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::confirm));
+	btn->setAction(BIND(&BrowseDialog::confirm));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/select.png", gmenu2x->tr["Exit"]);
-	btn->setAction(MakeDelegate(this, &BrowseDialog::quit));
+	btn->setAction(BIND(&BrowseDialog::quit));
 	buttonBox.add(btn);
 
 	iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
@@ -53,7 +52,8 @@ bool BrowseDialog::exec()
 		return false;
 
 	string path = fl->getPath();
-	if (path.empty() || !fileExists(path) || path.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0)
+	if (path.empty() || !fileExists(path) || path.compare(0,
+					strlen(CARD_ROOT), CARD_ROOT) != 0)
 		setPath(CARD_ROOT);
 
 	fl->browse();
@@ -270,7 +270,7 @@ void BrowseDialog::paint()
 		}
 		icon->blit(gmenu2x->s, 5, offsetY);
 		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + 8,
-				ASFont::HAlignLeft, ASFont::VAlignMiddle);
+				Font::HAlignLeft, Font::VAlignMiddle);
 
 		if (ts.available() && ts.pressed()
 				&& ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {
@@ -282,7 +282,6 @@ void BrowseDialog::paint()
 	}
 	gmenu2x->s->clearClipRect();
 
-	gmenu2x->drawScrollBar(
-			numRows,fl->size(), firstElement, clipRect.y, clipRect.h);
+	gmenu2x->drawScrollBar(numRows,fl->size(), firstElement);
 	gmenu2x->s->flip();
 }

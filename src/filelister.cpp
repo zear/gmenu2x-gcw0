@@ -80,17 +80,12 @@ void FileLister::browse(bool clean)
 			return;
 		}
 
-		vector<string> vfilter;
-		split(vfilter, getFilter(), ",");
-
-		string filepath, file, file_lowercase;
+		string filepath, file;
 		struct stat st;
 		struct dirent *dptr;
 
 		while ((dptr = readdir(dirp))) {
 			file = dptr->d_name;
-			file_lowercase = file;
-			std::transform(file_lowercase.begin(), file_lowercase.end(), file_lowercase.begin(), ::tolower);
 
 			if (file[0] == '.' && file != "..")
 				continue;
@@ -119,9 +114,35 @@ void FileLister::browse(bool clean)
 				if (std::find(files.begin(), files.end(), file) != files.end())
 				  continue;
 
+				if (filter.compare("*") == 0) {
+					files.push_back(file);
+					continue;
+				}
+
+				vector<string> vfilter;
+				split(vfilter, filter, ",");
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
-					if (it->length() <= file.length()) {
-						if (file_lowercase.compare(file.length() - it->length(), it->length(), *it) == 0) {
+					if (file.find('.') == string::npos) {
+						if (!it->empty())
+							continue;
+
+						files.push_back(file);
+						break;
+					}
+
+					if (it->length() < file.length()) {
+						if (file[file.length() - it->length() - 1] != '.')
+							continue;
+
+						string file_lowercase =
+									file.substr(file.length() - it->length());
+
+						/* XXX: This won't accept UTF-8 codes.
+						 * Thanksfully file extensions shouldn't contain any. */
+						transform(file_lowercase.begin(), file_lowercase.end(),
+									file_lowercase.begin(), ::tolower);
+
+						if (file_lowercase.compare(0, it->length(), *it) == 0) {
 							files.push_back(file);
 							break;
 						}

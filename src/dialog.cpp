@@ -2,7 +2,7 @@
 
 #include "dialog.h"
 #include "gmenu2x.h"
-#include "asfont.h"
+#include "font.h"
 
 Dialog::Dialog(GMenu2X *gmenu2x) : gmenu2x(gmenu2x)
 {
@@ -31,14 +31,14 @@ void Dialog::writeTitle(const std::string &title, Surface *s)
 {
 	if (s==NULL)
 		s = gmenu2x->s;
-	s->write(gmenu2x->font, title, 40, gmenu2x->skinConfInt["topBarHeight"]/4, ASFont::HAlignLeft, ASFont::VAlignMiddle);
+	s->write(gmenu2x->font, title, 40, gmenu2x->skinConfInt["topBarHeight"] / 4, Font::HAlignLeft, Font::VAlignMiddle);
 }
 
 void Dialog::writeSubTitle(const std::string &subtitle, Surface *s)
 {
 	if (s==NULL)
 		s = gmenu2x->s;
-	s->write(gmenu2x->font, subtitle, 40, gmenu2x->skinConfInt["topBarHeight"]/4*3, ASFont::HAlignLeft, ASFont::VAlignMiddle);
+	s->write(gmenu2x->font, subtitle, 40, gmenu2x->skinConfInt["topBarHeight"] / 4 * 3, Font::HAlignLeft, Font::VAlignMiddle);
 }
 
 

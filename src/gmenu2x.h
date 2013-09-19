@@ -21,20 +21,26 @@
 #ifndef GMENU2X_H
 #define GMENU2X_H
 
+#include "contextmenu.h"
 #include "surfacecollection.h"
 #include "translator.h"
-#include "FastDelegate.h"
 #include "touchscreen.h"
 #include "inputmanager.h"
 #include "surface.h"
 
 #include <iostream>
+#include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include <tr1/unordered_map>
 
-class ASFont;
 class Button;
+class Font;
+class HelpPopup;
+class IconButton;
+class Layer;
+class LinkApp;
+class MediaMonitor;
 class Menu;
 class Surface;
 
@@ -45,7 +51,6 @@ class Surface;
 const int LOOP_DELAY = 30000;
 
 extern const char *CARD_ROOT;
-extern const int CARD_ROOT_LEN;
 
 // Note: Keep this in sync with colorNames!
 enum color {
@@ -59,36 +64,38 @@ enum color {
 	NUM_COLORS,
 };
 
-typedef std::tr1::unordered_map<std::string, std::string, std::tr1::hash<std::string> > ConfStrHash;
-typedef std::tr1::unordered_map<std::string, int, std::tr1::hash<std::string> > ConfIntHash;
+typedef std::unordered_map<std::string, std::string, std::hash<std::string> > ConfStrHash;
+typedef std::unordered_map<std::string, int, std::hash<std::string> > ConfIntHash;
 
 class GMenu2X {
 private:
 	Touchscreen ts;
+	std::shared_ptr<Menu> menu;
+#ifdef ENABLE_INOTIFY
+	MediaMonitor *monitor;
+#endif
+
+	LinkApp *appToLaunch;
+	std::string fileToLaunch;
+
+	std::vector<std::shared_ptr<Layer>> layers;
 
 	/*!
 	Retrieves the free disk space on the sd
 	@return String containing a human readable representation of the free disk space
 	*/
 	std::string getDiskFree(const char *path);
-	unsigned short cpuX; //!< Offset for displaying cpu clock information
-	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
+#ifdef ENABLE_CPUFREQ
 	unsigned cpuFreqMin; //!< Minimum CPU frequency
 	unsigned cpuFreqMax; //!< Maximum theoretical CPU frequency
 	unsigned cpuFreqSafeMax; //!< Maximum safe CPU frequency
 	unsigned cpuFreqMenuDefault; //!< Default CPU frequency for gmenu2x
 	unsigned cpuFreqAppDefault; //!< Default CPU frequency for launched apps
 	unsigned cpuFreqMultiple; //!< All valid CPU frequencies are a multiple of this
-	/*!
-	Reads the current battery state and returns a number representing it's level of charge
-	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
-	*/
-	unsigned short getBatteryLevel();
+
+	void initCPULimits();
+#endif
 	void browsePath(const std::string &path, std::vector<std::string>* directories, std::vector<std::string>* files);
-	/*!
-	Starts the scanning of the nand and sd filesystems, searching for dge and gpu files and creating the links in 2 dedicated sections.
-	*/
-	void scanner();
 	/*!
 	Performs the actual scan in the given path and populates the files vector with the results. The creation of the links is not performed here.
 	@see scanner
@@ -114,9 +121,7 @@ private:
 	void initServices();
 	void initFont();
 	void initMenu();
-	void initCPULimits();
-
-	void showManual();
+	void initBG();
 
 public:
 	GMenu2X();
@@ -131,7 +136,18 @@ public:
 	 * Variables needed for elements disposition
 	 */
 	uint resX, resY, halfX, halfY;
-	uint bottomBarIconY, bottomBarTextY, linkColumns, linkRows;
+	uint bottomBarIconY, bottomBarTextY;
+	unsigned short cpuX; //!< Offset for displaying cpu clock information
+	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
+
+	/**
+	 * Gets the position and height of the area between the top and bottom bars.
+	 */
+	std::pair<unsigned int, unsigned int> getContentArea() {
+		const unsigned int top = skinConfInt["topBarHeight"];
+		const unsigned int bottom = skinConfInt["bottomBarHeight"];
+		return std::make_pair(top, resY - top - bottom);
+	}
 
 	InputManager input;
 
@@ -147,21 +163,40 @@ public:
 	SurfaceCollection sc;
 	Translator tr;
 	Surface *s, *bg;
-	ASFont *font;
+	Font *font;
 
 	//Status functions
 	void main();
-	void options();
+	/**
+	 * Starts the scanning of the nand and sd filesystems, searching for dge
+	 * and gpu files and creating the links in 2 dedicated sections.
+	 */
+	void scanner();
+	void showContextMenu();
+	void showHelpPopup();
+	void showManual();
+	void showSettings();
 	void skinMenu();
 	void about();
 	void viewLog();
-	void contextMenu();
 	void changeWallpaper();
 
+#ifdef ENABLE_CPUFREQ
 	void setClock(unsigned mhz);
+	void setMenuClock() { setClock(cpuFreqMenuDefault); }
+	void setSafeMaxClock() { setClock(cpuFreqSafeMax); }
+	unsigned getDefaultAppClock() { return cpuFreqAppDefault; }
+#endif
 
 	void setInputSpeed();
 
+	/**
+	 * Requests that the given application be launched.
+	 * The launch won't happen immediately; it will happen after control
+	 * returns to the main loop.
+	 */
+	void queueLaunch(LinkApp *app, const std::string &file);
+	void saveSelection();
 	void writeConfig();
 	void writeSkinConfig();
 	void writeTmp(int selelem=-1, const std::string &selectordir="");
@@ -173,16 +208,15 @@ public:
 	void renameSection();
 	void deleteSection();
 
-	void initBG();
-	int drawButton(Button *btn, int x=5, int y=-10);
+	int drawButton(IconButton *btn, int x=5, int y=-10);
 	int drawButton(Surface *s, const std::string &btn, const std::string &text, int x=5, int y=-10);
 	int drawButtonRight(Surface *s, const std::string &btn, const std::string &text, int x=5, int y=-10);
-	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, uint top, uint height);
+	void drawScrollBar(uint pageSize, uint totalSize, uint pagePos);
 
-	void drawTopBar(Surface *s=NULL);
-	void drawBottomBar(Surface *s=NULL);
+	void drawTopBar(Surface *s);
+	void drawBottomBar(Surface *s);
 
-	Menu *menu;
+	Touchscreen &getTouchscreen() { return ts; }
 };
 
 #endif // GMENU2X_H

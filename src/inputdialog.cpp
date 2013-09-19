@@ -21,18 +21,24 @@
 #include "inputdialog.h"
 
 #include "buttonbox.h"
+#include "delegate.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <SDL_gfxPrimitives.h>
 
 using namespace std;
-using namespace fastdelegate;
 
 #define KEY_WIDTH 20
 #define KEY_HEIGHT 20
 #define KB_TOP 90
+
+static bool utf8Code(unsigned char c)
+{
+	return (c>=194 && c<=198) || c==208 || c==209;
+}
 
 InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 		Touchscreen &ts_, const string &text,
@@ -41,7 +47,7 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 	, inputMgr(inputMgr_)
 	, ts(ts_)
 {
-	if (title == "") {
+	if (title.empty()) {
 		this->title = text;
 		this->text = "";
 	} else {
@@ -49,7 +55,7 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 		this->text = text;
 	}
 	this->icon = "";
-	if (icon != "" && gmenu2x->sc[icon] != NULL) {
+	if (!icon.empty() && gmenu2x->sc[icon] != NULL) {
 		this->icon = icon;
 	}
 
@@ -96,22 +102,22 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 	buttonbox = new ButtonBox(gmenu2x);
 	IconButton *btnBackspace = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/l.png", gmenu2x->tr["Backspace"]);
-	btnBackspace->setAction(MakeDelegate(this, &InputDialog::backspace));
+	btnBackspace->setAction(BIND(&InputDialog::backspace));
 	buttonbox->add(btnBackspace);
 
 	IconButton *btnSpace = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/r.png", gmenu2x->tr["Space"]);
-	btnSpace->setAction(MakeDelegate(this, &InputDialog::space));
+	btnSpace->setAction(BIND(&InputDialog::space));
 	buttonbox->add(btnSpace);
 
 	IconButton *btnConfirm = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/accept.png", gmenu2x->tr["Confirm"]);
-	btnConfirm->setAction(MakeDelegate(this, &InputDialog::confirm));
+	btnConfirm->setAction(BIND(&InputDialog::confirm));
 	buttonbox->add(btnConfirm);
 
 	IconButton *btnChangeKeys = new IconButton(gmenu2x, ts,
 			"skin:imgs/buttons/cancel.png", gmenu2x->tr["Change keys"]);
-	btnChangeKeys->setAction(MakeDelegate(this, &InputDialog::changeKeys));
+	btnChangeKeys->setAction(BIND(&InputDialog::changeKeys));
 	buttonbox->add(btnChangeKeys);
 }
 
@@ -121,7 +127,7 @@ void InputDialog::setKeyboard(int kb) {
 	this->kb = &(keyboard[kb]);
 	kbLength = this->kb->at(0).length();
 	for (int x = 0, l = kbLength; x < l; x++) {
-		if (gmenu2x->font->utf8Code(this->kb->at(0)[x])) {
+		if (utf8Code(this->kb->at(0)[x])) {
 			kbLength--;
 			x++;
 		}
@@ -163,7 +169,7 @@ bool InputDialog::exec() {
 				gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		gmenu2x->s->write(gmenu2x->font, input, box.x + 5, box.y + box.h - 2,
-				ASFont::HAlignLeft, ASFont::VAlignBottom);
+				Font::HAlignLeft, Font::VAlignBottom);
 
 		curTick = SDL_GetTicks();
 		if (curTick - caretTick >= 600) {
@@ -221,7 +227,7 @@ bool InputDialog::exec() {
 void InputDialog::backspace() {
 	// Check for UTF8 characters.
 	input = input.substr(0, input.length()
-		- (gmenu2x->font->utf8Code(input[input.length() - 2]) ? 2 : 1));
+		- (utf8Code(input[input.length() - 2]) ? 2 : 1));
 }
 
 void InputDialog::space() {
@@ -237,7 +243,7 @@ void InputDialog::confirm() {
 	} else {
 		int xc = 0;
 		for (uint x = 0; x < kb->at(selRow).length(); x++) {
-			bool utf8 = gmenu2x->font->utf8Code(kb->at(selRow)[x]);
+			bool utf8 = utf8Code(kb->at(selRow)[x]);
 			if (xc == selCol) input += kb->at(selRow).substr(x, utf8 ? 2 : 1);
 			if (utf8) x++;
 			xc++;
@@ -281,7 +287,7 @@ void InputDialog::drawVirtualKeyboard() {
 		for (uint x=0, xc=0; x<line.length(); x++) {
 			string charX;
 			//utf8 characters
-			if (gmenu2x->font->utf8Code(line[x])) {
+			if (utf8Code(line[x])) {
 				charX = line.substr(x,2);
 				x++;
 			} else
@@ -305,7 +311,7 @@ void InputDialog::drawVirtualKeyboard() {
 			gmenu2x->s->write(gmenu2x->font, charX,
 					kbLeft + xc * KEY_WIDTH + KEY_WIDTH / 2 - 1,
 					KB_TOP + l * KEY_HEIGHT + KEY_HEIGHT / 2,
-					ASFont::HAlignCenter, ASFont::VAlignMiddle);
+					Font::HAlignCenter, Font::VAlignMiddle);
 			xc++;
 		}
 	}
@@ -325,7 +331,7 @@ void InputDialog::drawVirtualKeyboard() {
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Cancel"],
 			(int)(160 - kbLength * KEY_WIDTH / 4),
 			KB_TOP + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2,
-			ASFont::HAlignCenter, ASFont::VAlignMiddle);
+			Font::HAlignCenter, Font::VAlignMiddle);
 
 	re.x = kbLeft + kbLength * KEY_WIDTH / 2 - 1;
 	gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
@@ -336,5 +342,5 @@ void InputDialog::drawVirtualKeyboard() {
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["OK"],
 			(int)(160 + kbLength * KEY_WIDTH / 4),
 			KB_TOP + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2,
-			ASFont::HAlignCenter, ASFont::VAlignMiddle);
+			Font::HAlignCenter, Font::VAlignMiddle);
 }

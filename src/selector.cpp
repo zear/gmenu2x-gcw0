@@ -25,6 +25,7 @@
 #include "gmenu2x.h"
 #include "linkapp.h"
 #include "menu.h"
+#include "surface.h"
 #include "utilities.h"
 
 #include <SDL.h>
@@ -38,7 +39,6 @@
 #include <fstream>
 
 using namespace std;
-using std::tr1::unordered_map;
 
 #define SELECTOR_ELEMENTS 11
 
@@ -48,7 +48,7 @@ Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
 	this->link = link;
 	loadAliases();
 	selRow = 0;
-	if (selectorDir=="")
+	if (selectorDir.empty())
 		dir = link->getSelectorDir();
 	else
 		dir = selectorDir;
@@ -75,7 +75,8 @@ int Selector::exec(int startSelection) {
 		gmenu2x->drawButton(&bg, "left", "", 5)-10)));
 	} else {
 		gmenu2x->drawButton(&bg, "start", gmenu2x->tr["Exit"],
-		gmenu2x->drawButton(&bg, "accept", gmenu2x->tr["Select a file"], 5));
+		gmenu2x->drawButton(&bg, "cancel", "",
+		gmenu2x->drawButton(&bg, "accept", gmenu2x->tr["Select a file"], 5)) - 10);
 	}
 
 	bg.convertToDisplayFormat();
@@ -103,7 +104,8 @@ int Selector::exec(int startSelection) {
 			gmenu2x->s->box(1, iY, 309, 14, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Screenshot
-		if (selected-fl.dirCount()<screens.size() && screens[selected-fl.dirCount()]!="") {
+		if (selected-fl.dirCount()<screens.size()
+				&& !screens[selected-fl.dirCount()].empty()) {
 			curTick = SDL_GetTicks();
 			if (curTick - selTick > 200) {
 				gmenu2x->sc[screens[selected-fl.dirCount()]]->blitRight(
@@ -118,137 +120,88 @@ int Selector::exec(int startSelection) {
 			iY = i-firstElement;
 			if (fl.isDirectory(i)) {
 				gmenu2x->sc["imgs/folder.png"]->blit(gmenu2x->s, 4, 42+(iY*16));
-				gmenu2x->s->write(gmenu2x->font, fl[i], 21, 49+(iY*16), ASFont::HAlignLeft, ASFont::VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, fl[i], 21, 49+(iY*16), Font::HAlignLeft, Font::VAlignMiddle);
 			} else
-				gmenu2x->s->write(gmenu2x->font, titles[i-fl.dirCount()], 4, 49+(iY*16), ASFont::HAlignLeft, ASFont::VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, titles[i-fl.dirCount()], 4, 49+(iY*16), Font::HAlignLeft, Font::VAlignMiddle);
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(SELECTOR_ELEMENTS,fl.size(),firstElement,42,175);
+		gmenu2x->drawScrollBar(SELECTOR_ELEMENTS, fl.size(), firstElement);
 		gmenu2x->s->flip();
 
-        switch (gmenu2x->input.waitForPressedButton()) {
-            case InputManager::SETTINGS:
-                close = true;
-                result = false;
-                break;
-            case InputManager::UP:
-                if (selected == 0) selected = fl.size() -1;
-                else selected -= 1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::ALTLEFT:
-                if ((int)(selected-SELECTOR_ELEMENTS+1)<0) selected = 0;
-                else selected -= SELECTOR_ELEMENTS-1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::DOWN:
-                if (selected+1>=fl.size()) selected = 0;
-                else selected += 1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::ALTRIGHT:
-                if (selected+SELECTOR_ELEMENTS-1>=fl.size()) selected = fl.size()-1;
-                else selected += SELECTOR_ELEMENTS-1;
-                selTick = SDL_GetTicks();
-                break;
-            case InputManager::CANCEL:
-            case InputManager::LEFT:
-                if (link->getSelectorBrowser()) {
-                    string::size_type p = dir.rfind("/", dir.size()-2);
-                    if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
-                        close = true;
-                        result = false;
-                    } else {
-                        dir = dir.substr(0,p+1);
-                        INFO("%s\n", dir.c_str());
-                        selected = 0;
-                        firstElement = 0;
-                        prepare(&fl,&screens,&titles);
-                    }
-                }
-                break;
-            case InputManager::ACCEPT:
-                if (fl.isFile(selected)) {
-                    file = fl[selected];
-                    close = true;
-                } else {
-                    dir = dir+fl[selected]+"/";
-                    selected = 0;
-                    firstElement = 0;
-                    prepare(&fl,&screens,&titles);
-                }
-                break;
-            default:
-                break;
-        }
+		switch (gmenu2x->input.waitForPressedButton()) {
+			case InputManager::SETTINGS:
+				close = true;
+				result = false;
+				break;
 
-        /*
-		gmenu2x->input.update();
-		if ( gmenu2x->input[ACTION_START] ) { close = true; result = false; }
-		if ( gmenu2x->input[ACTION_UP] ) {
-			if (selected==0) {
-				selected = fl.size()-1;
-			} else {
-				selected -= 1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_L] ) {
-			if ((int)(selected-SELECTOR_ELEMENTS+1)<0) {
-				selected = 0;
-			} else {
-				selected -= SELECTOR_ELEMENTS-1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_DOWN] ) {
-			if (selected+1>=fl.size()) {
-				selected = 0;
-			} else {
-				selected += 1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_R] ) {
-			if (selected+SELECTOR_ELEMENTS-1>=fl.size()) {
-				selected = fl.size()-1;
-			} else {
-				selected += SELECTOR_ELEMENTS-1;
-			}
-			selTick = SDL_GetTicks();
-		}
-		if ( gmenu2x->input[ACTION_X] ) {
-			if (link->getSelectorBrowser()) {
-				string::size_type p = dir.rfind("/", dir.size()-2);
-				if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
+			case InputManager::UP:
+				if (selected == 0) selected = fl.size() -1;
+				else selected -= 1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::ALTLEFT:
+				if ((int)(selected-SELECTOR_ELEMENTS+1)<0) selected = 0;
+				else selected -= SELECTOR_ELEMENTS-1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::DOWN:
+				if (selected+1>=fl.size()) selected = 0;
+				else selected += 1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::ALTRIGHT:
+				if (selected+SELECTOR_ELEMENTS-1>=fl.size()) selected = fl.size()-1;
+				else selected += SELECTOR_ELEMENTS-1;
+				selTick = SDL_GetTicks();
+				break;
+
+			case InputManager::CANCEL:
+				if (!link->getSelectorBrowser()) {
 					close = true;
 					result = false;
+					break;
+				}
+
+			case InputManager::LEFT:
+				if (link->getSelectorBrowser()) {
+					string::size_type p = dir.rfind("/", dir.size()-2);
+					if (p==string::npos || dir.compare(0, 1, "/") != 0 || dir.length() < 2) {
+						close = true;
+						result = false;
+					} else {
+						dir = dir.substr(0,p+1);
+						selected = 0;
+						firstElement = 0;
+						prepare(&fl,&screens,&titles);
+					}
+				}
+				break;
+
+			case InputManager::ACCEPT:
+				if (fl.isFile(selected)) {
+					file = fl[selected];
+					close = true;
 				} else {
-					dir = dir.substr(0,p+1);
-					INFO("%s\n", dir.c_str());
+					dir = dir+fl[selected];
+					char *buf = realpath(dir.c_str(), NULL);
+					dir = (string) buf + '/';
+					free(buf);
+
 					selected = 0;
 					firstElement = 0;
 					prepare(&fl,&screens,&titles);
 				}
-			} else {
-				close = true;
-				result = false;
-			}
+				break;
+
+			default:
+				break;
 		}
-		if ( gmenu2x->input[ACTION_B] ) {
-			if (fl.isFile(selected)) {
-				file = fl[selected];
-				close = true;
-			} else {
-				dir = dir+fl[selected]+"/";
-				selected = 0;
-				firstElement = 0;
-				prepare(&fl,&screens,&titles);
-			}
-		}
-        */
 	}
+
 	gmenu2x->sc.defaultAlpha = true;
 	freeScreenshots(&screens);
 
@@ -262,7 +215,9 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	titles->resize(fl->getFiles().size());
 
 	string screendir = link->getSelectorScreens();
-	if (screendir != "" && screendir[screendir.length()-1]!='/') screendir += "/";
+	if (!screendir.empty() && screendir[screendir.length() - 1] != '/') {
+		screendir += "/";
+	}
 
 	string noext;
 	string::size_type pos;
@@ -272,15 +227,13 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 		if (pos!=string::npos && pos>0)
 			noext = noext.substr(0, pos);
 		titles->at(i) = getAlias(noext);
-		if (titles->at(i)=="")
+		if (titles->at(i).empty())
 			titles->at(i) = noext;
 
 		DEBUG("Searching for screen '%s%s.png'\n", screendir.c_str(), noext.c_str());
 
 		if (fileExists(screendir+noext+".png"))
 			screens->at(i) = screendir+noext+".png";
-		else if (fileExists(screendir+noext+".jpg"))
-			screens->at(i) = screendir+noext+".jpg";
 		else
 			screens->at(i) = "";
 	}
@@ -288,7 +241,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 
 void Selector::freeScreenshots(vector<string> *screens) {
 	for (uint i=0; i<screens->size(); i++) {
-		if (screens->at(i) != "")
+		if (!screens->at(i).empty())
 			gmenu2x->sc.del(screens->at(i));
 	}
 }

@@ -21,69 +21,120 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "delegate.h"
+#include "layer.h"
 #include "link.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
-class LinkApp;
 class GMenu2X;
+class IconButton;
+class LinkApp;
+class Monitor;
+
 
 /**
 Handles the menu structure
 
 	@author Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 */
-class Menu {
+class Menu : public Layer {
 private:
+	class Animation {
+	public:
+		Animation();
+		bool isRunning() { return curr != 0; }
+		int currentValue() { return curr; }
+		void adjust(int delta);
+		void step();
+	private:
+		int curr;
+	};
+
 	GMenu2X *gmenu2x;
 	Touchscreen &ts;
+	std::unique_ptr<IconButton> btnContextMenu;
 	int iSection, iLink;
-	uint iFirstDispSection, iFirstDispRow;
+	uint iFirstDispRow;
 	std::vector<std::string> sections;
 	std::vector< std::vector<Link*> > links;
 
+	uint linkColumns, linkRows;
+
+	Animation sectionAnimation;
+
+	/**
+	 * Determine which section headers are visible.
+	 * The output values are relative to the middle section at 0.
+	 */
+	void calcSectionRange(int &leftSection, int &rightSection);
+
+	std::vector<Link*> *sectionLinks(int i = -1);
+
 	void readLinks();
 	void freeLinks();
+	void orderLinks();
 
 	// Load all the sections of the given "sections" directory.
 	void readSections(std::string parentDir);
 
+#ifdef HAVE_LIBOPK
+	// Load all the .opk packages of the given directory
+	void readPackages(std::string parentDir);
+#ifdef ENABLE_INOTIFY
+	std::vector<Monitor *> monitors;
+#endif
+#endif
+
 	// Load all the links on the given section directory.
 	void readLinksOfSection(std::string path, std::vector<std::string> &linkfiles);
 
+	void decSectionIndex();
+	void incSectionIndex();
+	void linkLeft();
+	void linkRight();
+	void linkUp();
+	void linkDown();
+
 public:
 	Menu(GMenu2X *gmenu2x, Touchscreen &ts);
-	~Menu();
+	virtual ~Menu();
 
-	std::vector<Link*> *sectionLinks(int i = -1);
+#ifdef HAVE_LIBOPK
+	void openPackage(std::string path, bool order = true);
+	void openPackagesFromDir(std::string path);
+#ifdef ENABLE_INOTIFY
+	void removePackageLink(std::string path);
+#endif
+#endif
 
 	int selSectionIndex();
 	const std::string &selSection();
-	void decSectionIndex();
-	void incSectionIndex();
 	void setSectionIndex(int i);
-	uint firstDispSection();
-	uint firstDispRow();
 
 	bool addActionLink(uint section, const std::string &title,
-			LinkRunAction action, const std::string &description="",
+			function_t action, const std::string &description="",
 			const std::string &icon="");
 	bool addLink(std::string path, std::string file, std::string section="");
 	bool addSection(const std::string &sectionName);
 	void deleteSelectedLink();
 	void deleteSelectedSection();
 
-	void loadIcons();
+	void skinUpdated();
+
+	// Layer implementation:
+	virtual bool runAnimations();
+	virtual void paint(Surface &s);
+	virtual bool handleButtonPress(InputManager::Button button);
+	virtual bool handleTouchscreen(Touchscreen &ts);
+
 	bool linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSectionIndex);
 
 	int selLinkIndex();
 	Link *selLink();
 	LinkApp *selLinkApp();
-	void linkLeft();
-	void linkRight();
-	void linkUp();
-	void linkDown();
 	void setLinkIndex(int i);
 
 	const std::vector<std::string> &getSections() { return sections; }

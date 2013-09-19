@@ -73,9 +73,12 @@ string SurfaceCollection::getSkinFilePath(const string &skin, const string &file
 	  return path;
 
 	/* If it is nowhere to be found, as a last resort we check the
-	 * "Default" skin on the system directory for a corresponding
-	 * (but probably not similar) file. */
+	 * "Default" skin for a corresponding (but probably not similar) file. */
 	if (useDefault) {
+		path = GMenu2X::getHome() + "/skins/Default/" + file;
+		if (fileExists(path))
+		  return path;
+
 		path = GMENU2X_SYSTEM_DIR "/skins/Default/" + file;
 		if (fileExists(path))
 		  return path;
@@ -110,7 +113,10 @@ Surface *SurfaceCollection::add(const string &path) {
 		filePath = getSkinFilePath(filePath.substr(5,filePath.length()));
 		if (filePath.empty())
 			return NULL;
-	} else if (!fileExists(filePath)) return NULL;
+	} else if ((filePath.find('#') == filePath.npos) && (!fileExists(filePath))) {
+		WARNING("Unable to add image %s\n", path.c_str());
+		return NULL;
+	}
 
 	DEBUG("Adding surface: '%s'\n", path.c_str());
 	Surface *s = Surface::loadImage(filePath);

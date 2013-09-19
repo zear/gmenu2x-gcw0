@@ -20,12 +20,12 @@
 
 #include "menusettingfile.h"
 
+#include "delegate.h"
 #include "filedialog.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
 
 using std::string;
-using fastdelegate::MakeDelegate;
 
 MenuSettingFile::MenuSettingFile(
 		GMenu2X *gmenu2x, Touchscreen &ts_,
@@ -38,11 +38,11 @@ MenuSettingFile::MenuSettingFile(
 	IconButton *btn;
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/cancel.png", gmenu2x->tr["Clear"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingFile::clear));
+	btn->setAction(BIND(&MenuSettingFile::clear));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, ts, "skin:imgs/buttons/accept.png", gmenu2x->tr["Select a file"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingFile::edit));
+	btn->setAction(BIND(&MenuSettingFile::edit));
 	buttonBox.add(btn);
 }
 

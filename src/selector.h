@@ -24,8 +24,8 @@
 #include "dialog.h"
 
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include <tr1/unordered_map>
 
 class LinkApp;
 class FileLister;
@@ -35,7 +35,7 @@ private:
 	int selRow;
 	LinkApp *link;
 	std::string file, dir;
-	std::tr1::unordered_map<std::string, std::string> aliases;
+	std::unordered_map<std::string, std::string> aliases;
 
 	void loadAliases();
 	std::string getAlias(const std::string &key);

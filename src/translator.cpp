@@ -30,7 +30,6 @@
 #include <stdarg.h>
 
 using namespace std;
-using std::tr1::unordered_map;
 
 Translator::Translator(const string &lang) {
 	_lang = "";
@@ -55,7 +54,7 @@ void Translator::setLang(const string &lang) {
 	if (infile.is_open()) {
 		while (getline(infile, line, '\n')) {
 			line = trim(line);
-			if (line=="") continue;
+			if (line.empty()) continue;
 			if (line[0]=='#') continue;
 
 			string::size_type position = line.find("=");

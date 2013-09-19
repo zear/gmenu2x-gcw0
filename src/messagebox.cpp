@@ -20,6 +20,7 @@
 
 #include "messagebox.h"
 #include "gmenu2x.h"
+#include "surface.h"
 
 #include <SDL_gfxPrimitives.h>
 
@@ -52,8 +53,6 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttonLabels[InputManager::ALTRIGHT] = "r";
 	buttonLabels[InputManager::SETTINGS] = "start";
 	buttonLabels[InputManager::MENU] = "select";
-	buttonLabels[InputManager::VOLUP] = "vol+";
-	buttonLabels[InputManager::VOLDOWN] = "vol-";
 }
 
 void MessageBox::setButton(InputManager::Button button, const string &label) {
@@ -79,11 +78,11 @@ int MessageBox::exec() {
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blitCenter( &bg, box.x+25, box.y+gmenu2x->font->getHeight()+3 );
-	bg.write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), box.y+gmenu2x->font->getHeight()+3, ASFont::HAlignLeft, ASFont::VAlignMiddle );
+	bg.write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), box.y+gmenu2x->font->getHeight()+3, Font::HAlignLeft, Font::VAlignMiddle );
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
 	for (uint i = 0; i < BUTTON_TYPE_SIZE; i++) {
-		if (buttons[i] != "") {
+		if (!buttons[i].empty()) {
 			buttonPositions[i].y = box.y+box.h-4;
 			buttonPositions[i].w = btnX;
 
@@ -100,11 +99,10 @@ int MessageBox::exec() {
 
 	int result = -1;
 	while (result < 0) {
-		InputManager::ButtonEvent event;
-		if (gmenu2x->input.pollEvent(&event)
-				&& (event.state == InputManager::PRESSED)
-				&& (buttons[event.button] != "")) {
-			result = event.button;
+		InputManager::Button button;
+		if (gmenu2x->input.pollButton(&button)
+				&& !buttons[button].empty()) {
+			result = button;
 		}
 
 		usleep(LOOP_DELAY);

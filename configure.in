@@ -27,7 +27,7 @@ AC_CHECK_LIB(SDL_ttf, TTF_OpenFont)
 AC_CHECK_LIB(png, png_read_image,,check_png="no")
 
 # Check for libopk
-AC_CHECK_LIB(opk, opk_open)
+AC_CHECK_LIB(opk, opk_open,,INOTIFY=no)
 
 # Check for libxdgmime
 AC_CHECK_LIB(xdgmime, xdg_mime_get_extensions_from_mime_type)

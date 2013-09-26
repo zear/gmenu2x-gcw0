@@ -142,19 +142,16 @@ bool SettingsDialog::exec() {
 					} else {
 						sel -= 1;
 					}
-					gmenu2x->setInputSpeed();
 					break;
 				case InputManager::DOWN:
 					sel += 1;
 					if (sel>=voices.size()) sel = 0;
-					gmenu2x->setInputSpeed();
 				default:
 					break;
 			}
 		}
 	}
 
-	gmenu2x->setInputSpeed();
 	return true;
 }
 

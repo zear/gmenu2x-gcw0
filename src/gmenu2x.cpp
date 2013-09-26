@@ -424,7 +424,6 @@ void GMenu2X::viewLog() {
 			mb.setButton(InputManager::CANCEL, tr["No"]);
 			if (mb.exec() == InputManager::ACCEPT) {
 				unlink(logfile.c_str());
-				sync();
 				menu->deleteSelectedLink();
 			}
 		}
@@ -503,7 +502,6 @@ void GMenu2X::writeConfig() {
 			inf << curr->first << "=" << curr->second << endl;
 
 		inf.close();
-		sync();
 	}
 }
 
@@ -540,7 +538,6 @@ void GMenu2X::writeSkinConfig() {
 		}
 
 		inf.close();
-		sync();
 	}
 }
 
@@ -581,7 +578,6 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		if (!selectordir.empty())
 			inf << "selectordir=" << selectordir << endl;
 		inf.close();
-		sync();
 	}
 }
 
@@ -865,10 +861,8 @@ void GMenu2X::changeWallpaper() {
 
 void GMenu2X::addLink() {
 	FileDialog fd(this, ts, tr["Select an application"], "dge,sh,bin,py,elf,");
-	if (fd.exec()) {
+	if (fd.exec())
 		menu->addLink(fd.getPath(), fd.getFile());
-		sync();
-	}
 }
 
 void GMenu2X::editLink() {
@@ -958,7 +952,6 @@ void GMenu2X::editLink() {
 			menu->linkChangeSection(menu->selLinkIndex(), menu->selSectionIndex(), newSectionIndex - menu->getSections().begin());
 		}
 		linkApp->save();
-		sync();
 	}
 }
 
@@ -967,10 +960,8 @@ void GMenu2X::deleteLink() {
 		MessageBox mb(this, tr.translate("Deleting $1",menu->selLink()->getTitle().c_str(),NULL)+"\n"+tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(InputManager::ACCEPT, tr["Yes"]);
 		mb.setButton(InputManager::CANCEL, tr["No"]);
-		if (mb.exec() == InputManager::ACCEPT) {
+		if (mb.exec() == InputManager::ACCEPT)
 			menu->deleteSelectedLink();
-			sync();
-		}
 	}
 }
 
@@ -981,10 +972,8 @@ void GMenu2X::addSection() {
 		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput())
 				== menu->getSections().end()) {
 			//section directory doesn't exists
-			if (menu->addSection(id.getInput())) {
+			if (menu->addSection(id.getInput()))
 				menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
-				sync();
-			}
 		}
 	}
 }
@@ -1016,7 +1005,6 @@ void GMenu2X::renameSection() {
 					}
 				}
 				menu->renameSection(menu->selSectionIndex(), id.getInput());
-				sync();
 			}
 		}
 	}
@@ -1028,10 +1016,8 @@ void GMenu2X::deleteSection() {
 	mb.setButton(InputManager::CANCEL, tr["No"]);
 	if (mb.exec() == InputManager::ACCEPT) {
 
-		if (rmtree(getHome() + "/sections/" + menu->selSection())) {
+		if (rmtree(getHome() + "/sections/" + menu->selSection()))
 			menu->deleteSelectedSection();
-			sync();
-		}
 	}
 }
 
@@ -1095,7 +1081,6 @@ void GMenu2X::scanner() {
 #ifdef ENABLE_CPUFREQ
 	setMenuClock();
 #endif
-	sync();
 #endif
 
     InputManager::Button button;

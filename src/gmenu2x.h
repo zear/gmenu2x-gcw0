@@ -48,6 +48,10 @@ class Surface;
 #define GMENU2X_SYSTEM_DIR "/usr/share/gmenu2x"
 #endif
 
+#ifndef LOG_FILE
+#define LOG_FILE "/var/log/gmenu2x.log"
+#endif
+
 const int LOOP_DELAY = 30000;
 
 extern const char *CARD_ROOT;

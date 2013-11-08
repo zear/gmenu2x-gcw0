@@ -372,7 +372,7 @@ void GMenu2X::initMenu() {
 			menu->addActionLink(i,"GMenu2X",BIND(&GMenu2X::showSettings),tr["Configure GMenu2X's options"],"skin:icons/configure.png");
 			menu->addActionLink(i,tr["Skin"],BIND(&GMenu2X::skinMenu),tr["Configure skin"],"skin:icons/skin.png");
 			menu->addActionLink(i,tr["Wallpaper"],BIND(&GMenu2X::changeWallpaper),tr["Change GMenu2X wallpaper"],"skin:icons/wallpaper.png");
-			if (fileExists(getHome()+"/log.txt"))
+			if (fileExists(LOG_FILE))
 				menu->addActionLink(i,tr["Log Viewer"],BIND(&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
 			menu->addActionLink(i,tr["About"],BIND(&GMenu2X::about),tr["Info about GMenu2X"],"skin:icons/about.png");
 		}
@@ -405,7 +405,7 @@ void GMenu2X::about() {
 }
 
 void GMenu2X::viewLog() {
-	string logfile = getHome()+"/log.txt";
+	string logfile = LOG_FILE;
 	if (fileExists(logfile)) {
 		ifstream inf(logfile.c_str(), ios_base::in);
 		if (inf.is_open()) {

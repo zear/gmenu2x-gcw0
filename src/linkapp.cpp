@@ -621,10 +621,10 @@ void LinkApp::launch(const string &selectedFile) {
 	if (!params.empty()) command += " " + params;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
-		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
+		command += " &> " LOG_FILE;
 #else
 	if (gmenu2x->confInt["outputLogs"])
-		command += " &> " + cmdclean(gmenu2x->getHome()) + "/log.txt";
+		command += " &> " LOG_FILE;
 #endif
 #ifdef HAVE_LIBOPK
 	if (isOPK)

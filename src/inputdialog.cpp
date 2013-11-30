@@ -188,6 +188,10 @@ bool InputDialog::exec() {
 
 		switch (inputMgr.waitForPressedButton()) {
 			case InputManager::SETTINGS:
+				ok = true;
+				close = true;
+				break;
+			case InputManager::MENU:
 				ok = false;
 				close = true;
 				break;

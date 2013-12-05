@@ -606,18 +606,6 @@ void LinkApp::launch(const string &selectedFile) {
 	//check if we have to quit
 	string command = cmdclean(exec);
 
-	// Check to see if permissions are desirable
-	struct stat fstat;
-	if( stat( command.c_str(), &fstat ) == 0 ) {
-		struct stat newstat = fstat;
-		if( S_IRUSR != ( fstat.st_mode & S_IRUSR ) )
-			newstat.st_mode |= S_IRUSR;
-		if( S_IXUSR != ( fstat.st_mode & S_IXUSR ) )
-			newstat.st_mode |= S_IXUSR;
-		if( fstat.st_mode != newstat.st_mode )
-			chmod( command.c_str(), newstat.st_mode );
-	} // else, well.. we are no worse off :)
-
 	if (!params.empty()) command += " " + params;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	if (gmenu2x->confInt["outputLogs"] && !consoleApp)

@@ -631,25 +631,6 @@ void LinkApp::launch(const string &selectedFile) {
 #endif
 	gmenu2x->quit();
 
-	/* Make the terminal we're connected to (via stdin/stdout) our
-		controlling terminal again.  Else many console programs are
-		not going to work correctly.  Actually this would not be
-		necessary, if SDL correctly restored terminal state after
-		SDL_Quit(). */
-	(void) setsid();
-
-	ioctl(1, TIOCSCTTY, STDOUT_FILENO);
-	(void) dup2(STDOUT_FILENO, 0);
-	(void) dup2(STDOUT_FILENO, 1);
-	(void) dup2(STDOUT_FILENO, 2);
-
-	if (STDOUT_FILENO > 2)
-		close(STDOUT_FILENO);
-
-	int pgid = tcgetpgrp(STDOUT_FILENO);
-	signal(SIGTTOU, SIG_IGN);
-	tcsetpgrp(STDOUT_FILENO, pgid);
-
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 	if (consoleApp) {
 		/* Enable the framebuffer console */

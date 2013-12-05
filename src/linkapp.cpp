@@ -586,11 +586,6 @@ void LinkApp::launch(const string &selectedFile) {
 
 	INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
 
-	//check if we have to quit
-	string command = exec;
-
-	if (!params.empty()) command += " " + params;
-
 	if (gmenu2x->confInt["outputLogs"]
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 				&& !consoleApp
@@ -642,7 +637,18 @@ void LinkApp::launch(const string &selectedFile) {
 	}
 #endif
 
-	execlp("/bin/sh","/bin/sh", "-c", command.c_str(), NULL);
+	if (isOpk()) {
+#ifdef HAVE_LIBOPK
+		execlp("opkrun", "opkrun", "-m", metadata.c_str(), opkFile.c_str(),
+					!params.empty() ? params.c_str() : NULL,
+					NULL);
+#endif
+	} else {
+		execlp(exec.c_str(), exec.c_str(),
+					!params.empty() ? params.c_str() : NULL,
+					NULL);
+	}
+
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x
 	gmenu2x->main();

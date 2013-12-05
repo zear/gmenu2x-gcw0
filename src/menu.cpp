@@ -26,6 +26,7 @@
 #include <math.h>
 #include <fstream>
 #include <unistd.h>
+#include <ini.h>
 
 #ifdef HAVE_LIBOPK
 #include <opk.h>
@@ -674,11 +675,11 @@ void Menu::openPackage(std::string path, bool order)
 	for (;;) {
 		unsigned int i;
 		bool has_metadata = false;
+		const char *name;
 		LinkApp *link;
 
 		for (;;) {
 			string::size_type pos;
-			const char *name;
 			int ret = opk_open_metadata(opk, &name);
 			if (ret < 0) {
 				ERROR("Error while loading meta-data\n");
@@ -704,7 +705,7 @@ void Menu::openPackage(std::string path, bool order)
 		if (!has_metadata)
 		  break;
 
-		link = new LinkApp(gmenu2x, path.c_str(), opk);
+		link = new LinkApp(gmenu2x, path.c_str(), opk, name);
 		link->setSize(gmenu2x->skinConfInt["linkWidth"], gmenu2x->skinConfInt["linkHeight"]);
 
 		addSection(link->getCategory());

@@ -57,7 +57,8 @@ using namespace std;
 static const char *tokens[] = { "%f", "%F", "%u", "%U", };
 
 #ifdef HAVE_LIBOPK
-LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile, struct OPK *opk)
+LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile,
+			struct OPK *opk, const char *metadata_)
 #else
 LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 #endif
@@ -80,12 +81,14 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 
 #ifdef HAVE_LIBOPK
 	isOPK = !!opk;
+
 	if (isOPK) {
 		string::size_type pos;
 		const char *key, *val;
 		size_t lkey, lval;
 		int ret;
 
+		metadata.assign(metadata_);
 		opkFile = file;
 		pos = file.rfind('/');
 		opkMount = file.substr(pos+1);
@@ -553,27 +556,7 @@ void LinkApp::launch(const string &selectedFile) {
 
 	if (isOpk()) {
 #ifdef HAVE_LIBOPK
-		int err;
-
-		/* To be sure... */
-		string cmd = "umount " + opkMount;
-		system(cmd.c_str());
-
-		mkdir(opkMount.c_str(), 0700);
-		cmd = "mount -o loop,nosuid,ro " + opkFile + ' ' + opkMount;
-		err = system(cmd.c_str());
-
-		if (err) {
-			ERROR("Unable to mount OPK\n");
-			return;
-		}
-
-		chdir(opkMount.c_str());
-		if (exec[0] != '/') {
-			string tmp = opkMount + exec.substr(0, exec.find(" "));
-			if (fileExists(tmp))
-				exec = opkMount + exec;
-		}
+		exec = "/usr/bin/opkrun -m " + metadata + " " + opkFile;
 #endif
 	} else {
 		//Set correct working directory
@@ -604,7 +587,7 @@ void LinkApp::launch(const string &selectedFile) {
 	INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
 
 	//check if we have to quit
-	string command = cmdclean(exec);
+	string command = exec;
 
 	if (!params.empty()) command += " " + params;
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
@@ -613,10 +596,6 @@ void LinkApp::launch(const string &selectedFile) {
 #else
 	if (gmenu2x->confInt["outputLogs"])
 		command += " &> " LOG_FILE;
-#endif
-#ifdef HAVE_LIBOPK
-	if (isOPK)
-		command += " ; umount -l " + opkMount;
 #endif
 
 	gmenu2x->saveSelection();

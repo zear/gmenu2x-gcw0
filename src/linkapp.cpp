@@ -590,13 +590,22 @@ void LinkApp::launch(const string &selectedFile) {
 	string command = exec;
 
 	if (!params.empty()) command += " " + params;
+
+	if (gmenu2x->confInt["outputLogs"]
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
-		command += " &> " LOG_FILE;
-#else
-	if (gmenu2x->confInt["outputLogs"])
-		command += " &> " LOG_FILE;
+				&& !consoleApp
 #endif
+	) {
+		int fd = open(LOG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		if (fd < 0) {
+			ERROR("Unable to open log file for write: %s\n", LOG_FILE);
+		} else {
+			fflush(stdout);
+			dup2(fd, STDOUT_FILENO);
+			dup2(fd, STDERR_FILENO);
+			close(fd);
+		}
+	}
 
 	gmenu2x->saveSelection();
 

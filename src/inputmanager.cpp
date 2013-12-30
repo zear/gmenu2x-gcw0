@@ -151,6 +151,23 @@ bool InputManager::getButton(Button *button, bool wait) {
 			source = KEYBOARD;
 			break;
 #ifndef SDL_JOYSTICK_DISABLED
+		case SDL_JOYHATMOTION:
+			switch (event.jhat.value) {
+				case SDL_HAT_CENTERED:
+					return false;
+				case SDL_HAT_UP:
+					*button = UP;
+					break;
+				case SDL_HAT_DOWN:
+					*button = DOWN;
+					break;
+				case SDL_HAT_LEFT:
+					*button = LEFT;
+					break;
+				case SDL_HAT_RIGHT:
+					*button = RIGHT;
+					break;
+			}
 		case SDL_JOYBUTTONDOWN:
 			source = JOYSTICK;
 			break;
@@ -222,7 +239,7 @@ bool InputManager::getButton(Button *button, bool wait) {
 			}
 		}
 #ifndef SDL_JOYSTICK_DISABLED
-	} else if (source == JOYSTICK && event.type != SDL_JOYAXISMOTION) {
+	} else if (source == JOYSTICK && event.type == SDL_JOYBUTTONDOWN) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
 			if (buttonMap[i].source == JOYSTICK
 					&& (unsigned int)event.jbutton.button == buttonMap[i].code) {

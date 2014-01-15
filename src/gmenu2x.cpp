@@ -349,11 +349,18 @@ void GMenu2X::initBG() {
 }
 
 void GMenu2X::initFont() {
-	const string path = skinConfStr["font"];
+	if (font) {
+		delete font;
+		font = NULL;
+	}
+
+	string path = skinConfStr["font"];
 	if (!path.empty()) {
 		unsigned int size = skinConfInt["fontsize"];
 		if (!size)
 			size = 12;
+		if (path.substr(0,5)=="skin:")
+			path = sc.getSkinFilePath(path.substr(5, path.length()));
 		font = new Font(path, size);
 	} else {
 		font = Font::defaultFont();

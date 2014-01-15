@@ -349,8 +349,16 @@ void GMenu2X::initBG() {
 }
 
 void GMenu2X::initFont() {
-	delete font;
-	font = Font::defaultFont();
+	const string path = skinConfStr["font"];
+	if (!path.empty()) {
+		unsigned int size = skinConfInt["fontsize"];
+		if (!size)
+			size = 12;
+		font = new Font(path, size);
+	} else {
+		font = Font::defaultFont();
+	}
+
 	if (!font) {
 		ERROR("Cannot function without font; aborting...\n");
 		quit();

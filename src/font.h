@@ -19,6 +19,7 @@ public:
 	 * or nullptr if there was a problem creating it.
 	 */
 	static Font *defaultFont();
+	Font(const std::string &path, unsigned int size);
 	~Font();
 
 	int getTextWidth(const char *text);

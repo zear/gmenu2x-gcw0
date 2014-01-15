@@ -16,18 +16,23 @@ using namespace std;
 
 Font *Font::defaultFont()
 {
+	return new Font(TTF_FONT, TTF_FONT_SIZE);
+}
+
+Font::Font(const std::string &path, unsigned int size)
+{
 	if (!TTF_WasInit() && TTF_Init() < 0) {
 		ERROR("Unable to init SDL_ttf library\n");
-		return nullptr;
+		return;
 	}
 
-	TTF_Font *font = TTF_OpenFont(TTF_FONT, TTF_FONT_SIZE);
+	font = TTF_OpenFont(path.c_str(), size);
 	if (!font) {
 		ERROR("Unable to open font\n");
-		return nullptr;
+		return;
 	}
 
-	return new Font(font);
+	fontheight = TTF_FontHeight(font);
 }
 
 Font::Font(TTF_Font *font)

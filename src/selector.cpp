@@ -40,8 +40,6 @@
 
 using namespace std;
 
-#define SELECTOR_ELEMENTS 11
-
 Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
 	Dialog(gmenu2x)
 {
@@ -79,6 +77,12 @@ int Selector::exec(int startSelection) {
 		gmenu2x->drawButton(&bg, "accept", gmenu2x->tr["Select a file"], 5)) - 10);
 	}
 
+	unsigned int top, height;
+	tie(top, height) = gmenu2x->getContentArea();
+
+	int fontheight = gmenu2x->font->getHeight();
+	unsigned int nb_elements = height / fontheight;
+
 	bg.convertToDisplayFormat();
 
 	Uint32 selTick = SDL_GetTicks(), curTick;
@@ -94,14 +98,15 @@ int Selector::exec(int startSelection) {
 	while (!close) {
 		bg.blit(gmenu2x->s,0,0);
 
-		if (selected>=firstElement+SELECTOR_ELEMENTS) firstElement=selected-SELECTOR_ELEMENTS+1;
-		if (selected<firstElement) firstElement=selected;
+		if (selected >= firstElement + nb_elements)
+			firstElement = selected - nb_elements + 1;
+		if (selected < firstElement)
+			firstElement = selected;
 
 		//Selection
-		iY = selected-firstElement;
-		iY = 42+(iY*16);
+		iY = top + (selected - firstElement) * fontheight;
 		if (selected<fl.size())
-			gmenu2x->s->box(1, iY, 309, 14, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+			gmenu2x->s->box(1, iY, 309, fontheight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Screenshot
 		if (selected-fl.dirCount()<screens.size()
@@ -115,18 +120,21 @@ int Selector::exec(int startSelection) {
 		}
 
 		//Files & Dirs
-		gmenu2x->s->setClipRect(0,41,311,179);
-		for (i=firstElement; i<fl.size() && i<firstElement+SELECTOR_ELEMENTS; i++) {
+		gmenu2x->s->setClipRect(0, top, 311, height);
+		for (i = firstElement; i < fl.size()
+					&& i < firstElement + nb_elements; i++) {
 			iY = i-firstElement;
 			if (fl.isDirectory(i)) {
-				gmenu2x->sc["imgs/folder.png"]->blit(gmenu2x->s, 4, 42+(iY*16));
-				gmenu2x->s->write(gmenu2x->font, fl[i], 21, 49+(iY*16), Font::HAlignLeft, Font::VAlignMiddle);
+				gmenu2x->sc["imgs/folder.png"]->blit(gmenu2x->s, 4, top + (iY * fontheight));
+				gmenu2x->s->write(gmenu2x->font, fl[i], 21, top+(iY * fontheight), Font::HAlignLeft, Font::VAlignMiddle);
 			} else
-				gmenu2x->s->write(gmenu2x->font, titles[i-fl.dirCount()], 4, 49+(iY*16), Font::HAlignLeft, Font::VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, titles[i - fl.dirCount()], 4,
+							top + (iY * fontheight),
+							Font::HAlignLeft, Font::VAlignTop);
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(SELECTOR_ELEMENTS, fl.size(), firstElement);
+		gmenu2x->drawScrollBar(nb_elements, fl.size(), firstElement);
 		gmenu2x->s->flip();
 
 		switch (gmenu2x->input.waitForPressedButton()) {
@@ -142,8 +150,10 @@ int Selector::exec(int startSelection) {
 				break;
 
 			case InputManager::ALTLEFT:
-				if ((int)(selected-SELECTOR_ELEMENTS+1)<0) selected = 0;
-				else selected -= SELECTOR_ELEMENTS-1;
+				if ((int)(selected - nb_elements + 1) < 0)
+					selected = 0;
+				else
+					selected -= nb_elements - 1;
 				selTick = SDL_GetTicks();
 				break;
 
@@ -154,8 +164,10 @@ int Selector::exec(int startSelection) {
 				break;
 
 			case InputManager::ALTRIGHT:
-				if (selected+SELECTOR_ELEMENTS-1>=fl.size()) selected = fl.size()-1;
-				else selected += SELECTOR_ELEMENTS-1;
+				if (selected + nb_elements - 1 >= fl.size())
+					selected = fl.size() - 1;
+				else
+					selected += nb_elements - 1;
 				selTick = SDL_GetTicks();
 				break;
 

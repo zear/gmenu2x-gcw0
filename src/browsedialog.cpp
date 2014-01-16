@@ -60,6 +60,7 @@ bool BrowseDialog::exec()
 
 	const int topBarHeight = gmenu2x->skinConfInt["topBarHeight"];
 	rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	rowHeight = constrain(rowHeight, 20, 40);
 	numRows = (gmenu2x->resY - topBarHeight - 20) / rowHeight;
 	clipRect = (SDL_Rect) {
 		0,
@@ -271,7 +272,7 @@ void BrowseDialog::paint()
 			icon = iconFile;
 		}
 		icon->blit(gmenu2x->s, 5, offsetY);
-		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + 8,
+		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + rowHeight / 2,
 				Font::HAlignLeft, Font::VAlignMiddle);
 
 		if (ts.available() && ts.pressed()

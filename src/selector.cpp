@@ -81,6 +81,8 @@ int Selector::exec(int startSelection) {
 	tie(top, height) = gmenu2x->getContentArea();
 
 	int fontheight = gmenu2x->font->getHeight();
+	if (link->getSelectorBrowser())
+		fontheight = constrain(fontheight, 20, 40);
 	unsigned int nb_elements = height / fontheight;
 
 	bg.convertToDisplayFormat();
@@ -126,11 +128,13 @@ int Selector::exec(int startSelection) {
 			iY = i-firstElement;
 			if (fl.isDirectory(i)) {
 				gmenu2x->sc["imgs/folder.png"]->blit(gmenu2x->s, 4, top + (iY * fontheight));
-				gmenu2x->s->write(gmenu2x->font, fl[i], 21, top+(iY * fontheight), Font::HAlignLeft, Font::VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, fl[i], 21,
+							top + (iY * fontheight) + (fontheight / 2),
+							Font::HAlignLeft, Font::VAlignMiddle);
 			} else
 				gmenu2x->s->write(gmenu2x->font, titles[i - fl.dirCount()], 4,
-							top + (iY * fontheight),
-							Font::HAlignLeft, Font::VAlignTop);
+							top + (iY * fontheight) + (fontheight / 2),
+							Font::HAlignLeft, Font::VAlignMiddle);
 		}
 		gmenu2x->s->clearClipRect();
 

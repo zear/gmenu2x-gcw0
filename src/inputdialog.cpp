@@ -151,15 +151,17 @@ bool InputDialog::exec() {
 	Uint32 caretTick = 0, curTick;
 	bool caretOn = true;
 
+	Surface bg(gmenu2x->bg);
+	drawTitleIcon(icon, false, &bg);
+	writeTitle(title, &bg);
+	writeSubTitle(text, &bg);
+	buttonbox->paint(&bg, 5);
+	bg.convertToDisplayFormat();
+
 	close = false;
 	ok = true;
 	while (!close) {
-		gmenu2x->bg->blit(gmenu2x->s,0,0);
-		writeTitle(title);
-		writeSubTitle(text);
-		drawTitleIcon(icon);
-
-		buttonbox->paint(gmenu2x->s, 5);
+		bg.blit(gmenu2x->s,0,0);
 
 		box.w = gmenu2x->font->getTextWidth(input) + 18;
 		box.x = 160 - box.w / 2;

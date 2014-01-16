@@ -227,12 +227,14 @@ void BrowseDialog::paint()
 	unsigned int firstElement, lastElement;
 	unsigned int offsetY;
 
-	gmenu2x->bg->blit(gmenu2x->s, 0, 0);
-	drawTitleIcon("icons/explorer.png", true);
-	writeTitle(title);
-	writeSubTitle(subtitle);
+	Surface bg(gmenu2x->bg);
+	drawTitleIcon("icons/explorer.png", true, &bg);
+	writeTitle(title, &bg);
+	writeSubTitle(subtitle, &bg);
+	buttonBox.paint(&bg, 5);
 
-	buttonBox.paint(gmenu2x->s, 5);
+	bg.convertToDisplayFormat();
+	bg.blit(gmenu2x->s,0,0);
 
 	// TODO(MtH): I have no idea what the right value of firstElement would be,
 	//            but originally it was undefined and that is never a good idea.

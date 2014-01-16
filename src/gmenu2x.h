@@ -100,11 +100,6 @@ private:
 	void initCPULimits();
 #endif
 	void browsePath(const std::string &path, std::vector<std::string>* directories, std::vector<std::string>* files);
-	/*!
-	Performs the actual scan in the given path and populates the files vector with the results. The creation of the links is not performed here.
-	@see scanner
-	*/
-	void scanPath(std::string path, std::vector<std::string> *files);
 
 	/*!
 	Displays a selector and launches the specified executable file
@@ -171,11 +166,6 @@ public:
 
 	//Status functions
 	void main();
-	/**
-	 * Starts the scanning of the nand and sd filesystems, searching for dge
-	 * and gpu files and creating the links in 2 dedicated sections.
-	 */
-	void scanner();
 	void showContextMenu();
 	void showHelpPopup();
 	void showManual();

@@ -74,9 +74,6 @@ ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 	options.push_back(std::make_shared<MenuOption>(
 			tr["Delete section"],
 			std::bind(&GMenu2X::deleteSection, &gmenu2x)));
-	options.push_back(std::make_shared<MenuOption>(
-			tr["Scan for applications and games"],
-			std::bind(&GMenu2X::scanner, &gmenu2x)));
 
 	// Compute bounding box.
 	int w = 0;

@@ -843,10 +843,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 		}
 	}
 
-	evalIntConf(&skinConfInt["topBarHeight"], 40, 32, 120);
+	evalIntConf(&skinConfInt["topBarHeight"], 50, 32, 120);
 	evalIntConf(&skinConfInt["bottomBarHeight"], 20, 20, 120);
-	evalIntConf(&skinConfInt["linkHeight"], 40, 32, 120);
-	evalIntConf(&skinConfInt["linkWidth"], 60, 32, 120);
+	evalIntConf(&skinConfInt["linkHeight"], 50, 32, 120);
+	evalIntConf(&skinConfInt["linkWidth"], 80, 32, 120);
 
 	if (menu != NULL) menu->skinUpdated();
 

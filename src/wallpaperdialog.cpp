@@ -81,9 +81,17 @@ bool WallpaperDialog::exec()
 	buttonbox.add(new IconButton(gmenu2x, ts, "skin:imgs/buttons/accept.png", gmenu2x->tr["Select wallpaper"]));
 	buttonbox.add(new IconButton(gmenu2x, ts, "skin:imgs/buttons/cancel.png", gmenu2x->tr["Exit"]));
 
+	unsigned int top, height;
+	tie(top, height) = gmenu2x->getContentArea();
+
+	int fontheight = gmenu2x->font->getHeight();
+	unsigned int nb_elements = height / fontheight;
+
 	while (!close) {
-		if (selected>firstElement+9) firstElement=selected-9;
-		if (selected<firstElement) firstElement=selected;
+		if (selected > firstElement + nb_elements - 1)
+			firstElement = selected - nb_elements + 1;
+		if (selected < firstElement)
+			firstElement = selected;
 
 		//Wallpaper
 		gmenu2x->sc[((string)"skin:wallpapers/" + wallpapers[selected]).c_str()]->blit(gmenu2x->s, 0, 0);
@@ -98,19 +106,22 @@ bool WallpaperDialog::exec()
 		buttonbox.paint(gmenu2x->s, 5);
 
 		//Selection
-		iY = selected-firstElement;
-		iY = 44+(iY*17);
-		gmenu2x->s->box(2, iY, 308, 16,	gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		iY = selected - firstElement;
+		iY = top + (iY * fontheight);
+		gmenu2x->s->box(2, iY, 308, fontheight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
-		gmenu2x->s->setClipRect(0,41,311,179);
-		for (i=firstElement; i<wallpapers.size() && i<firstElement+10; i++) {
+		gmenu2x->s->setClipRect(0, top, 311, height);
+		for (i = firstElement; i < wallpapers.size()
+					&& i < firstElement + nb_elements; i++) {
 			iY = i-firstElement;
-			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, 52+(iY*17), Font::HAlignLeft, Font::VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5,
+						top + (iY * fontheight),
+						Font::HAlignLeft, Font::VAlignTop);
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(10, wallpapers.size(), firstElement);
+		gmenu2x->drawScrollBar(nb_elements, wallpapers.size(), firstElement);
 		gmenu2x->s->flip();
 
         switch(gmenu2x->input.waitForPressedButton()) {
@@ -123,16 +134,20 @@ bool WallpaperDialog::exec()
                 else selected -= 1;
                 break;
             case InputManager::ALTLEFT:
-                if ((int)(selected-9) < 0) selected = 0;
-                else selected -= 9;
+                if ((int)(selected - nb_elements + 1) < 0)
+					selected = 0;
+                else
+					selected -= nb_elements - 1;
                 break;
             case InputManager::DOWN:
                 if (selected+1 >= wallpapers.size()) selected = 0;
                 else selected += 1;
                 break;
             case InputManager::ALTRIGHT:
-                if (selected+9 >= wallpapers.size()) selected = wallpapers.size()-1;
-                else selected += 9;
+                if (selected + nb_elements - 1 >= wallpapers.size())
+					selected = wallpapers.size() - 1;
+                else
+					selected += nb_elements - 1;
                 break;
             case InputManager::ACCEPT:
                 close = true;

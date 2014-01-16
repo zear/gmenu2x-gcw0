@@ -1177,10 +1177,10 @@ string GMenu2X::getDiskFree(const char *path) {
 	return df;
 }
 
-int GMenu2X::drawButton(IconButton *btn, int x, int y) {
+int GMenu2X::drawButton(Surface *s, IconButton *btn, int x, int y) {
 	if (y<0) y = resY+y;
 	btn->setPosition(x, y-7);
-	btn->paint();
+	btn->paint(s);
 	return x+btn->getRect().w+6;
 }
 

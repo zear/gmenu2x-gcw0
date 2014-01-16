@@ -22,10 +22,10 @@ void ButtonBox::clear()
 	buttons.clear();
 }
 
-void ButtonBox::paint(unsigned int posX)
+void ButtonBox::paint(Surface *s, unsigned int posX)
 {
 	for (auto button : buttons)
-		posX = gmenu2x->drawButton(button, posX);
+		posX = gmenu2x->drawButton(s, button, posX);
 }
 
 void ButtonBox::handleTS()

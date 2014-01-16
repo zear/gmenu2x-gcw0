@@ -95,7 +95,7 @@ bool WallpaperDialog::exec()
 		writeTitle("Wallpaper selection");
 		writeSubTitle("Select an image from the list, to use as a wallpaper");
 
-		buttonbox.paint(5);
+		buttonbox.paint(gmenu2x->s, 5);
 
 		//Selection
 		iY = selected-firstElement;

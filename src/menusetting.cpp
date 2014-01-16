@@ -51,5 +51,5 @@ void MenuSetting::handleTS()
 
 void MenuSetting::drawSelected(int /*y*/)
 {
-	buttonBox.paint(5);
+	buttonBox.paint(gmenu2x->s, 5);
 }

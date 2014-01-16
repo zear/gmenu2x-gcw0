@@ -159,7 +159,7 @@ bool InputDialog::exec() {
 		writeSubTitle(text);
 		drawTitleIcon(icon);
 
-		buttonbox->paint(5);
+		buttonbox->paint(gmenu2x->s, 5);
 
 		box.w = gmenu2x->font->getTextWidth(input) + 18;
 		box.x = 160 - box.w / 2;

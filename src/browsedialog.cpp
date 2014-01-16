@@ -232,7 +232,7 @@ void BrowseDialog::paint()
 	writeTitle(title);
 	writeSubTitle(subtitle);
 
-	buttonBox.paint(5);
+	buttonBox.paint(gmenu2x->s, 5);
 
 	// TODO(MtH): I have no idea what the right value of firstElement would be,
 	//            but originally it was undefined and that is never a good idea.

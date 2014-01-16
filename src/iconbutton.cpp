@@ -65,12 +65,12 @@ bool IconButton::handleTS() {
 	return false;
 }
 
-void IconButton::paint() {
+void IconButton::paint(Surface *s) {
 	if (iconSurface) {
-		iconSurface->blit(gmenu2x->s, iconRect);
+		iconSurface->blit(s, iconRect);
 	}
 	if (!label.empty()) {
-		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y,
+		s->write(gmenu2x->font, label, labelRect.x, labelRect.y,
 				Font::HAlignLeft, Font::VAlignMiddle);
 	}
 }

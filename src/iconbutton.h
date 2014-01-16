@@ -2,11 +2,11 @@
 #define ICONBUTTON_H
 
 #include "delegate.h"
+#include "gmenu2x.h"
 
 #include <SDL.h>
 #include <string>
 
-class GMenu2X;
 class Surface;
 class Touchscreen;
 
@@ -23,7 +23,8 @@ public:
 
 	bool handleTS();
 
-	void paint();
+	void paint(Surface *s);
+	void paint() { paint(gmenu2x->s); }
 
 private:
 	void recalcRects();

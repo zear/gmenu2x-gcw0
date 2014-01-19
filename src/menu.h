@@ -75,7 +75,6 @@ private:
 
 	void readLinks();
 	void freeLinks();
-	void orderLinks();
 
 	// Load all the sections of the given "sections" directory.
 	void readSections(std::string parentDir);
@@ -123,6 +122,7 @@ public:
 	void deleteSelectedSection();
 
 	void skinUpdated();
+	void orderLinks();
 
 	// Layer implementation:
 	virtual bool runAnimations();

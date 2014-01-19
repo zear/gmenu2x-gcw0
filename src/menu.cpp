@@ -98,8 +98,6 @@ Menu::Menu(GMenu2X *gmenu2x, Touchscreen &ts)
 	}
 #endif
 
-	orderLinks();
-
 	btnContextMenu->setPosition(gmenu2x->resX - 38, gmenu2x->bottomBarIconY);
 	btnContextMenu->setAction(std::bind(&GMenu2X::showContextMenu, gmenu2x));
 }

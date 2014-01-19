@@ -394,6 +394,7 @@ void GMenu2X::initMenu() {
 	}
 
 	menu->skinUpdated();
+	menu->orderLinks();
 
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);

@@ -812,6 +812,15 @@ void Menu::readLinksOfSection(std::string path, std::vector<std::string> &linkfi
 
 static bool compare_links(Link *a, Link *b)
 {
+	LinkApp *app1 = dynamic_cast<LinkApp *>(a);
+	LinkApp *app2 = dynamic_cast<LinkApp *>(b);
+	bool app1_is_opk = app1 && app1->isOpk(),
+		 app2_is_opk = app2 && app2->isOpk();
+
+	if (app1_is_opk && !app2_is_opk)
+			return false;
+	if (app2_is_opk && !app1_is_opk)
+			return true;
 	return a->getTitle().compare(b->getTitle()) <= 0;
 }
 

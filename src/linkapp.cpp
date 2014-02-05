@@ -141,24 +141,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 				iconPath = this->icon;
 				updateSurfaces();
 
-			} else if (!strncmp(key, "Exec", lkey)) {
-				string tmp = buf;
-				pos = tmp.find(' ');
-				exec = tmp.substr(0, pos);
-
-				if (pos != tmp.npos) {
-					unsigned int i;
-
-					params = tmp.substr(pos + 1);
-
-					for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++) {
-						if (params.find(tokens[i]) != params.npos) {
-							selectordir = CARD_ROOT;
-							break;
-						}
-					}
-				}
-
 				continue;
 			}
 
@@ -554,11 +536,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 void LinkApp::launch(const string &selectedFile) {
 	save();
 
-	if (isOpk()) {
-#ifdef HAVE_LIBOPK
-		exec = "/usr/bin/opkrun -m " + metadata + " " + opkFile;
-#endif
-	} else {
+	if (!isOpk()) {
 		//Set correct working directory
 		string::size_type pos = exec.rfind("/");
 		if (pos != string::npos) {
@@ -583,8 +561,6 @@ void LinkApp::launch(const string &selectedFile) {
 					params.replace(pos, 2, path);
 		}
 	}
-
-	INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
 
 	if (gmenu2x->confInt["outputLogs"]
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
@@ -644,6 +620,7 @@ void LinkApp::launch(const string &selectedFile) {
 					NULL);
 #endif
 	} else {
+		INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
 		execlp(exec.c_str(), exec.c_str(),
 					!params.empty() ? params.c_str() : NULL,
 					NULL);

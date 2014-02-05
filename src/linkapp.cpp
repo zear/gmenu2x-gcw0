@@ -57,7 +57,8 @@ using namespace std;
 static const char *tokens[] = { "%f", "%F", "%u", "%U", };
 
 #ifdef HAVE_LIBOPK
-LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile, struct OPK *opk)
+LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile,
+			struct OPK *opk, const char *metadata_)
 #else
 LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 #endif
@@ -80,12 +81,14 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 
 #ifdef HAVE_LIBOPK
 	isOPK = !!opk;
+
 	if (isOPK) {
 		string::size_type pos;
 		const char *key, *val;
 		size_t lkey, lval;
 		int ret;
 
+		metadata.assign(metadata_);
 		opkFile = file;
 		pos = file.rfind('/');
 		opkMount = file.substr(pos+1);
@@ -137,24 +140,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 					this->icon = (string) linkfile + '#' + buf + ".png";
 				iconPath = this->icon;
 				updateSurfaces();
-
-			} else if (!strncmp(key, "Exec", lkey)) {
-				string tmp = buf;
-				pos = tmp.find(' ');
-				exec = tmp.substr(0, pos);
-
-				if (pos != tmp.npos) {
-					unsigned int i;
-
-					params = tmp.substr(pos + 1);
-
-					for (i = 0; i < sizeof(tokens) / sizeof(tokens[0]); i++) {
-						if (params.find(tokens[i]) != params.npos) {
-							selectordir = CARD_ROOT;
-							break;
-						}
-					}
-				}
 
 				continue;
 			}
@@ -551,31 +536,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 void LinkApp::launch(const string &selectedFile) {
 	save();
 
-	if (isOpk()) {
-#ifdef HAVE_LIBOPK
-		int err;
-
-		/* To be sure... */
-		string cmd = "umount " + opkMount;
-		system(cmd.c_str());
-
-		mkdir(opkMount.c_str(), 0700);
-		cmd = "mount -o loop,nosuid,ro " + opkFile + ' ' + opkMount;
-		err = system(cmd.c_str());
-
-		if (err) {
-			ERROR("Unable to mount OPK\n");
-			return;
-		}
-
-		chdir(opkMount.c_str());
-		if (exec[0] != '/') {
-			string tmp = opkMount + exec.substr(0, exec.find(" "));
-			if (fileExists(tmp))
-				exec = opkMount + exec;
-		}
-#endif
-	} else {
+	if (!isOpk()) {
 		//Set correct working directory
 		string::size_type pos = exec.rfind("/");
 		if (pos != string::npos) {
@@ -587,7 +548,7 @@ void LinkApp::launch(const string &selectedFile) {
 	}
 
 	if (!selectedFile.empty()) {
-		string path = cmdclean(selectedFile);
+		string path = selectedFile;
 
 		if (params.empty()) {
 			params = path;
@@ -601,23 +562,21 @@ void LinkApp::launch(const string &selectedFile) {
 		}
 	}
 
-	INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
-
-	//check if we have to quit
-	string command = cmdclean(exec);
-
-	if (!params.empty()) command += " " + params;
+	if (gmenu2x->confInt["outputLogs"]
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-	if (gmenu2x->confInt["outputLogs"] && !consoleApp)
-		command += " &> " LOG_FILE;
-#else
-	if (gmenu2x->confInt["outputLogs"])
-		command += " &> " LOG_FILE;
+				&& !consoleApp
 #endif
-#ifdef HAVE_LIBOPK
-	if (isOPK)
-		command += " ; umount -l " + opkMount;
-#endif
+	) {
+		int fd = open(LOG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		if (fd < 0) {
+			ERROR("Unable to open log file for write: %s\n", LOG_FILE);
+		} else {
+			fflush(stdout);
+			dup2(fd, STDOUT_FILENO);
+			dup2(fd, STDERR_FILENO);
+			close(fd);
+		}
+	}
 
 	gmenu2x->saveSelection();
 
@@ -654,7 +613,18 @@ void LinkApp::launch(const string &selectedFile) {
 	}
 #endif
 
-	execlp("/bin/sh","/bin/sh", "-c", command.c_str(), NULL);
+	if (isOpk()) {
+#ifdef HAVE_LIBOPK
+		execlp("opkrun", "opkrun", "-m", metadata.c_str(), opkFile.c_str(),
+					!params.empty() ? params.c_str() : NULL,
+					NULL);
+#endif
+	} else {
+		std::string command = exec + " " + params;
+		INFO("Executing '%s' (%s)\n", title.c_str(), command.c_str());
+		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+	}
+
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x
 	gmenu2x->main();

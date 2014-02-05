@@ -45,7 +45,7 @@ private:
 	bool dontleave;
 #ifdef HAVE_LIBOPK
 	bool isOPK;
-	std::string opkMount, opkFile, category;
+	std::string opkMount, opkFile, category, metadata;
 #endif
 
 	void start();
@@ -59,7 +59,8 @@ public:
 	bool isOpk() { return isOPK; }
 	const std::string &getOpkFile() { return opkFile; }
 
-	LinkApp(GMenu2X *gmenu2x, const char* linkfile, struct OPK *opk = NULL);
+	LinkApp(GMenu2X *gmenu2x, const char* linkfile,
+				struct OPK *opk = NULL, const char *metadata = NULL);
 #else
 	LinkApp(GMenu2X *gmenu2x, const char* linkfile);
 	bool isOpk() { return false; }

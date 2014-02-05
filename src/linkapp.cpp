@@ -570,7 +570,7 @@ void LinkApp::launch(const string &selectedFile) {
 	}
 
 	if (!selectedFile.empty()) {
-		string path = cmdclean(selectedFile);
+		string path = selectedFile;
 
 		if (params.empty()) {
 			params = path;

@@ -620,10 +620,9 @@ void LinkApp::launch(const string &selectedFile) {
 					NULL);
 #endif
 	} else {
-		INFO("Executing '%s' (%s %s)\n", title.c_str(), exec.c_str(), params.c_str());
-		execlp(exec.c_str(), exec.c_str(),
-					!params.empty() ? params.c_str() : NULL,
-					NULL);
+		std::string command = exec + " " + params;
+		INFO("Executing '%s' (%s)\n", title.c_str(), command.c_str());
+		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 	}
 
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue

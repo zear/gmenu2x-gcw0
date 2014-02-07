@@ -302,11 +302,7 @@ void GMenu2X::initBG() {
 	Surface *sd = Surface::loadImage("imgs/sd.png", confStr["skin"]);
 	if (sd) sd->blit(bgmain, 3, bottomBarIconY);
 
-#if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
-	string df = getDiskFree("/boot");
-#else
-	string df = getDiskFree(CARD_ROOT);
-#endif
+	string df = getDiskFree(getHome().c_str());
 	bgmain->write(font, df, 22, bottomBarTextY, Font::HAlignLeft, Font::VAlignMiddle);
 	delete sd;
 

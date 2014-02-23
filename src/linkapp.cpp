@@ -549,6 +549,8 @@ void LinkApp::launch(const string &selectedFile) {
 
 	if (!selectedFile.empty()) {
 		string path = selectedFile;
+		if (!isOpk())
+			path = cmdclean(path);
 
 		if (params.empty()) {
 			params = path;

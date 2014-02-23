@@ -182,8 +182,6 @@ public:
 	unsigned getDefaultAppClock() { return cpuFreqAppDefault; }
 #endif
 
-	void setInputSpeed();
-
 	/**
 	 * Requests that the given application be launched.
 	 * The launch won't happen immediately; it will happen after control

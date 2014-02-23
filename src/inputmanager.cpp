@@ -51,6 +51,7 @@ InputManager::InputManager()
 	for (i = 0; i < SDL_NumJoysticks(); i++) {
 		struct Joystick joystick = {
 			SDL_JoystickOpen(i), false, false, false, false,
+			SDL_HAT_CENTERED, nullptr,
 		};
 		joysticks.push_back(joystick);
 	}
@@ -151,22 +152,28 @@ bool InputManager::getButton(Button *button, bool wait) {
 			source = KEYBOARD;
 			break;
 #ifndef SDL_JOYSTICK_DISABLED
-		case SDL_JOYHATMOTION:
-			switch (event.jhat.value) {
-				case SDL_HAT_CENTERED:
-					return false;
-				case SDL_HAT_UP:
-					*button = UP;
-					break;
-				case SDL_HAT_DOWN:
-					*button = DOWN;
-					break;
-				case SDL_HAT_LEFT:
-					*button = LEFT;
-					break;
-				case SDL_HAT_RIGHT:
-					*button = RIGHT;
-					break;
+		case SDL_JOYHATMOTION: {
+				Joystick *joystick = &joysticks[event.jaxis.which];
+				joystick->hatState = event.jhat.value;
+
+				switch (event.jhat.value) {
+					case SDL_HAT_CENTERED:
+						stopTimer(joystick);
+						return false;
+					case SDL_HAT_UP:
+						*button = UP;
+						break;
+					case SDL_HAT_DOWN:
+						*button = DOWN;
+						break;
+					case SDL_HAT_LEFT:
+						*button = LEFT;
+						break;
+					case SDL_HAT_RIGHT:
+						*button = RIGHT;
+						break;
+				}
+				startTimer(joystick);
 			}
 		case SDL_JOYBUTTONDOWN:
 			source = JOYSTICK;
@@ -179,7 +186,8 @@ bool InputManager::getButton(Button *button, bool wait) {
 				if (axis > 1)
 					return false;
 
-				bool *axisState = joysticks[event.jaxis.which].axisState[axis];
+				Joystick *joystick = &joysticks[event.jaxis.which];
+				bool *axisState = joystick->axisState[axis];
 
 				if (event.jaxis.value < -20000) {
 					if (axisState[AXIS_STATE_NEGATIVE])
@@ -194,9 +202,17 @@ bool InputManager::getButton(Button *button, bool wait) {
 					axisState[AXIS_STATE_POSITIVE] = true;
 					*button = axis ? DOWN : RIGHT;
 				} else {
+					bool *otherAxisState = joystick->axisState[!axis];
+					if (!otherAxisState[AXIS_STATE_NEGATIVE] &&
+								!otherAxisState[AXIS_STATE_POSITIVE] && (
+									axisState[AXIS_STATE_NEGATIVE] ||
+									axisState[AXIS_STATE_POSITIVE]))
+						stopTimer(joystick);
+
 					axisState[0] = axisState[1] = false;
 					return false;
 				}
+				startTimer(joystick);
 				break;
 			}
 #endif
@@ -258,4 +274,46 @@ bool InputManager::getButton(Button *button, bool wait) {
 	}
 
 	return true;
+}
+
+Uint32 keyRepeatCallback(Uint32 timeout __attribute__((unused)), void *d)
+{
+	struct Joystick *joystick = (struct Joystick *) d;
+	Uint8 hatState = joystick->hatState;
+
+	if (joystick->axisState[1][AXIS_STATE_NEGATIVE])
+		hatState |= SDL_HAT_UP;
+	else if (joystick->axisState[1][AXIS_STATE_POSITIVE])
+		hatState |= SDL_HAT_DOWN;
+	if (joystick->axisState[0][AXIS_STATE_NEGATIVE])
+		hatState |= SDL_HAT_LEFT;
+	else if (joystick->axisState[0][AXIS_STATE_POSITIVE])
+		hatState |= SDL_HAT_RIGHT;
+
+	SDL_JoyHatEvent e = {
+		.type = SDL_JOYHATMOTION,
+		.which = (Uint8) SDL_JoystickIndex(joystick->joystick),
+		.hat = 0,
+		.value = hatState,
+	};
+	SDL_PushEvent((SDL_Event *) &e);
+
+	return INPUT_KEY_REPEAT_RATE;
+}
+
+void InputManager::startTimer(Joystick *joystick)
+{
+	if (joystick->timer)
+		return;
+
+	joystick->timer = SDL_AddTimer(INPUT_KEY_REPEAT_DELAY,
+				keyRepeatCallback, joystick);
+}
+
+void InputManager::stopTimer(Joystick *joystick)
+{
+	if (joystick->timer) {
+		SDL_RemoveTimer(joystick->timer);
+		joystick->timer = nullptr;
+	}
 }

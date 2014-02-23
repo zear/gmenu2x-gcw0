@@ -25,6 +25,9 @@
 #include <string>
 #include <vector>
 
+#define INPUT_KEY_REPEAT_DELAY 250
+#define INPUT_KEY_REPEAT_RATE  150
+
 class Menu;
 
 enum EventCode {
@@ -33,6 +36,17 @@ enum EventCode {
 	OPEN_PACKAGES_FROM_DIR,
 	REPAINT_MENU,
 };
+
+#ifndef SDL_JOYSTICK_DISABLED
+#define AXIS_STATE_POSITIVE 0
+#define AXIS_STATE_NEGATIVE 1
+struct Joystick {
+	SDL_Joystick *joystick;
+	bool axisState[2][2];
+	Uint8 hatState;
+	SDL_TimerID timer;
+};
+#endif
 
 class InputManager {
 public:
@@ -66,14 +80,10 @@ private:
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];
 #ifndef SDL_JOYSTICK_DISABLED
-#define AXIS_STATE_POSITIVE 0
-#define AXIS_STATE_NEGATIVE 1
-	struct Joystick {
-		SDL_Joystick *joystick;
-		bool axisState[2][2];
-	};
-
 	std::vector<Joystick> joysticks;
+
+	void startTimer(Joystick *joystick);
+	void stopTimer(Joystick *joystick);
 #endif
 };
 

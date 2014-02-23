@@ -257,7 +257,7 @@ GMenu2X::GMenu2X()
 	if (confInt["backlightTimeout"] > 0)
         PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );
 
-	setInputSpeed();
+	SDL_EnableKeyRepeat(INPUT_KEY_REPEAT_DELAY, INPUT_KEY_REPEAT_RATE);
 #ifdef ENABLE_CPUFREQ
 	setClock(confInt["menuClock"]);
 #endif
@@ -1037,10 +1037,6 @@ typedef struct {
 	unsigned short batt;
 	unsigned short remocon;
 } MMSP2ADC;
-
-void GMenu2X::setInputSpeed() {
-	SDL_EnableKeyRepeat(250, 150);
-}
 
 #ifdef ENABLE_CPUFREQ
 void GMenu2X::setClock(unsigned mhz) {

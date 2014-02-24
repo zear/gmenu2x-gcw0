@@ -279,16 +279,18 @@ bool InputManager::getButton(Button *button, bool wait) {
 Uint32 keyRepeatCallback(Uint32 timeout __attribute__((unused)), void *d)
 {
 	struct Joystick *joystick = (struct Joystick *) d;
-	Uint8 hatState = joystick->hatState;
+	Uint8 hatState;
 
 	if (joystick->axisState[1][AXIS_STATE_NEGATIVE])
-		hatState |= SDL_HAT_UP;
+		hatState = SDL_HAT_UP;
 	else if (joystick->axisState[1][AXIS_STATE_POSITIVE])
-		hatState |= SDL_HAT_DOWN;
-	if (joystick->axisState[0][AXIS_STATE_NEGATIVE])
-		hatState |= SDL_HAT_LEFT;
+		hatState = SDL_HAT_DOWN;
+	else if (joystick->axisState[0][AXIS_STATE_NEGATIVE])
+		hatState = SDL_HAT_LEFT;
 	else if (joystick->axisState[0][AXIS_STATE_POSITIVE])
-		hatState |= SDL_HAT_RIGHT;
+		hatState = SDL_HAT_RIGHT;
+	else
+		hatState = joystick->hatState;
 
 	SDL_JoyHatEvent e = {
 		.type = SDL_JOYHATMOTION,

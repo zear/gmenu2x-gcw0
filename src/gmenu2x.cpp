@@ -217,6 +217,12 @@ GMenu2X::GMenu2X()
 	 */
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 
+	bg = NULL;
+	font = NULL;
+	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
+	layers.insert(layers.begin(), make_shared<Background>(*this));
+	initMenu();
+
 	//Screen
 	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
 		ERROR("Could not initialize SDL: %s\n", SDL_GetError());
@@ -224,12 +230,6 @@ GMenu2X::GMenu2X()
 	}
 
 	s = Surface::openOutputSurface(resX, resY, confInt["videoBpp"]);
-
-	bg = NULL;
-	font = NULL;
-	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
-	layers.insert(layers.begin(), make_shared<Background>(*this));
-	initMenu();
 
 #ifdef ENABLE_INOTIFY
 	monitor = new MediaMonitor(CARD_ROOT);

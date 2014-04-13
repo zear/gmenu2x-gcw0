@@ -217,14 +217,21 @@ GMenu2X::GMenu2X()
 	 */
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 
+	if( SDL_Init(SDL_INIT_TIMER) < 0) {
+		ERROR("Could not initialize SDL: %s\n", SDL_GetError());
+		quit();
+	}
+
 	bg = NULL;
 	font = NULL;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	layers.insert(layers.begin(), make_shared<Background>(*this));
 	initMenu();
 
-	//Screen
-	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
+	/* We enable video at a later stage, so that the menu elements are
+	 * loaded before SDL inits the video; this is made so that we won't show
+	 * a black screen for a couple of seconds. */
+	if( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
 		ERROR("Could not initialize SDL: %s\n", SDL_GetError());
 		quit();
 	}

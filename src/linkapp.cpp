@@ -56,6 +56,8 @@ using namespace std;
 
 static const char *tokens[] = { "%f", "%F", "%u", "%U", };
 
+#define ARRAY_SIZE(x) (!sizeof(x) ?: sizeof(x) / sizeof((x)[0]))
+
 #ifdef HAVE_LIBOPK
 LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile,
 			struct OPK *opk, const char *metadata_)
@@ -140,6 +142,17 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 					this->icon = (string) linkfile + '#' + buf + ".png";
 				iconPath = this->icon;
 				updateSurfaces();
+
+			} else if (!strncmp(key, "Exec", lkey)) {
+				string tmp = buf;
+				unsigned int i;
+
+				for (i = 0; i < ARRAY_SIZE(tokens); i++) {
+					if (tmp.find(tokens[i]) != tmp.npos) {
+						selectordir = CARD_ROOT;
+						break;
+					}
+				}
 
 				continue;
 			}
@@ -623,7 +636,6 @@ void LinkApp::launch(const string &selectedFile) {
 #endif
 	} else {
 		std::string command = exec + " " + params;
-		INFO("Executing '%s' (%s)\n", title.c_str(), command.c_str());
 		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 	}
 

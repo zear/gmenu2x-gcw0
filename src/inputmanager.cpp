@@ -33,7 +33,8 @@ void InputManager::init(const string &conffile, Menu *menu) {
 	this->menu = menu;
 
 	for (int i = 0; i < BUTTON_TYPE_SIZE; i++) {
-		buttonMap[i].source = UNMAPPED;
+		buttonMap[i].js_mapped = false;
+		buttonMap[i].kb_mapped = false;
 	}
 	readConfFile(conffile);
 }
@@ -102,20 +103,19 @@ void InputManager::readConfFile(const string &conffile) {
 		string sourceStr = trim(line.substr(0,pos));
 		line = trim(line.substr(pos+1, line.length()));
 
-		ButtonSource source;
 		if (sourceStr == "keyboard") {
-			source = KEYBOARD;
+			buttonMap[button].kb_mapped = true;
+			buttonMap[button].kb_code = atoi(line.c_str());
 #ifndef SDL_JOYSTICK_DISABLED
 		} else if (sourceStr == "joystick") {
-			source = JOYSTICK;
+			buttonMap[button].js_mapped = true;
+			buttonMap[button].js_code = atoi(line.c_str());
 #endif
 		} else {
 			WARNING("InputManager: Ignoring unknown button source \"%s\"\n",
 					sourceStr.c_str());
 			continue;
 		}
-		buttonMap[button].source = source;
-		buttonMap[button].code = atoi(line.c_str());
 	}
 
 	inf.close();
@@ -146,10 +146,10 @@ bool InputManager::getButton(Button *button, bool wait) {
 	else if (!SDL_PollEvent(&event))
 		return false;
 
-	ButtonSource source;
+	bool is_kb = false, is_js = false;
 	switch(event.type) {
 		case SDL_KEYDOWN:
-			source = KEYBOARD;
+			is_kb = true;
 			break;
 #ifndef SDL_JOYSTICK_DISABLED
 		case SDL_JOYHATMOTION: {
@@ -176,10 +176,10 @@ bool InputManager::getButton(Button *button, bool wait) {
 				startTimer(joystick);
 			}
 		case SDL_JOYBUTTONDOWN:
-			source = JOYSTICK;
+			is_js = true;
 			break;
 		case SDL_JOYAXISMOTION: {
-				source = JOYSTICK;
+				is_js = true;
 
 				unsigned int axis = event.jaxis.axis;
 				/* We only handle the first joystick */
@@ -246,19 +246,19 @@ bool InputManager::getButton(Button *button, bool wait) {
 	}
 
 	int i = 0;
-	if (source == KEYBOARD) {
+	if (is_kb) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
-			if (buttonMap[i].source == KEYBOARD
-					&& (unsigned int)event.key.keysym.sym == buttonMap[i].code) {
+			if (buttonMap[i].kb_mapped
+					&& (unsigned int)event.key.keysym.sym == buttonMap[i].kb_code) {
 				*button = static_cast<Button>(i);
 				break;
 			}
 		}
 #ifndef SDL_JOYSTICK_DISABLED
-	} else if (source == JOYSTICK && event.type == SDL_JOYBUTTONDOWN) {
+	} else if (is_js && event.type == SDL_JOYBUTTONDOWN) {
 		for (i = 0; i < BUTTON_TYPE_SIZE; i++) {
-			if (buttonMap[i].source == JOYSTICK
-					&& (unsigned int)event.jbutton.button == buttonMap[i].code) {
+			if (buttonMap[i].js_mapped
+					&& (unsigned int)event.jbutton.button == buttonMap[i].js_code) {
 				*button = static_cast<Button>(i);
 				break;
 			}

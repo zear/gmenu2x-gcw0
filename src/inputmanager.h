@@ -70,10 +70,9 @@ public:
 private:
 	void readConfFile(const std::string &conffile);
 
-	enum ButtonSource { UNMAPPED, KEYBOARD, JOYSTICK };
 	struct ButtonMapEntry {
-		ButtonSource source;
-		unsigned int code;
+		bool kb_mapped, js_mapped;
+		unsigned int kb_code, js_code;
 	};
 
 	Menu *menu;

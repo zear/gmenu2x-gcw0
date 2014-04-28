@@ -226,7 +226,6 @@ GMenu2X::GMenu2X()
 	font = NULL;
 	setSkin(confStr["skin"], !fileExists(confStr["wallpaper"]));
 	layers.insert(layers.begin(), make_shared<Background>(*this));
-	initMenu();
 
 	/* We enable video at a later stage, so that the menu elements are
 	 * loaded before SDL inits the video; this is made so that we won't show
@@ -238,16 +237,23 @@ GMenu2X::GMenu2X()
 
 	s = Surface::openOutputSurface(resX, resY, confInt["videoBpp"]);
 
-#ifdef ENABLE_INOTIFY
-	monitor = new MediaMonitor(CARD_ROOT);
-#endif
-
 	if (!fileExists(confStr["wallpaper"])) {
 		DEBUG("No wallpaper defined; we will take the default one.\n");
 		confStr["wallpaper"] = DEFAULT_WALLPAPER_PATH;
 	}
 
 	initBG();
+
+	/* the menu may take a while to load, so we show the background here */
+	for (auto layer : layers)
+		layer->paint(*s);
+	s->flip();
+
+	initMenu();
+
+#ifdef ENABLE_INOTIFY
+	monitor = new MediaMonitor(CARD_ROOT);
+#endif
 
 	/* If a user-specified input.conf file exists, we load it;
 	 * otherwise, we load the default one. */

@@ -677,7 +677,7 @@ void GMenu2X::main() {
 }
 
 void GMenu2X::explorer() {
-	FileDialog fd(this, ts, tr["Select an application"], "dge,sh,bin,py,elf,");
+	FileDialog fd(this, ts, tr["Select an application"], "sh,bin,py,elf,");
 	if (fd.exec()) {
 		if (confInt["saveSelection"] && (confInt["section"]!=menu->selSectionIndex() || confInt["link"]!=menu->selLinkIndex()))
 			writeConfig();
@@ -885,7 +885,7 @@ void GMenu2X::changeWallpaper() {
 }
 
 void GMenu2X::addLink() {
-	FileDialog fd(this, ts, tr["Select an application"], "dge,sh,bin,py,elf,");
+	FileDialog fd(this, ts, tr["Select an application"], "sh,bin,py,elf,");
 	if (fd.exec())
 		menu->addLink(fd.getPath(), fd.getFile());
 }

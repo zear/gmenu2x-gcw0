@@ -144,15 +144,19 @@ SDL_Surface *loadPNG(const std::string &path) {
 		goto cleanup;
 	}
 
-	// Compute row pointers.
-	png_bytep rowPointers[height];
-	for (png_uint_32 y = 0; y < height; y++) {
-		rowPointers[y] =
-			static_cast<png_bytep>(surface->pixels) + y * surface->pitch;
-	}
+	// Note: GCC 4.9 doesn't want to jump over 'rowPointers' with goto
+	//       if it is in the outer scope.
+	{
+		// Compute row pointers.
+		png_bytep rowPointers[height];
+		for (png_uint_32 y = 0; y < height; y++) {
+			rowPointers[y] =
+				static_cast<png_bytep>(surface->pixels) + y * surface->pitch;
+		}
 
-	// Read the entire image in one go.
-	png_read_image(png, rowPointers);
+		// Read the entire image in one go.
+		png_read_image(png, rowPointers);
+	}
 
 	// Read rest of file, and get additional chunks in the info struct.
 	// Note: We got all we need, so skip this step.

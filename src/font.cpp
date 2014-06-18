@@ -21,6 +21,9 @@ Font *Font::defaultFont()
 
 Font::Font(const std::string &path, unsigned int size)
 {
+	font = nullptr;
+	fontheight = 1;
+
 	/* Note: TTF_Init and TTF_Quit perform reference counting, so call them
 	 * both unconditionally for each font. */
 	if (TTF_Init() < 0) {
@@ -31,6 +34,7 @@ Font::Font(const std::string &path, unsigned int size)
 	font = TTF_OpenFont(path.c_str(), size);
 	if (!font) {
 		ERROR("Unable to open font\n");
+		TTF_Quit();
 		return;
 	}
 
@@ -39,20 +43,29 @@ Font::Font(const std::string &path, unsigned int size)
 
 Font::~Font()
 {
-	TTF_CloseFont(font);
-	TTF_Quit();
+	if (font) {
+		TTF_CloseFont(font);
+		TTF_Quit();
+	}
 }
 
 int Font::getTextWidth(const char *text)
 {
-	int w, h;
-	TTF_SizeUTF8(font, text, &w, &h);
-	return w;
+	if (font) {
+		int w, h;
+		TTF_SizeUTF8(font, text, &w, &h);
+		return w;
+	}
+	else return 1;
 }
 
 void Font::write(Surface *surface, const string &text,
 			int x, int y, HAlign halign, VAlign valign)
 {
+	if (!font) {
+		return;
+	}
+
 	if (text.find("\n", 0) == string::npos) {
 		writeLine(surface, text.c_str(), x, y, halign, valign);
 		return;
@@ -70,6 +83,10 @@ void Font::write(Surface *surface, const string &text,
 void Font::writeLine(Surface *surface, const char *text,
 				int x, int y, HAlign halign, VAlign valign)
 {
+	if (!font) {
+		return;
+	}
+
 	switch (halign) {
 	case HAlignLeft:
 		break;

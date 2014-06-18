@@ -145,7 +145,7 @@ void InputDialog::setKeyboard(int kb) {
 
 bool InputDialog::exec() {
 	SDL_Rect box = {
-		0, 60, 0, static_cast<Uint16>(gmenu2x->font->getHeight() + 4)
+		0, 60, 0, static_cast<Uint16>(gmenu2x->font->getLineSpacing() + 4)
 	};
 
 	Uint32 caretTick = 0, curTick;

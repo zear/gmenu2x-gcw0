@@ -80,7 +80,7 @@ int Selector::exec(int startSelection) {
 	unsigned int top, height;
 	tie(top, height) = gmenu2x->getContentArea();
 
-	int fontheight = gmenu2x->font->getHeight();
+	int fontheight = gmenu2x->font->getLineSpacing();
 	if (link->getSelectorBrowser())
 		fontheight = constrain(fontheight, 20, 40);
 	unsigned int nb_elements = height / fontheight;

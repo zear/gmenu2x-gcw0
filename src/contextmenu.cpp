@@ -81,7 +81,7 @@ ContextMenu::ContextMenu(GMenu2X &gmenu2x, Menu &menu)
 		w = std::max(w, font->getTextWidth(option->text));
 	}
 	w += 23;
-	const int h = (font->getHeight() + 2) * options.size() + 8;
+	const int h = (font->getLineSpacing() + 2) * options.size() + 8;
 	box = {
 		static_cast<Sint16>((gmenu2x.resX - w) / 2),
 		static_cast<Sint16>((gmenu2x.resY - h) / 2),
@@ -116,7 +116,7 @@ void ContextMenu::paint(Surface &s)
 			gmenu2x.skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 	// Draw selection background.
-	const int h = font->getHeight();
+	const int h = font->getLineSpacing();
 	SDL_Rect selbox = {
 		static_cast<Sint16>(box.x + 4),
 		static_cast<Sint16>(box.y + 4 + (h + 2) * selected),
@@ -158,7 +158,7 @@ bool ContextMenu::handleButtonPress(InputManager::Button button) {
 bool ContextMenu::handleTouchscreen(Touchscreen &ts) {
 	if (ts.inRect(box)) {
 		int i = std::max(0, std::min(static_cast<int>(options.size()) - 1,
-				(ts.getY() - (box.y + 4)) / (gmenu2x.font->getHeight() + 2)));
+				(ts.getY() - (box.y + 4)) / (gmenu2x.font->getLineSpacing() + 2)));
 		if (ts.released()) {
 			options[i]->action();
 			dismiss();

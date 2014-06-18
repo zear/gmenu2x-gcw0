@@ -29,9 +29,9 @@ public:
 		return getTextWidth(text.c_str());
 	}
 
-	int getHeight()
+	int getLineSpacing()
 	{
-		return fontheight;
+		return lineSpacing;
 	}
 
 	void write(Surface *surface,
@@ -45,7 +45,7 @@ private:
 				int x, int y, HAlign halign, VAlign valign);
 
 	TTF_Font *font;
-	unsigned int fontheight;
+	int lineSpacing;
 };
 
 #endif /* FONT_H */

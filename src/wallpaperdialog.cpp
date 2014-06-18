@@ -84,7 +84,7 @@ bool WallpaperDialog::exec()
 	unsigned int top, height;
 	tie(top, height) = gmenu2x->getContentArea();
 
-	int fontheight = gmenu2x->font->getHeight();
+	int fontheight = gmenu2x->font->getLineSpacing();
 	unsigned int nb_elements = height / fontheight;
 
 	while (!close) {

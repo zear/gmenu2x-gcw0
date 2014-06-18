@@ -47,7 +47,7 @@ void IconButton::recalcRects() {
 			static_cast<Sint16>(iconRect.x + iconRect.w + margin),
 			static_cast<Sint16>(rect.y + h / 2),
 			static_cast<Uint16>(gmenu2x->font->getTextWidth(label)),
-			static_cast<Uint16>(gmenu2x->font->getHeight())
+			static_cast<Uint16>(gmenu2x->font->getLineSpacing())
 		};
 		w += margin + labelRect.w;
 	}

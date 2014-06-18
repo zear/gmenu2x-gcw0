@@ -22,7 +22,7 @@ Font *Font::defaultFont()
 Font::Font(const std::string &path, unsigned int size)
 {
 	font = nullptr;
-	fontheight = 1;
+	lineSpacing = 1;
 
 	/* Note: TTF_Init and TTF_Quit perform reference counting, so call them
 	 * both unconditionally for each font. */
@@ -38,7 +38,7 @@ Font::Font(const std::string &path, unsigned int size)
 		return;
 	}
 
-	fontheight = TTF_FontHeight(font);
+	lineSpacing = TTF_FontLineSkip(font);
 }
 
 Font::~Font()
@@ -76,7 +76,7 @@ void Font::write(Surface *surface, const string &text,
 
 	for (vector<string>::const_iterator it = v.begin(); it != v.end(); it++) {
 		writeLine(surface, it->c_str(), x, y, halign, valign);
-		y += fontheight;
+		y += lineSpacing;
 	}
 }
 
@@ -102,10 +102,10 @@ void Font::writeLine(Surface *surface, const char *text,
 	case VAlignTop:
 		break;
 	case VAlignMiddle:
-		y -= fontheight / 2;
+		y -= lineSpacing / 2;
 		break;
 	case VAlignBottom:
-		y -= fontheight;
+		y -= lineSpacing;
 		break;
 	}
 

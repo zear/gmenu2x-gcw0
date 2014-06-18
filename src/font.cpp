@@ -21,7 +21,9 @@ Font *Font::defaultFont()
 
 Font::Font(const std::string &path, unsigned int size)
 {
-	if (!TTF_WasInit() && TTF_Init() < 0) {
+	/* Note: TTF_Init and TTF_Quit perform reference counting, so call them
+	 * both unconditionally for each font. */
+	if (TTF_Init() < 0) {
 		ERROR("Unable to init SDL_ttf library\n");
 		return;
 	}
@@ -32,12 +34,6 @@ Font::Font(const std::string &path, unsigned int size)
 		return;
 	}
 
-	fontheight = TTF_FontHeight(font);
-}
-
-Font::Font(TTF_Font *font)
-	: font(font)
-{
 	fontheight = TTF_FontHeight(font);
 }
 

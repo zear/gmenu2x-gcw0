@@ -205,7 +205,7 @@ void Menu::paint(Surface &s) {
 
 	// Paint section headers.
 	s.box(width / 2  - linkWidth / 2, 0, linkWidth, topBarHeight, selectionBgColor);
-	const uint sectionLinkPadding = (topBarHeight - 32 - font.getHeight()) / 3;
+	const uint sectionLinkPadding = (topBarHeight - 32 - font.getLineSpacing()) / 3;
 	const uint numSections = sections.size();
 	for (int i = leftSection; i <= rightSection; i++) {
 		uint j = (centerSection + numSections + i) % numSections;

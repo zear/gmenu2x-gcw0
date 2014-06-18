@@ -36,7 +36,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	for (uint i = 0; i < BUTTON_TYPE_SIZE; i++) {
 		buttons[i] = "";
 		buttonLabels[i] = "";
-		buttonPositions[i].h = gmenu2x->font->getHeight();
+		buttonPositions[i].h = gmenu2x->font->getLineSpacing();
 	}
 
 	//Default enabled button
@@ -65,7 +65,7 @@ int MessageBox::exec() {
 	bg.box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,200);
 
 	SDL_Rect box;
-	box.h = gmenu2x->font->getHeight()*3 +4;
+	box.h = gmenu2x->font->getLineSpacing()*3 +4;
 	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 37 : 0);
 	box.x = gmenu2x->halfX - box.w/2 -2;
 	box.y = gmenu2x->halfY - box.h/2 -2;
@@ -73,12 +73,12 @@ int MessageBox::exec() {
 	//outer box
 	bg.box(box, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 	//draw inner rectangle
-	bg.rectangle(box.x+2, box.y+2, box.w-4, box.h-gmenu2x->font->getHeight(),
+	bg.rectangle(box.x+2, box.y+2, box.w-4, box.h-gmenu2x->font->getLineSpacing(),
 	gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
-		gmenu2x->sc[icon]->blitCenter( &bg, box.x+25, box.y+gmenu2x->font->getHeight()+3 );
-	bg.write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), box.y+gmenu2x->font->getHeight()+3, Font::HAlignLeft, Font::VAlignMiddle );
+		gmenu2x->sc[icon]->blitCenter( &bg, box.x+25, box.y+gmenu2x->font->getLineSpacing()+3 );
+	bg.write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), box.y+gmenu2x->font->getLineSpacing()+3, Font::HAlignLeft, Font::VAlignMiddle );
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
 	for (uint i = 0; i < BUTTON_TYPE_SIZE; i++) {

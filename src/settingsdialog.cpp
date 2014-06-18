@@ -70,7 +70,7 @@ bool SettingsDialog::exec() {
 		static_cast<Uint16>(gmenu2x->resX - 12),
 		static_cast<Uint16>(clipRect.h)
 	};
-	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	uint rowHeight = gmenu2x->font->getLineSpacing() + 1; // gp2x=15+1 / pandora=19+1
 	uint numRows = (gmenu2x->resY - topBarHeight - 20) / rowHeight;
 
 	while (!close) {

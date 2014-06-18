@@ -80,7 +80,7 @@ void TextDialog::preProcess() {
 void TextDialog::drawText(vector<string> *text, unsigned int y,
 		unsigned int firstRow, unsigned int rowsPerPage)
 {
-	const int fontHeight = gmenu2x->font->getHeight();
+	const int fontHeight = gmenu2x->font->getLineSpacing();
 
 	for (unsigned i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
 		const string &line = text->at(i);
@@ -117,7 +117,7 @@ void TextDialog::exec() {
 
 	bg.convertToDisplayFormat();
 
-	const int fontHeight = gmenu2x->font->getHeight();
+	const int fontHeight = gmenu2x->font->getLineSpacing();
 	unsigned int contentY, contentHeight;
 	tie(contentY, contentHeight) = gmenu2x->getContentArea();
 	const unsigned rowsPerPage = contentHeight / fontHeight;

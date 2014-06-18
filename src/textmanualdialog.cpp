@@ -89,7 +89,7 @@ void TextManualDialog::exec() {
 
 	bg.convertToDisplayFormat();
 
-	uint firstRow = 0, rowsPerPage = 180/gmenu2x->font->getHeight();
+	uint firstRow = 0, rowsPerPage = 180/gmenu2x->font->getLineSpacing();
 	stringstream ss;
 	ss << pages.size();
 	string spagecount;

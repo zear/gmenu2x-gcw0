@@ -26,7 +26,7 @@
 #include <vector>
 
 #define INPUT_KEY_REPEAT_DELAY 250
-#define INPUT_KEY_REPEAT_RATE  150
+#define INPUT_KEY_REPEAT_RATE   40
 
 class Menu;
 

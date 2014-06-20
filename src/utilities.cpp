@@ -60,6 +60,15 @@ bool fileExists(const string &file) {
 	return exists;
 }
 
+bool dirExists(const string &dir) {
+	DIR *din = opendir(dir.c_str());
+	bool exists = din != NULL;
+	if (exists)
+		closedir(din);
+
+	return exists;
+}
+
 bool rmtree(string path) {
 	DIR *dirp;
 	struct stat st;

@@ -210,8 +210,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 			setSelectorDir( value );
 		} else if (name == "selectorbrowser") {
 			if (value=="false") selectorbrowser = false;
-		} else if (name == "selectorscreens") {
-			setSelectorScreens( value );
 		} else if (name == "selectoraliases") {
 			setAliasFile( value );
 		} else if (!isOpk()) {
@@ -329,7 +327,6 @@ bool LinkApp::save() {
 		if (iclock != 0              ) f << "clock="           << iclock          << endl;
 		if (!selectordir.empty()     ) f << "selectordir="     << selectordir     << endl;
 		if (!selectorbrowser         ) f << "selectorbrowser=false"               << endl;
-		if (!selectorscreens.empty() ) f << "selectorscreens=" << selectorscreens << endl;
 		if (!aliasfile.empty()       ) f << "selectoraliases=" << aliasfile       << endl;
 		f.close();
 		sync();
@@ -698,15 +695,6 @@ const string &LinkApp::getSelectorFilter() {
 
 void LinkApp::setSelectorFilter(const string &selectorfilter) {
 	this->selectorfilter = selectorfilter;
-	edited = true;
-}
-
-const string &LinkApp::getSelectorScreens() {
-	return selectorscreens;
-}
-
-void LinkApp::setSelectorScreens(const string &selectorscreens) {
-	this->selectorscreens = selectorscreens;
 	edited = true;
 }
 

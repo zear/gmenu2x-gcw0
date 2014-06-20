@@ -36,6 +36,7 @@ std::string strreplace(std::string orig, const std::string &search, const std::s
 std::string cmdclean(std::string cmdline);
 
 bool fileExists(const std::string &file);
+bool dirExists(const std::string &dir);
 bool rmtree(std::string path);
 
 int constrain(int x, int imin, int imax);

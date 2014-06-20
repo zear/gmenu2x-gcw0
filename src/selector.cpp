@@ -105,21 +105,21 @@ int Selector::exec(int startSelection) {
 		if (selected < firstElement)
 			firstElement = selected;
 
-		//Selection
-		iY = top + (selected - firstElement) * fontheight;
-		if (selected<fl.size())
-			gmenu2x->s->box(1, iY, 309, fontheight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-
 		//Screenshot
 		if (selected-fl.dirCount()<screens.size()
 				&& !screens[selected-fl.dirCount()].empty()) {
 			curTick = SDL_GetTicks();
-			if (curTick - selTick > 200) {
-				gmenu2x->sc[screens[selected-fl.dirCount()]]->blitRight(
-						gmenu2x->s, 311, 42, 160, 160,
-						min((curTick - selTick - 200) / 3, 255u));
-			}
+			Surface *screenshot = gmenu2x->sc[screens[selected-fl.dirCount()]];
+			if (screenshot)
+				screenshot->blitRight(
+						gmenu2x->s, 320, 0, 320, 240,
+						128u);
 		}
+
+		//Selection
+		iY = top + (selected - firstElement) * fontheight;
+		if (selected<fl.size())
+			gmenu2x->s->box(1, iY, 309, fontheight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Dirs
 		gmenu2x->s->setClipRect(0, top, 311, height);

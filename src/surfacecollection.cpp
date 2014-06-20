@@ -119,7 +119,7 @@ Surface *SurfaceCollection::add(const string &path) {
 	}
 
 	DEBUG("Adding surface: '%s'\n", path.c_str());
-	Surface *s = Surface::loadImage(filePath);
+	Surface *s = Surface::loadImage(filePath, "", defaultAlpha);
 	if (s != NULL) {
 		surfaces[path] = s;
 	}

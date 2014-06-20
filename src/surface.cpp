@@ -55,14 +55,14 @@ Surface *Surface::emptySurface(int width, int height) {
 	return new Surface(raw, true);
 }
 
-Surface *Surface::loadImage(const string &img, const string &skin) {
+Surface *Surface::loadImage(const string &img, const string &skin, bool loadAlpha) {
 	string skinpath;
 	if (!skin.empty() && !img.empty() && img[0]!='/')
 	  skinpath = SurfaceCollection::getSkinFilePath(skin, img);
 	else
 	  skinpath = img;
 
-	SDL_Surface *raw = loadPNG(skinpath);
+	SDL_Surface *raw = loadPNG(skinpath, loadAlpha);
 	if (!raw) {
 		ERROR("Couldn't load surface '%s'\n", img.c_str());
 		return NULL;

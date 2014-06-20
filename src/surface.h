@@ -41,7 +41,7 @@ public:
 	static Surface *openOutputSurface(int width, int height, int bitsperpixel);
 	static Surface *emptySurface(int width, int height);
 	static Surface *loadImage(const std::string &img,
-			const std::string &skin="");
+			const std::string &skin="", bool loadAlpha=true);
 
 	Surface(Surface *s);
 	~Surface();

@@ -39,12 +39,11 @@ public:
 				HAlign halign = HAlignLeft, VAlign valign = VAlignTop);
 
 private:
-	Font(TTF_Font *font);
-
 	void writeLine(Surface *surface, const char *text,
 				int x, int y, HAlign halign, VAlign valign);
 
-	TTF_Font *font;
+	TTF_Font *mainFont;
+	TTF_Font *outlineFont;
 	unsigned int fontheight;
 };
 

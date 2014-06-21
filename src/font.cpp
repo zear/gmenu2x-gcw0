@@ -21,7 +21,7 @@ Font *Font::defaultFont()
 
 Font::Font(const std::string &path, unsigned int size)
 {
-	font = nullptr;
+	mainFont = outlineFont = nullptr;
 	fontheight = 1;
 
 	/* Note: TTF_Init and TTF_Quit perform reference counting, so call them
@@ -31,29 +31,40 @@ Font::Font(const std::string &path, unsigned int size)
 		return;
 	}
 
-	font = TTF_OpenFont(path.c_str(), size);
-	if (!font) {
+	mainFont = TTF_OpenFont(path.c_str(), size);
+	if (!mainFont) {
 		ERROR("Unable to open font\n");
 		TTF_Quit();
 		return;
 	}
 
-	fontheight = TTF_FontHeight(font);
+	outlineFont = TTF_OpenFont(path.c_str(), size);
+	if (!outlineFont) {
+		ERROR("Unable to open font\n");
+		TTF_CloseFont(mainFont);
+		mainFont = nullptr;
+		TTF_Quit();
+		return;
+	}
+
+	fontheight = TTF_FontHeight(mainFont);
+	TTF_SetFontOutline(outlineFont, 1);
 }
 
 Font::~Font()
 {
-	if (font) {
-		TTF_CloseFont(font);
+	if (mainFont) {
+		TTF_CloseFont(mainFont);
+		TTF_CloseFont(outlineFont);
 		TTF_Quit();
 	}
 }
 
 int Font::getTextWidth(const char *text)
 {
-	if (font) {
+	if (mainFont) {
 		int w, h;
-		TTF_SizeUTF8(font, text, &w, &h);
+		TTF_SizeUTF8(mainFont, text, &w, &h);
 		return w;
 	}
 	else return 1;
@@ -62,7 +73,7 @@ int Font::getTextWidth(const char *text)
 void Font::write(Surface *surface, const string &text,
 			int x, int y, HAlign halign, VAlign valign)
 {
-	if (!font) {
+	if (!mainFont) {
 		return;
 	}
 
@@ -83,7 +94,7 @@ void Font::write(Surface *surface, const string &text,
 void Font::writeLine(Surface *surface, const char *text,
 				int x, int y, HAlign halign, VAlign valign)
 {
-	if (!font) {
+	if (!mainFont) {
 		return;
 	}
 
@@ -110,33 +121,18 @@ void Font::writeLine(Surface *surface, const char *text,
 	}
 
 	SDL_Color color = { 0, 0, 0, 0 };
-	SDL_Surface *s = TTF_RenderUTF8_Blended(font, text, color);
+	SDL_Surface *s = TTF_RenderUTF8_Blended(outlineFont, text, color);
 
-	SDL_Rect rect = { (Sint16) x, (Sint16) (y - 1), 0, 0 };
-	SDL_BlitSurface(s, NULL, surface->raw, &rect);
-
-	/* Note: rect.x / rect.y are reset everytime because SDL_BlitSurface
-	 * will modify them if negative */
-	rect.x = x;
-	rect.y = y + 1;
-	SDL_BlitSurface(s, NULL, surface->raw, &rect);
-
-	rect.x = x - 1;
-	rect.y = y;
-	SDL_BlitSurface(s, NULL, surface->raw, &rect);
-
-	rect.x = x + 1;
-	rect.y = y;
+	SDL_Rect rect = { (Sint16) (x - 1), (Sint16) (y - 1), 0, 0 };
 	SDL_BlitSurface(s, NULL, surface->raw, &rect);
 	SDL_FreeSurface(s);
 
+	color.r = color.g = color.b = 255;
+	/* Note: rect.x / rect.y are reset everytime because SDL_BlitSurface
+	 * will modify them if negative */
 	rect.x = x;
 	rect.y = y;
-	color.r = 0xff;
-	color.g = 0xff;
-	color.b = 0xff;
-
-	s = TTF_RenderUTF8_Blended(font, text, color);
+	s = TTF_RenderUTF8_Blended(mainFont, text, color);
 	SDL_BlitSurface(s, NULL, surface->raw, &rect);
 	SDL_FreeSurface(s);
 }

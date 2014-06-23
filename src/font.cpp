@@ -128,6 +128,22 @@ void Font::writeLine(Surface *surface, const char *text,
 	rect.x = x + 1;
 	rect.y = y;
 	SDL_BlitSurface(s, NULL, surface->raw, &rect);
+
+	rect.x = x - 1;
+	rect.y = y - 1;
+	SDL_BlitSurface(s, NULL, surface->raw, &rect);
+
+	rect.x = x - 1;
+	rect.y = y + 1;
+	SDL_BlitSurface(s, NULL, surface->raw, &rect);
+
+	rect.x = x + 1;
+	rect.y = y - 1;
+	SDL_BlitSurface(s, NULL, surface->raw, &rect);
+
+	rect.x = x + 1;
+	rect.y = y + 1;
+	SDL_BlitSurface(s, NULL, surface->raw, &rect);
 	SDL_FreeSurface(s);
 
 	rect.x = x;

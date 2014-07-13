@@ -24,7 +24,7 @@ static void __readFromOpk(png_structp png_ptr, png_bytep ptr, png_size_t length)
 }
 #endif
 
-SDL_Surface *loadPNG(const std::string &path) {
+SDL_Surface *loadPNG(const std::string &path, bool loadAlpha) {
 	// Declare these with function scope and initialize them to NULL,
 	// so we can use a single cleanup block at the end of the function.
 	SDL_Surface *surface = NULL;
@@ -134,10 +134,10 @@ SDL_Surface *loadPNG(const std::string &path) {
 		goto cleanup;
 	}
 
-	// Allocate ARGB surface to hold the image.
+	// Allocate [A]RGB surface to hold the image.
 	surface = SDL_CreateRGBSurface(
 		SDL_SWSURFACE | SDL_SRCALPHA, width, height, 32,
-		0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000
+		0x00FF0000, 0x0000FF00, 0x000000FF, loadAlpha ? 0xFF000000 : 0x00000000
 		);
 	if (!surface) {
 		// Failed to create surface, probably out of memory.

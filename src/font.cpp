@@ -87,17 +87,6 @@ void Font::writeLine(Surface *surface, const char *text,
 		return;
 	}
 
-	switch (halign) {
-	case HAlignLeft:
-		break;
-	case HAlignCenter:
-		x -= getTextWidth(text) / 2;
-		break;
-	case HAlignRight:
-		x -= getTextWidth(text);
-		break;
-	}
-
 	switch (valign) {
 	case VAlignTop:
 		break;
@@ -111,6 +100,21 @@ void Font::writeLine(Surface *surface, const char *text,
 
 	SDL_Color color = { 0, 0, 0, 0 };
 	SDL_Surface *s = TTF_RenderUTF8_Blended(font, text, color);
+	if (!s) {
+		ERROR("Font rendering failed for text \"%s\"\n", text);
+		return;
+	}
+
+	switch (halign) {
+	case HAlignLeft:
+		break;
+	case HAlignCenter:
+		x -= s->w / 2;
+		break;
+	case HAlignRight:
+		x -= s->w;
+		break;
+	}
 
 	SDL_Rect rect = { (Sint16) x, (Sint16) (y - 1), 0, 0 };
 	SDL_BlitSurface(s, NULL, surface->raw, &rect);
@@ -137,6 +141,10 @@ void Font::writeLine(Surface *surface, const char *text,
 	color.b = 0xff;
 
 	s = TTF_RenderUTF8_Blended(font, text, color);
+	if (!s) {
+		ERROR("Font rendering failed for text \"%s\"\n", text);
+		return;
+	}
 	SDL_BlitSurface(s, NULL, surface->raw, &rect);
 	SDL_FreeSurface(s);
 }

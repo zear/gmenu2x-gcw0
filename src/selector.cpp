@@ -230,10 +230,11 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	screens->resize(fl->getFiles().size());
 	titles->resize(fl->getFiles().size());
 
-	string screendir = link->getSelectorScreens();
+	string screendir = dir;
 	if (!screendir.empty() && screendir[screendir.length() - 1] != '/') {
 		screendir += "/";
 	}
+	screendir += "previews/";
 
 	string noext;
 	string::size_type pos;

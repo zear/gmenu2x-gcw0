@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 
+#include "gmenu2x.h"
 #include "inputmanager.h"
 
 class case_less {
@@ -42,7 +43,7 @@ bool rmtree(std::string path);
 int constrain(int x, int imin, int imax);
 
 int evalIntConf(int val, int def, int imin, int imax);
-int evalIntConf(int *val, int def, int imin, int imax);
+int evalIntConf(ConfIntHash& hash, const std::string &key, int def, int imin, int imax);
 
 bool split(std::vector<std::string> &vec, const std::string &str,
 		const std::string &delim, bool destructive=true);

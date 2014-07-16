@@ -108,9 +108,14 @@ int evalIntConf (int val, int def, int imin, int imax) {
 	val = constrain(val, imin, imax);
 	return val;
 }
-int evalIntConf (int *val, int def, int imin, int imax) {
-	*val = evalIntConf(*val, def, imin, imax);
-	return *val;
+int evalIntConf (ConfIntHash& hash, const std::string &key, int def, int imin, int imax) {
+	if (hash.find(key) == hash.end()) {
+		hash[key] = def;
+		return def;
+	} else {
+		hash[key] = constrain(hash[key], imin, imax);
+		return hash[key];
+	}
 }
 
 bool split (vector<string> &vec, const string &str, const string &delim, bool destructive) {

@@ -490,15 +490,15 @@ void GMenu2X::readConfig(string conffile) {
 	if (confStr["skin"].empty() || SurfaceCollection::getSkinPath(confStr["skin"]).empty())
 		confStr["skin"] = "Default";
 
-	evalIntConf( &confInt["outputLogs"], 0, 0,1 );
+	evalIntConf( confInt, "outputLogs", 0, 0,1 );
 #ifdef ENABLE_CPUFREQ
-	evalIntConf( &confInt["maxClock"],
+	evalIntConf( confInt, "maxClock",
 				 cpuFreqSafeMax, cpuFreqMin, cpuFreqMax );
-	evalIntConf( &confInt["menuClock"],
+	evalIntConf( confInt, "menuClock",
 				 cpuFreqMenuDefault, cpuFreqMin, cpuFreqSafeMax );
 #endif
-	evalIntConf( &confInt["backlightTimeout"], 15, 0,120 );
-	evalIntConf( &confInt["videoBpp"], 32, 16, 32 );
+	evalIntConf( confInt, "backlightTimeout", 15, 0,120 );
+	evalIntConf( confInt, "videoBpp", 32, 16, 32 );
 
 	if (confStr["tvoutEncoding"] != "PAL") confStr["tvoutEncoding"] = "NTSC";
 	resX = constrain( confInt["resolutionX"], 320,1920 );
@@ -853,10 +853,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 		}
 	}
 
-	evalIntConf(&skinConfInt["topBarHeight"], 50, 32, 120);
-	evalIntConf(&skinConfInt["bottomBarHeight"], 20, 20, 120);
-	evalIntConf(&skinConfInt["linkHeight"], 50, 32, 120);
-	evalIntConf(&skinConfInt["linkWidth"], 80, 32, 120);
+	evalIntConf(skinConfInt, "topBarHeight", 50, 32, 120);
+	evalIntConf(skinConfInt, "bottomBarHeight", 20, 20, 120);
+	evalIntConf(skinConfInt, "linkHeight", 50, 32, 120);
+	evalIntConf(skinConfInt, "linkWidth", 80, 32, 120);
 
 	if (menu != NULL) menu->skinUpdated();
 

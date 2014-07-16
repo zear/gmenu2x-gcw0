@@ -103,6 +103,15 @@ void Link::setDescription(const string &description) {
 	edited = true;
 }
 
+const string &Link::getLaunchMsg() {
+	return launchMsg;
+}
+
+void Link::setLaunchMsg(const string &launchMsg) {
+	this->launchMsg = launchMsg;
+	edited = true;
+}
+
 const string &Link::getIcon() {
 	return icon;
 }

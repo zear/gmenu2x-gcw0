@@ -26,7 +26,6 @@
 #include <vector>
 
 #define INPUT_KEY_REPEAT_DELAY 250
-#define INPUT_KEY_REPEAT_RATE   40
 
 class Menu;
 
@@ -45,6 +44,7 @@ struct Joystick {
 	bool axisState[2][2];
 	Uint8 hatState;
 	SDL_TimerID timer;
+	int *buttonRepeatRate;
 };
 #endif
 
@@ -62,8 +62,9 @@ public:
 	InputManager();
 	~InputManager();
 
-	void init(const std::string &conffile, Menu *menu);
+	void init(int *buttonRepeatRate, const std::string &conffile, Menu *menu);
 	Button waitForPressedButton();
+	void repeatRateChanged();
 	bool pollButton(Button *button);
 	bool getButton(Button *button, bool wait);
 
@@ -75,6 +76,7 @@ private:
 		unsigned int kb_code, js_code;
 	};
 
+	int *buttonRepeatRate;
 	Menu *menu;
 
 	ButtonMapEntry buttonMap[BUTTON_TYPE_SIZE];

@@ -265,12 +265,10 @@ GMenu2X::GMenu2X()
 		DEBUG("Loading system input.conf file: %s.\n", input_file.c_str());
 	}
 
-	input.init(input_file, menu.get());
+	input.init(&confInt["buttonRepeatRate"], input_file, menu.get());
 
 	if (confInt["backlightTimeout"] > 0)
         PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );
-
-	SDL_EnableKeyRepeat(INPUT_KEY_REPEAT_DELAY, INPUT_KEY_REPEAT_RATE);
 #ifdef ENABLE_CPUFREQ
 	setClock(confInt["menuClock"]);
 #endif
@@ -498,6 +496,7 @@ void GMenu2X::readConfig(string conffile) {
 				 cpuFreqMenuDefault, cpuFreqMin, cpuFreqSafeMax );
 #endif
 	evalIntConf( confInt, "backlightTimeout", 15, 0,120 );
+	evalIntConf( confInt, "buttonRepeatRate", 10, 0, 20 );
 	evalIntConf( confInt, "videoBpp", 32, 16, 32 );
 
 	if (confStr["tvoutEncoding"] != "PAL") confStr["tvoutEncoding"] = "NTSC";
@@ -739,6 +738,7 @@ void GMenu2X::showSettings() {
 	sd.addSetting(new MenuSettingInt(this, ts, tr["Screen Timeout"], tr["Set screen's backlight timeout in seconds"], &confInt["backlightTimeout"], 0, 120));
 //	sd.addSetting(new MenuSettingMultiString(this, ts, tr["Tv-Out encoding"], tr["Encoding of the tv-out signal"], &confStr["tvoutEncoding"], &encodings));
 	sd.addSetting(new MenuSettingBool(this, ts, tr["Show root"], tr["Show root folder in the file selection dialogs"], &showRootFolder));
+	sd.addSetting(new MenuSettingInt(this, ts, tr["Button repeat rate"], tr["Set button repetitions per second"], &confInt["buttonRepeatRate"], 0, 20));
 
 	if (sd.exec() && sd.edited()) {
 #ifdef ENABLE_CPUFREQ
@@ -751,6 +751,8 @@ void GMenu2X::showSettings() {
 		} else {
 			PowerSaver::getInstance()->setScreenTimeout( confInt["backlightTimeout"] );
 		}
+
+		input.repeatRateChanged();
 
 		if (lang == "English") lang = "";
 		if (lang != tr.lang()) {

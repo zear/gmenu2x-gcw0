@@ -29,8 +29,17 @@
 
 using namespace std;
 
-void InputManager::init(const string &conffile, Menu *menu) {
+void InputManager::init(int *buttonRepeatRate, const string &conffile, Menu *menu) {
+	this->buttonRepeatRate = buttonRepeatRate;
 	this->menu = menu;
+
+	/* HACK: The joystick virtual autorepeat timer is a C function, so it
+	 * won't have access to this object. Pass the reference to the repeat
+	 * rate setting in all Joystick structures. */
+	for (int i = 0; i < joysticks.size(); i++)
+		joysticks[i].buttonRepeatRate = buttonRepeatRate;
+
+	repeatRateChanged();
 
 	for (int i = 0; i < BUTTON_TYPE_SIZE; i++) {
 		buttonMap[i].js_mapped = false;
@@ -52,7 +61,7 @@ InputManager::InputManager()
 	for (i = 0; i < SDL_NumJoysticks(); i++) {
 		struct Joystick joystick = {
 			SDL_JoystickOpen(i), false, false, false, false,
-			SDL_HAT_CENTERED, nullptr,
+			SDL_HAT_CENTERED, nullptr, nullptr,
 		};
 		joysticks.push_back(joystick);
 	}
@@ -125,6 +134,22 @@ InputManager::Button InputManager::waitForPressedButton() {
 	Button button;
 	while (!getButton(&button, true));
 	return button;
+}
+
+static int repeatRateMs(int repeatRate)
+{
+	int result = repeatRate;
+	if (result != 0)
+		result = 1000 / result;
+	return result;
+}
+
+void InputManager::repeatRateChanged() {
+	int ms = repeatRateMs(*buttonRepeatRate);
+	if (ms == 0)
+		SDL_EnableKeyRepeat(0, 0);
+	else
+		SDL_EnableKeyRepeat(INPUT_KEY_REPEAT_DELAY, ms);
 }
 
 bool InputManager::pollButton(Button *button) {
@@ -300,7 +325,7 @@ Uint32 keyRepeatCallback(Uint32 timeout __attribute__((unused)), void *d)
 	};
 	SDL_PushEvent((SDL_Event *) &e);
 
-	return INPUT_KEY_REPEAT_RATE;
+	return repeatRateMs(*(joystick->buttonRepeatRate));
 }
 
 void InputManager::startTimer(Joystick *joystick)

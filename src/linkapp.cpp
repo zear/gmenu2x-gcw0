@@ -126,11 +126,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, const char* linkfile)
 								gmenu2x->tr["Lng"] + "]").c_str(), lkey)) {
 				description = buf;
 
-			} else if ((!strncmp(key, "X-OD-LaunchMsg", lkey) && launchMsg.empty())
-						|| !strncmp(key, ("X-OD-LaunchMsg[" + gmenu2x->tr["Lng"] +
-								"]").c_str(), lkey)) {
-				launchMsg = buf;
-
 #if defined(PLATFORM_A320) || defined(PLATFORM_GCW0)
 			} else if (!strncmp(key, "Terminal", lkey)) {
 				consoleApp = !strncmp(val, "true", lval);
@@ -348,16 +343,10 @@ void LinkApp::drawRun() {
 	//Darkened background
 	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,150);
 
-	string text;
+	string text = getLaunchMsg().empty()
+		? gmenu2x->tr.translate("Launching $1", getTitle().c_str(), nullptr)
+		: gmenu2x->tr.translate(getLaunchMsg().c_str(), nullptr);
 
-	if(!getLaunchMsg().empty())
-	{
-		text = gmenu2x->tr.translate("$1",getLaunchMsg().c_str(),NULL);
-	}
-	else
-	{
-		text = gmenu2x->tr.translate("Launching $1",getTitle().c_str(),NULL);
-	}
 	int textW = gmenu2x->font->getTextWidth(text);
 	int boxW = 62+textW;
 	int halfBoxW = boxW/2;
